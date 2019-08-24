@@ -1,0 +1,17 @@
+{
+  "name": "spiders",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "puppeteer": "^1.19.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "juejin": "node juejin/juejin_spider.js",
+    "segmentfault": "node segmentfault/segmentfault_spider.js",
+    "csdn": "node csdn/csdn_spider.js"
+  },
+  "author": "",
+  "license": "ISC"
+}

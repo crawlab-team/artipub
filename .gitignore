@@ -1,0 +1,6 @@
+dist/js
+node_modules
+logs/
+.idea/
+tmp/
+.cred

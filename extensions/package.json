@@ -1,0 +1,41 @@
+{
+  "name": "chrome-extension-react-typescript-boilerplate",
+  "version": "1.0.0",
+  "description": "A boilerplate project to quickly build a Chrome extension using TypeScript and React (built using webpack).",
+  "scripts": {
+    "dev": "webpack-dev-server --config webpack.dev.js --content-base ./dist",
+    "build:dev": "webpack --config webpack.dev.js",
+    "build:prod": "webpack --config webpack.prod.js",
+    "watch": "webpack -w --config webpack.dev.js",
+    "lint": "tslint 'src/**/*.{ts, tsx}'"
+  },
+  "author": "Joe Martella",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/chrome": "0.0.60",
+    "@types/react": "^16.9.1",
+    "@types/react-dom": "^16.8.5",
+    "css-loader": "^3.2.0",
+    "node-sass": "^4.12.0",
+    "sass-loader": "^6.0.7",
+    "style-loader": "^0.20.3",
+    "ts-loader": "^4.0.1",
+    "tslint-config-airbnb": "^5.11.1",
+    "tslint-react": "^3.6.0",
+    "typescript": "^3.5.3",
+    "webpack": "^4.1.1",
+    "webpack-cli": "^3.1.1",
+    "webpack-merge": "^4.1.4"
+  },
+  "dependencies": {
+    "@types/jest": "^24.0.17",
+    "@types/node": "^12.7.1",
+    "antd": "^3.21.4",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "react-markdown": "^4.1.0",
+    "react-markdown-editor-lite": "^0.4.2",
+    "ts-import-plugin": "^1.6.1",
+    "webpack-dev-server": "^3.8.0"
+  }
+}

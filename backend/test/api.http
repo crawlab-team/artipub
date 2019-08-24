@@ -1,0 +1,32 @@
+# For a quick start check out our HTTP Requests collection (Tools|HTTP Client|Open HTTP Requests Collection).
+#
+# Following HTTP Request Live Templates are available:
+# * 'gtrp' and 'gtr' create a GET request with or without query parameters;
+# * 'ptr' and 'ptrp' create a POST request with a simple or parameter-like body;
+# * 'mptr' and 'fptr' create a POST request to submit a form with a text or file field (multipart/form-data);
+PUT http://localhost:3000/articles
+Content-Type: application/json
+
+{
+  "title": "it works",
+  "content": "it works"
+}
+
+###
+
+POST http://localhost:3000/articles/5d563c54736d44efad4cbf60
+Content-Type: application/json
+
+{
+  "title": "爬虫平台Crawlab核心原理--分布式架构",
+  "content": "some content"
+}
+
+###
+
+DELETE http://localhost:3000/articles/5d563c69cb5204efc829a4e1
+Content-Type: application/json
+
+{}
+
+###

@@ -1,0 +1,176 @@
+@import '../../../node_modules/codemirror/lib/codemirror.css';
+@import '../../../node_modules/codemirror/theme/eclipse.css';
+
+.articleEdit {
+  height: 100%;
+}
+
+.main {
+  display: flex;
+  //min-height: 100vh;
+}
+
+.topBar {
+  display: flex;
+  height: 50px;
+  border: 1px solid #eee;
+}
+
+.title {
+  flex: 1 1 calc(100% - 100px);
+  height: 48px;
+  color: #000;
+  font-weight: 600;
+  font-size: 24px;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+
+  --antd-wave-shadow-color: none;
+}
+
+.title:hover,
+.title:focus {
+  border-color: #eee;
+  box-shadow: none;
+}
+
+.actions {
+  display: flex;
+  flex: 1 1 80px;
+  align-items: center;
+  padding: 10px;
+}
+
+.backBtn {
+  flex: 1 1 40px;
+  margin-right: 10px;
+}
+
+.saveBtn {
+  flex: 1 1 40px;
+}
+
+.editor {
+  display: flex;
+  flex-basis: 50%;
+  flex-direction: column;
+  height: 100%;
+  min-height: calc(100vh - 50px - 50px);
+  overflow-y: auto;
+  background-color: #f8f9fa;
+  border-right: 1px solid #eee;
+}
+
+.preview {
+  display: flex;
+  flex-basis: 50%;
+  flex-direction: column;
+  height: calc(100vh - 50px - 50px);
+}
+
+.footer {
+  position: relative;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  height: 50px;
+  border-top: 1px solid #eee;
+}
+
+.contentWrapper {
+  position: relative;
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+
+.codeMirror {
+  //height: 640px;
+  height: 100%;
+}
+
+article {
+  height: 100%;
+  padding: 20px;
+  overflow-y: auto;
+  line-height: 1.7;
+}
+
+h1 {
+  font-weight: bolder;
+  font-size: 32px;
+}
+
+h2 {
+  font-weight: bold;
+  font-size: 24px;
+}
+
+h3 {
+  font-weight: bold;
+  font-size: 20px;
+}
+
+h4 {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+h5 {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+h6 {
+  font-weight: bold;
+  font-size: 12px;
+}
+
+ul {
+  list-style: inherit;
+}
+
+ol {
+  list-style: decimal;
+}
+
+pre {
+  overflow-x: auto;
+  color: #333;
+  font-family: Monaco, Consolas, Courier New, monospace;
+  background: #f8f8f8;
+}
+
+img {
+  max-width: 100%;
+  margin: 10px 0;
+}
+
+table {
+  max-width: 100%;
+  overflow: auto;
+  font-size: 14px;
+  border: 1px solid #f6f6f6;
+  border-collapse: collapse;
+  border-spacing: 0;
+
+  thead {
+    color: #000;
+    text-align: left;
+    background: #f6f6f6;
+  }
+}
+
+td,
+th {
+  min-width: 80px;
+  padding: 10px;
+}
+
+tbody tr:nth-of-type(odd) {
+  background: #fcfcfc;
+}
+
+tbody tr:nth-of-type(even) {
+  background: #f6f6f6;
+}
