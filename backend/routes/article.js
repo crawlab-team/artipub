@@ -20,6 +20,8 @@ module.exports = {
         let article = new models.Article({
             title: req.body.title,
             content: req.body.content,
+            createTs: new Date(),
+            updateTs: new Date(),
         })
         article = await article.save()
         res.json({
@@ -35,9 +37,9 @@ module.exports = {
                 error: 'not found'
             }, 404)
         }
-        console.log(article)
         article.title = req.body.title
         article.content = req.body.content
+        article.updateTs = new Date()
         article = await article.save()
         res.json({
             status: 'ok',

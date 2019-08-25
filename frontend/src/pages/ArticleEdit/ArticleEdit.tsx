@@ -13,6 +13,7 @@ import showdown from 'showdown';
 // 引入codemirror样式
 import style from './ArticleEdit.scss';
 import 'codemirror/mode/markdown/markdown';
+import {router} from "umi";
 
 showdown.setOption('tables', true);
 showdown.setOption('tasklists', true);
@@ -26,22 +27,31 @@ export interface ArticleEditProps extends ConnectProps {
 const ArticleEdit: React.FC<ArticleEditProps> = props => {
   const {dispatch, article} = props;
 
+  const isEdit = (): Boolean => {
+    return !!location.pathname.match(/edit/) || (!!article.currentArticle && !!article.currentArticle._id);
+  };
+
   useEffect(() => {
     if (dispatch) {
-      const arr = location.pathname.split('/');
-      dispatch({
-        type: 'article/fetchArticle',
-        payload: {
-          id: arr[arr.length - 1]
-        }
-      });
+      if (isEdit()) {
+        // 如果为编辑文章
+        const arr = location.pathname.split('/');
+        dispatch({
+          type: 'article/fetchArticle',
+          payload: {
+            id: arr[arr.length - 1]
+          }
+        });
+      } else {
+        // 如果为新增文章
+      }
     }
   }, []);
 
-  // markdown to html转换器
-  const converter = new showdown.Converter();
-
+  // 更新标题
   const onTitleChange: ChangeEventHandler<HTMLInputElement> = ev => {
+    // console.log(article.currentArticle);
+    // console.log(ev.target.value);
     if (dispatch) {
       dispatch({
         type: 'article/setArticleTitle',
@@ -52,14 +62,7 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
     }
   };
 
-  // 更新预览HTML
-  const updatePreview = () => {
-    if (!article || !article.currentArticle) return;
-    const $el = document.getElementById('content');
-    if (!$el) return;
-    $el.innerHTML = converter.makeHtml(article.currentArticle.content);
-  };
-
+  // 更新内容
   const onContentChange = (editor: Editor, data: EditorChange, value: string) => {
     if (dispatch) {
       dispatch({
@@ -72,6 +75,17 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
         updatePreview();
       }, 0);
     }
+  };
+
+  // markdown to html转换器
+  const converter = new showdown.Converter();
+
+  // 更新预览HTML
+  const updatePreview = () => {
+    if (!article || !article.currentArticle) return;
+    const $el = document.getElementById('content');
+    if (!$el) return;
+    $el.innerHTML = converter.makeHtml(article.currentArticle.content);
   };
 
   // 调整CodeMirror高度
@@ -87,104 +101,114 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
     updatePreview();
   }, 100);
 
-  // 监听左右侧上下滑动
+  // 监听左侧Markdown编辑上下滑动
   const onEditorScroll = (editor: Editor, scrollInfo: ScrollInfo) => {
     const $el = document.querySelector('#content') as HTMLDivElement;
     if (!$el) return;
-    // if (scrollInfo.top >= scrollInfo.height - scrollInfo.clientHeight) {
-    //   // $el.scrollTo(0, $el.scrollHeight);
-    //   $el.scrollTo(0, Math.round(scrollInfo.top / scrollInfo.height * $el.scrollHeight));
-    // } else {
     $el.scrollTo(0, Math.round(scrollInfo.top / scrollInfo.height * ($el.scrollHeight + $el.clientHeight)));
-    // }
   };
 
+  // 监听预览上下滑动
   const onPreviewScroll = (ev: any) => {
-    console.log(ev.target.scrollTop);
   };
 
+  // 点击保存
   const onSave = () => {
     if (dispatch) {
-      dispatch({
-        type: 'article/saveCurrentArticle',
-        payload: article.currentArticle,
-      })
-        .then(() => {
-          message.success('文章保存成功');
+      if (isEdit()) {
+        // 如果为编辑文章
+        dispatch({
+          type: 'article/saveCurrentArticle',
+          payload: article.currentArticle,
         })
+          .then(() => {
+            message.success('文章保存成功');
+          })
+      } else {
+        console.log(article.currentArticle);
+        // 如果为创建文章
+        dispatch({
+          type: 'article/newArticle',
+          payload: article.currentArticle,
+        })
+          .then(() => {
+            message.success('文章保存成功');
+          })
+      }
     }
+  };
+
+  // 点击返回
+  const onBack = () => {
+    router.push('/articles')
   };
 
   return (
     <BlankLayout>
-      {article.currentArticle ?
-        (
-          <div className={style.articleEdit}>
-            {/*标题*/}
-            <div className={style.topBar}>
-              <Input
-                className={style.title}
-                placeholder="文章标题"
-                value={article.currentArticle.title}
-                onChange={onTitleChange}
-              />
-              <div className={style.actions}>
-                <Button
-                  className={style.backBtn}
-                  type="default"
-                >
-                  返回
-                </Button>
-                <Button
-                  className={style.saveBtn}
-                  type="primary"
-                  onClick={onSave}
-                >
-                  保存
-                </Button>
-              </div>
+      <div className={style.articleEdit}>
+        {/*标题*/}
+        <div className={style.topBar}>
+          <Input
+            className={style.title}
+            placeholder="文章标题"
+            value={article.currentArticle ? article.currentArticle.title : ''}
+            onChange={onTitleChange}
+          />
+          <div className={style.actions}>
+            <Button
+              className={style.backBtn}
+              type="default"
+              onClick={onBack}
+            >
+              返回
+            </Button>
+            <Button
+              className={style.saveBtn}
+              type="primary"
+              onClick={onSave}
+            >
+              保存
+            </Button>
+          </div>
+        </div>
+
+        {/*主要内容*/}
+        <div className={style.main}>
+          {/*左侧Markdown编辑器*/}
+          <div className={style.editor}>
+            <CodeMirror
+              className={style.codeMirror}
+              value={article.currentArticle ? article.currentArticle.content : ''}
+              options={{
+                mode: 'markdown',
+                theme: 'eclipse',
+                lineNumbers: true,
+                smartIndent: true,
+                lineWrapping: true,
+              }}
+              onBeforeChange={onContentChange}
+              onScroll={onEditorScroll}
+            />
+            <div className={style.footer}>
+              <label style={{marginLeft: 20}}>Markdown编辑器</label>
             </div>
+          </div>
 
-            {/*主要内容*/}
-            <div className={style.main}>
-              {/*左侧Markdown编辑器*/}
-              <div className={style.editor}>
-                <CodeMirror
-                  className={style.codeMirror}
-                  value={article.currentArticle.content}
-                  options={{
-                    mode: 'markdown',
-                    theme: 'eclipse',
-                    lineNumbers: true,
-                    smartIndent: true,
-                    lineWrapping: true,
-                  }}
-                  onBeforeChange={onContentChange}
-                  onScroll={onEditorScroll}
-                />
-                <div className={style.footer}>
-                  <label style={{marginLeft: 20}}>Markdown编辑器</label>
-                </div>
-              </div>
-
-              {/*右侧HTML预览*/}
-              <div id="preview" className={style.preview}>
-                <div className={style.contentWrapper}>
-                  <article
-                    id="content"
-                    className={style.content}
-                    onScroll={onPreviewScroll}
-                  />
-                  <div className={style.footer}>
-                    <label style={{marginLeft: 20}}>预览</label>
-                  </div>
-                </div>
+          {/*右侧HTML预览*/}
+          <div id="preview" className={style.preview}>
+            <div className={style.contentWrapper}>
+              <article
+                id="content"
+                className={style.content}
+                onScroll={onPreviewScroll}
+              />
+              <div className={style.footer}>
+                <label style={{marginLeft: 20}}>预览</label>
               </div>
             </div>
           </div>
-        )
-        : 'NA'
-      }
+        </div>
+      </div>
     </BlankLayout>
   );
 };

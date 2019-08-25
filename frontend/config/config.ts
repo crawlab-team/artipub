@@ -94,6 +94,14 @@ export default {
       component: './ArticleEdit/ArticleEdit'
     },
     {
+      path: '/articles/new',
+      name: 'article-new',
+      authority: ['admin', 'user'],
+      icon: 'read',
+      hideInMenu: true,
+      component: './ArticleEdit/ArticleEdit'
+    },
+    {
       path: '/demo',
       name: 'demo',
       authority: ['admin', 'user'],

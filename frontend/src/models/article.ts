@@ -1,11 +1,11 @@
 import {Effect} from 'dva';
 // import { Reducer } from 'redux';
 
-import {queryArticle, queryArticles, saveArticle} from '@/services/article';
+import {addArticle, deleteArticle, queryArticle, queryArticles, saveArticle} from '@/services/article';
 import {Reducer} from "redux";
 
 export interface Article {
-  _id: string;
+  _id?: string;
   title: string;
   content: string;
 }
@@ -22,9 +22,12 @@ export interface ArticleModelType {
   effects: {
     fetchArticleList: Effect;
     fetchArticle: Effect;
+    newArticle: Effect;
+    resetArticle: Effect;
     setArticleTitle: Effect;
     setArticleContent: Effect;
     saveCurrentArticle: Effect;
+    deleteArticle: Effect;
   };
   reducers: {
     saveArticle: Reducer<ArticleModelState>;
@@ -40,7 +43,7 @@ const ArticleModel: ArticleModelType = {
   state: {
     articles: [],
     currentArticleId: undefined,
-    currentArticle: undefined,
+    currentArticle: {title: '', content: ''},
   },
 
   effects: {
@@ -60,20 +63,49 @@ const ArticleModel: ArticleModelType = {
       });
     },
 
+    * newArticle(action, {call, put}) {
+      const response = yield call(addArticle, action.payload);
+      yield put({
+        type: 'saveArticle',
+        payload: response.data
+      });
+    },
+
+    * resetArticle(_, {put}) {
+      yield put({
+        type: 'saveArticle',
+        payload: {title: '', content: ''}
+      });
+    },
+
     * setArticleTitle(action, {put}) {
       yield put({
         type: 'saveArticleTitle',
-        payload: action.payload
+        payload: action.payload,
       })
     },
+
     * setArticleContent(action, {put}) {
       yield put({
         type: 'saveArticleContent',
-        payload: action.payload
+        payload: action.payload,
       })
     },
-    * saveCurrentArticle(action, {state, call}) {
-      yield call(saveArticle, action.payload);
+
+    * saveCurrentArticle(action, {call, put}) {
+      if (action.payload._id) {
+        yield call(saveArticle, action.payload);
+      } else {
+        const response = yield call(saveArticle, action.payload);
+        yield put({
+          type: 'saveArticle',
+          payload: response.data,
+        })
+      }
+    },
+
+    * deleteArticle(action, {call}) {
+      yield call(deleteArticle, action.payload);
     }
   },
 
