@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "puppeteer": "^1.19.0"
+    "mongoose": "^5.6.11",
+    "puppeteer": "^1.19.0",
+    "puppeteer-chromium-resolver": "^2.0.1"
   },
   "devDependencies": {},
   "scripts": {

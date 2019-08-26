@@ -1,4 +1,5 @@
 const puppeteer = require('puppeteer');
+const credentials = require('../credentials.json').segmentfault;
 
 (async () => {
     const browser = await (puppeteer.launch({
@@ -13,10 +14,6 @@ const puppeteer = require('puppeteer');
         // 关闭headless模式, 不会打开浏览器
         headless: false
     }))
-
-    // 验证信息
-    const credentials = {
-    }
 
     // 新起一个页面
     const page = await browser.newPage()

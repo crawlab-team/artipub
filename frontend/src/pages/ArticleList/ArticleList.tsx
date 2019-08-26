@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import {PageHeaderWrapper} from '@ant-design/pro-layout';
-import {Button, Popconfirm, Table} from "antd";
+import {Button, Modal, Popconfirm, Table} from "antd";
 import {Article, ArticleModelState} from "@/models/article";
 import {ConnectProps, ConnectState, Dispatch} from "@/models/connect";
 import {connect} from "dva";
@@ -18,7 +18,7 @@ export interface ArticleListProps extends ConnectProps {
 const ArticleList: React.FC<ArticleListProps> = props => {
   const {dispatch, article} = props;
 
-  const onView: Function = (d: Article) => {
+  const onEdit: Function = (d: Article) => {
     return () => {
       router.push(`/articles/edit/${d._id}`);
     }
@@ -46,6 +46,26 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       });
     }
     router.push('/articles/new')
+  };
+
+  const onPublishPopup: Function = () => {
+    return () => {
+      if (dispatch) {
+        dispatch({
+          type: 'article/setPubModalVisible',
+          payload: true,
+        })
+      }
+    }
+  };
+
+  const onPubModalCancel = () => {
+    if (dispatch) {
+      dispatch({
+        type: 'article/setPubModalVisible',
+        payload: false,
+      })
+    }
   };
 
   const columns: ColumnProps<any>[] = [
@@ -76,11 +96,10 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       render: (text, d) => {
         return (
           <div>
-            <Button type="default" shape="circle" icon="edit" onClick={onView(d)}
-                    style={{marginLeft: '10px', background: 'orange', color: 'white'}}/>
+            <Button type="primary" shape="circle" icon="cloud" className={style.pubBtn} onClick={onPublishPopup(d)}/>
+            <Button type="default" shape="circle" icon="edit" className={style.editBtn} onClick={onEdit(d)}/>
             <Popconfirm title="您确认删除该文章吗？" onConfirm={onDelete(d)}>
-              <Button type="danger" shape="circle" icon="delete"
-                      style={{marginLeft: '10px'}}/>
+              <Button type="danger" shape="circle" icon="delete" className={style.delBtn}/>
             </Popconfirm>
           </div>
         )
@@ -98,6 +117,9 @@ const ArticleList: React.FC<ArticleListProps> = props => {
 
   return (
     <PageHeaderWrapper>
+      <Modal title="发布文章" visible={article.pubModalVisible} onCancel={onPubModalCancel}>
+        it works
+      </Modal>
       <div className={style.actions}>
         <Button className={style.addBtn} type="primary" onClick={onNew}>创建文章</Button>
       </div>

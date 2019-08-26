@@ -12,8 +12,9 @@ export interface Article {
 
 export interface ArticleModelState {
   articles?: Article[];
-  currentArticleId?: string,
+  currentArticleId?: string;
   currentArticle?: Article;
+  pubModalVisible?: boolean;
 }
 
 export interface ArticleModelType {
@@ -28,12 +29,14 @@ export interface ArticleModelType {
     setArticleContent: Effect;
     saveCurrentArticle: Effect;
     deleteArticle: Effect;
+    setPubModalVisible: Effect;
   };
   reducers: {
     saveArticle: Reducer<ArticleModelState>;
     saveArticleList: Reducer<ArticleModelState>;
     saveArticleTitle: Reducer<ArticleModelState>;
     saveArticleContent: Reducer<ArticleModelState>;
+    savePubModalVisible: Reducer<ArticleModelState>;
   };
 }
 
@@ -44,6 +47,7 @@ const ArticleModel: ArticleModelType = {
     articles: [],
     currentArticleId: undefined,
     currentArticle: {title: '', content: ''},
+    pubModalVisible: false,
   },
 
   effects: {
@@ -106,6 +110,13 @@ const ArticleModel: ArticleModelType = {
 
     * deleteArticle(action, {call}) {
       yield call(deleteArticle, action.payload);
+    },
+
+    * setPubModalVisible(action, {put}) {
+      yield put({
+        type: 'savePubModalVisible',
+        payload: action.payload,
+      })
     }
   },
 
@@ -138,6 +149,12 @@ const ArticleModel: ArticleModelType = {
       return {
         ...state,
         currentArticle
+      }
+    },
+    savePubModalVisible(state, action) {
+      return {
+        ...state,
+        pubModalVisible: action.payload,
       }
     }
   },

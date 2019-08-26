@@ -1,9 +1,30 @@
-const puppeteer = require('puppeteer');
+const bson = require('bson')
+const PCR = require("puppeteer-chromium-resolver")
+const credentials = require('../credentials.json').juejin
+const Article = require('../models').Article
+const utils = require('../utils')
+const articleId = process.argv.splice(2)[0]
+utils.checkArticleId(articleId, __filename)
 
-(async () => {
-    const browser = await (puppeteer.launch({
-        // 若是手动下载的chromium需要指定chromium地址, 默认引用地址为 /项目目录/node_modules/puppeteer/.local-chromium/
-        // executablePath: '/Users/huqiyang/Documents/project/z/chromium/Chromium.app/Contents/MacOS/Chromium',
+const run = async () => {
+    // 获取当前文章
+    const article = await Article.findOne({ _id: bson.ObjectId(articleId) })
+    if (!article) {
+        process.exit(1)
+    }
+
+    const pcr = await PCR({
+        revision: "",
+        detectionPath: "",
+        folderName: '.chromium-browser-snapshots',
+        hosts: ["https://storage.googleapis.com", "https://npm.taobao.org/mirrors"],
+        retry: 3,
+        silent: false
+    })
+
+    // 获取浏览器
+    const browser = await (pcr.puppeteer.launch({
+        executablePath: pcr.executablePath,
         //设置超时时间
         timeout: 15000,
         //如果是访问https页面 此属性会忽略https错误
@@ -13,10 +34,6 @@ const puppeteer = require('puppeteer');
         // 关闭headless模式, 不会打开浏览器
         headless: false
     }))
-
-    // 验证信息
-    const credentials = {
-    }
 
     // 新起一个页面
     const page = await browser.newPage()
@@ -51,9 +68,16 @@ const puppeteer = require('puppeteer');
 
     // 输入内容
     const elTitle = await page.$('.title-input')
-    await elTitle.type('it works')
+    const elContent = await page.$('.ace_text-input')
+    await elTitle.type(article.title)
+    await elContent.type(article.content)
     await page.waitFor(3000)
 
-    browser.close()
-})()
+    // 关闭浏览器
+    await browser.close()
 
+    // 退出程序
+    process.exit()
+}
+
+(run)()
