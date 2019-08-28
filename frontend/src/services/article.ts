@@ -19,3 +19,7 @@ export async function addArticle(payload: any): Promise<any> {
 export async function deleteArticle(payload: any): Promise<any> {
   return request.delete(`/articles/${payload._id}`);
 }
+
+export async function publishArticle(payload: any): Promise<any> {
+  return request.post(`/articles/${payload._id}/publish`, {data: payload});
+}

@@ -1,7 +1,7 @@
 import {Effect} from 'dva';
 // import { Reducer } from 'redux';
 
-import {addArticle, deleteArticle, queryArticle, queryArticles, saveArticle} from '@/services/article';
+import {addArticle, deleteArticle, publishArticle, queryArticle, queryArticles, saveArticle} from '@/services/article';
 import {Reducer} from "redux";
 
 export interface Article {
@@ -10,11 +10,19 @@ export interface Article {
   content: string;
 }
 
+export interface Platform {
+  label: string;
+  name: string;
+  icon?: string;
+  checked?: boolean;
+}
+
 export interface ArticleModelState {
   articles?: Article[];
   currentArticleId?: string;
   currentArticle?: Article;
   pubModalVisible?: boolean;
+  platformList?: Platform[];
 }
 
 export interface ArticleModelType {
@@ -30,6 +38,9 @@ export interface ArticleModelType {
     saveCurrentArticle: Effect;
     deleteArticle: Effect;
     setPubModalVisible: Effect;
+    resetPlatform: Effect;
+    checkPlatform: Effect;
+    publishArticle: Effect;
   };
   reducers: {
     saveArticle: Reducer<ArticleModelState>;
@@ -37,8 +48,29 @@ export interface ArticleModelType {
     saveArticleTitle: Reducer<ArticleModelState>;
     saveArticleContent: Reducer<ArticleModelState>;
     savePubModalVisible: Reducer<ArticleModelState>;
+    resetPlatform: Reducer<ArticleModelState>;
+    checkPlatform: Reducer<ArticleModelState>;
   };
 }
+
+const defaultPlatformList: Platform[] = [
+  {
+    label: '掘金',
+    name: 'juejin',
+    icon: '@/assets/img/juejin-logo.svg',
+    checked: true,
+  },
+  {
+    label: 'SegmentFault',
+    name: 'segmentfault',
+    checked: true,
+  },
+  {
+    label: '简书',
+    name: 'jianshu',
+    checked: true,
+  },
+];
 
 const ArticleModel: ArticleModelType = {
   namespace: 'article',
@@ -48,6 +80,7 @@ const ArticleModel: ArticleModelType = {
     currentArticleId: undefined,
     currentArticle: {title: '', content: ''},
     pubModalVisible: false,
+    platformList: JSON.parse(JSON.stringify(defaultPlatformList)),
   },
 
   effects: {
@@ -117,6 +150,24 @@ const ArticleModel: ArticleModelType = {
         type: 'savePubModalVisible',
         payload: action.payload,
       })
+    },
+
+    * resetPlatform(action, {put}) {
+      yield put({
+        type: 'resetPlatformList',
+        payload: action.payload,
+      })
+    },
+
+    * checkPlatform(action, {put}) {
+      yield put({
+        type: 'checkPlatformList',
+        payload: action.payload,
+      })
+    },
+
+    * publishArticle(action, {call}) {
+      yield call(publishArticle, action.payload)
     }
   },
 
@@ -155,6 +206,28 @@ const ArticleModel: ArticleModelType = {
       return {
         ...state,
         pubModalVisible: action.payload,
+      }
+    },
+    resetPlatform(state, action) {
+      if (!state || !state.platformList) return {...state};
+      console.log(action.payload);
+      state.platformList.forEach(d => {
+        d.checked = action.payload;
+      });
+      return {
+        ...state,
+      }
+    },
+    checkPlatform(state, action) {
+      if (!state || !state.platformList) return {...state};
+      const {name, checked} = action.payload;
+      state.platformList.forEach(d => {
+        if (name === d.name) {
+          d.checked = checked;
+        }
+      });
+      return {
+        ...state,
       }
     }
   },

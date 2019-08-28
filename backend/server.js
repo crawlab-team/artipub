@@ -43,6 +43,7 @@ app.get('/articles/:id', routes.article.getArticle)
 app.put('/articles', routes.article.addArticle)
 app.post('/articles/:id', routes.article.editArticle)
 app.delete('/articles/:id', routes.article.deleteArticle)
+app.post('/articles/:id/publish', routes.article.publishArticle)
 
 app.listen(config.PORT, () => {
     console.log('listening on port ' + config.PORT)

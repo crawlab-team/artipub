@@ -30,3 +30,12 @@ Content-Type: application/json
 {}
 
 ###
+
+POST http://localhost:3000/articles/5d62706c5ba687447f429bdc/publish
+Content-Type: application/json
+
+{
+  "platforms": "juejin,segmentfault"
+}
+
+###
