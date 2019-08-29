@@ -8,6 +8,7 @@ export interface Article {
   _id?: string;
   title: string;
   content: string;
+  platforms: object;
 }
 
 export interface Platform {
@@ -23,6 +24,8 @@ export interface ArticleModelState {
   currentArticle?: Article;
   pubModalVisible?: boolean;
   platformList?: Platform[];
+  currentPlatform?: Platform;
+  platformModalVisible?: boolean;
 }
 
 export interface ArticleModelType {
@@ -41,6 +44,8 @@ export interface ArticleModelType {
     resetPlatform: Effect;
     checkPlatform: Effect;
     publishArticle: Effect;
+    setCurrentPlatform: Effect;
+    setPlatformModalVisible: Effect;
   };
   reducers: {
     saveArticle: Reducer<ArticleModelState>;
@@ -48,8 +53,10 @@ export interface ArticleModelType {
     saveArticleTitle: Reducer<ArticleModelState>;
     saveArticleContent: Reducer<ArticleModelState>;
     savePubModalVisible: Reducer<ArticleModelState>;
+    savePlatformModalVisible: Reducer<ArticleModelState>;
     resetPlatform: Reducer<ArticleModelState>;
     checkPlatform: Reducer<ArticleModelState>;
+    savePlatform: Reducer<ArticleModelState>;
   };
 }
 
@@ -78,7 +85,7 @@ const ArticleModel: ArticleModelType = {
   state: {
     articles: [],
     currentArticleId: undefined,
-    currentArticle: {title: '', content: ''},
+    currentArticle: {title: '', content: '', platforms: {}},
     pubModalVisible: false,
     platformList: JSON.parse(JSON.stringify(defaultPlatformList)),
   },
@@ -168,6 +175,20 @@ const ArticleModel: ArticleModelType = {
 
     * publishArticle(action, {call}) {
       yield call(publishArticle, action.payload)
+    },
+
+    * setCurrentPlatform(action, {put}) {
+      yield put({
+        type: 'savePlatform',
+        payload: action.payload,
+      })
+    },
+
+    * setPlatformModalVisible(action, {put}) {
+      yield put({
+        type: 'savePlatformModalVisible',
+        payload: action.payload,
+      })
     }
   },
 
@@ -228,6 +249,18 @@ const ArticleModel: ArticleModelType = {
       });
       return {
         ...state,
+      }
+    },
+    savePlatform(state, action) {
+      return {
+        ...state,
+        currentPlatform: action.payload,
+      };
+    },
+    savePlatformModalVisible(state, action) {
+      return {
+        ...state,
+        platformModalVisible: action.payload,
       }
     }
   },

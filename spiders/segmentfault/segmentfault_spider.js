@@ -1,10 +1,33 @@
-const puppeteer = require('puppeteer');
-const credentials = require('../credentials.json').segmentfault;
+const bson = require('bson')
+const PCR = require("puppeteer-chromium-resolver")
+const Article = require('../models').Article
+const utils = require('../utils')
+const articleId = process.argv.splice(2)[0]
+utils.checkArticleId(articleId, __filename)
 
-(async () => {
-    const browser = await (puppeteer.launch({
-        // 若是手动下载的chromium需要指定chromium地址, 默认引用地址为 /项目目录/node_modules/puppeteer/.local-chromium/
-        // executablePath: '/Users/huqiyang/Documents/project/z/chromium/Chromium.app/Contents/MacOS/Chromium',
+const platform = 'segmentfault'
+
+const credentials = require('../credentials.json')[platform]
+
+const run = async () => {
+    // 获取当前文章
+    const article = await Article.findOne({ _id: bson.ObjectId(articleId) })
+    if (!article) {
+        process.exit(1)
+    }
+
+    const pcr = await PCR({
+        revision: "",
+        detectionPath: "",
+        folderName: '.chromium-browser-snapshots',
+        hosts: ["https://storage.googleapis.com", "https://npm.taobao.org/mirrors"],
+        retry: 3,
+        silent: false
+    })
+
+    // 获取浏览器
+    const browser = await (pcr.puppeteer.launch({
+        executablePath: pcr.executablePath,
         //设置超时时间
         timeout: 15000,
         //如果是访问https页面 此属性会忽略https错误
@@ -41,11 +64,51 @@ const credentials = require('../credentials.json').segmentfault;
     await page.goto('https://segmentfault.com/write')
     await page.waitFor(3000)
 
-    // 输入内容
+    // 输入标题
     const elTitle = await page.$('#myTitle')
-    await elTitle.type('it works')
+    await elTitle.type(article.title)
     await page.waitFor(3000)
 
-    browser.close()
-})()
+    // 输入内容
+    await page.evaluate((article) => {
+        const el = document.querySelector('#myEditor')
+        el.focus()
+        document.execCommand('insertText', false, article.content)
+    }, article)
+    await page.waitFor(1000)
 
+    // 选择标签
+    const tags = ['docker', 'python']
+    const elTagInput = await page.$('.sf-typeHelper-input')
+    for (const tag of tags) {
+        await elTagInput.type(tag)
+        await page.waitFor(1000)
+        await elTagInput.type(',')
+        await page.waitFor(1000)
+    }
+    await page.waitFor(3000)
+
+    // 确认发布
+    const elPub = await page.$('#publishIt')
+    await elPub.click()
+    await page.waitFor(3000)
+
+    // 获取并保存URL
+    const url = page.url()
+    article.platforms[platform] = {
+        url,
+        updateTs: new Date(),
+        status: 'finished',
+    }
+    await article.updateOne(article)
+    // console.log(article)
+    await page.waitFor(3000)
+
+    // 关闭浏览器
+    await browser.close()
+
+    // 退出程序
+    process.exit()
+}
+
+(run)()

@@ -5,6 +5,7 @@ const articleSchema = new mongoose.Schema({
     content: String,
     createTs: Date,
     updateTs: Date,
+    platforms: Object,
 })
 
 const Article = mongoose.model('articles', articleSchema)

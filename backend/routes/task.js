@@ -3,85 +3,74 @@ const ObjectId = require('bson').ObjectId
 const exec = require('child_process').exec
 const path = require('path')
 
-const platforms = [
-    'juejin',
-    'segmentfault',
-    'jianshu',
-]
-
 module.exports = {
-    getArticleList: async (req, res) => {
-        const articles = await models.Article.find()
+    getTaskList: async (req, res) => {
+        const Tasks = await models.Task.find()
         res.json({
             status: 'ok',
-            data: articles
+            data: Tasks
         })
     },
-    getArticle: async (req, res) => {
-        const article = await models.Article.findOne({ _id: ObjectId(req.params.id) })
+    getTask: async (req, res) => {
+        const Task = await models.Task.findOne({ _id: ObjectId(req.params.id) })
         res.json({
             status: 'ok',
-            data: article
+            data: Task
         })
     },
-    addArticle: async (req, res) => {
-        let article = new models.Article({
-            title: req.body.title,
-            content: req.body.content,
-            createTs: new Date(),
-            updateTs: new Date(),
+    addTask: async (req, res) => {
+        let Task = new models.Task({
         })
-        console.log(article)
-        article = await article.save()
+        Task = await Task.save()
         res.json({
             status: 'ok',
-            data: article,
+            data: Task,
         })
     },
-    editArticle: async (req, res) => {
-        let article = await models.Article.findOne({ _id: ObjectId(req.params.id) })
-        if (!article) {
+    editTask: async (req, res) => {
+        let Task = await models.Task.findOne({ _id: ObjectId(req.params.id) })
+        if (!Task) {
             return res.json({
                 status: 'ok',
                 error: 'not found'
             }, 404)
         }
-        article.title = req.body.title
-        article.content = req.body.content
-        article.updateTs = new Date()
+        Task.title = req.body.title
+        Task.content = req.body.content
+        Task.updateTs = new Date()
 
         // 平台
         platforms.forEach(platform => {
             if (req.body[platform]) {
-                article.platforms[platform] = req.body[platform]
+                Task.platforms[platform] = req.body[platform]
             }
         })
 
         // 更新
-        article = await article.updateOne(article)
+        Task = await Task.updateOne(Task)
 
         res.json({
             status: 'ok',
-            data: article,
+            data: Task,
         })
     },
-    deleteArticle: async (req, res) => {
-        let article = await models.Article.findOne({ _id: ObjectId(req.params.id) })
-        if (!article) {
+    deleteTask: async (req, res) => {
+        let Task = await models.Task.findOne({ _id: ObjectId(req.params.id) })
+        if (!Task) {
             return res.json({
                 status: 'ok',
                 error: 'not found'
             }, 404)
         }
-        await models.Article.remove({ _id: ObjectId(req.params.id) })
+        await models.Task.remove({ _id: ObjectId(req.params.id) })
         res.json({
             status: 'ok',
             data: req.body,
         })
     },
-    publishArticle: async (req, res) => {
-        let article = await models.Article.findOne({ _id: ObjectId(req.params.id) })
-        if (!article) {
+    publishTask: async (req, res) => {
+        let Task = await models.Task.findOne({ _id: ObjectId(req.params.id) })
+        if (!Task) {
             return res.json({
                 status: 'ok',
                 error: 'not found'
@@ -108,35 +97,35 @@ module.exports = {
             const filePath = path.join(__dirname, '..', '..', 'spiders', execPath)
 
             // 初始化平台
-            if (!article.platforms[platform]) {
-                article.platforms[platform] = {}
+            if (!Task.platforms[platform]) {
+                Task.platforms[platform] = {}
             }
 
             // 初始化执行结果
-            if (article.platforms[platform].url || article.platforms[platform].status === 'processing') {
+            if (Task.platforms[platform].url || Task.platforms[platform].status === 'processing') {
                 // 如果结果已经存在或状态为正在处理，跳过
                 console.log(`skipped ${platform}`)
                 continue
             } else {
-                article.platforms[platform] = {
+                Task.platforms[platform] = {
                     status: 'processing',
                     updateTs: new Date(),
                 }
-                await article.updateOne(article)
+                await Task.updateOne(Task)
             }
 
-            console.log(`node ${filePath} ${article._id.toString()}`)
-            await exec(`node ${filePath} ${article._id.toString()}`, (err, stdout, stderr) => {
+            console.log(`node ${filePath} ${Task._id.toString()}`)
+            await exec(`node ${filePath} ${Task._id.toString()}`, (err, stdout, stderr) => {
                 if (err) {
                     console.error(stderr)
                     isError = true
                     errMsg = stderr
-                    article.platforms[platform] = {
+                    Task.platforms[platform] = {
                         status: 'error',
                         updateTs: new Date(),
                         error: errMsg,
                     }
-                    article.updateOne(article)
+                    Task.updateOne(Task)
                 }
             })
         }
@@ -149,7 +138,7 @@ module.exports = {
         } else {
             res.json({
                 status: 'ok',
-                data: article,
+                data: Task,
             })
         }
     }

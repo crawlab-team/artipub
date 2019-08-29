@@ -7,7 +7,6 @@
 
 .main {
   display: flex;
-  //min-height: 100vh;
 }
 
 .topBar {
@@ -55,6 +54,7 @@
   display: flex;
   flex-basis: 50%;
   flex-direction: column;
+  width: 50%;
   height: 100%;
   min-height: calc(100vh - 50px - 50px);
   overflow-y: auto;
@@ -66,6 +66,7 @@
   display: flex;
   flex-basis: 50%;
   flex-direction: column;
+  width: 50%;
   height: calc(100vh - 50px - 50px);
 }
 
@@ -173,4 +174,11 @@ tbody tr:nth-of-type(odd) {
 
 tbody tr:nth-of-type(even) {
   background: #f6f6f6;
+}
+
+blockquote {
+  margin: 1em 0;
+  padding: 0 1em;
+  color: #666;
+  border-left: 4px solid #ddd;
 }

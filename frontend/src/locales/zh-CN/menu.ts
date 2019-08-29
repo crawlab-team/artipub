@@ -1,6 +1,6 @@
 export default {
   'menu.welcome': '欢迎',
-  'menu.articles': '文章列表',
+  'menu.articles': '文章管理',
   'menu.article-new': '写文章',
   'menu.article-edit': '文章编辑',
   'menu.more-blocks': '更多区块',

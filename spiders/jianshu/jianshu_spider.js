@@ -5,9 +5,9 @@ const utils = require('../utils')
 const articleId = process.argv.splice(2)[0]
 utils.checkArticleId(articleId, __filename)
 
-const platform = 'juejin'
+const platform = 'jianshu'
 
-const credentials = require('../credentials.json')[platform]
+const credentials = require('../credentials.json').juejin
 
 const run = async () => {
     // 获取当前文章
@@ -42,14 +42,14 @@ const run = async () => {
     const page = await browser.newPage()
 
     // 登陆
-    await page.goto('https://juejin.im/login')
+    await page.goto('https://www.jianshu.com/sign_in')
     let errNum = 0
     while (errNum < 10) {
         try {
             await page.waitFor(1000)
-            const elUsername = await page.$('.input[name="loginPhoneOrEmail"]')
-            const elPassword = await page.$('.input[name="loginPassword"]')
-            const elSubmit = await page.$('.btn:nth-child(3)')
+            const elUsername = await page.$('#session_email_or_mobile_number')
+            const elPassword = await page.$('#session_password')
+            const elSubmit = await page.$('#sign-in-form-submit-btn')
             await elUsername.type(credentials.username)
             await elPassword.type(credentials.password)
             await elSubmit.click()
@@ -87,8 +87,6 @@ const run = async () => {
     await elPubBtn.click()
     await page.waitFor(3000)
 
-    // TODO: 选择类别
-
     // 选择标签
     const elTagInput = await page.$('.tag-input > input')
     await elTagInput.type('docker')
@@ -102,13 +100,11 @@ const run = async () => {
     const arr = page.url().split('/')
     const id = arr[arr.length - 1]
     const url = `https://juejin.im/post/${id}`
-    await article.updateOne({
-        juejin: {
-            url,
-            status: 'finished',
-            updateTs: new Date(),
-        }
-    })
+    if (!article[platform]) article[platform] = {}
+    article[platform].url = url
+    article[platform].updateTs = new Date()
+    await article.save()
+    console.log(article)
 
     // 确认发布
     const elPub = await page.$('.publish-btn')
