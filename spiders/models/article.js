@@ -3,9 +3,9 @@ const mongoose = require('mongoose')
 const articleSchema = new mongoose.Schema({
     title: String,
     content: String,
+    platformIds: Array,
     createTs: Date,
     updateTs: Date,
-    platforms: Object,
 })
 
 const Article = mongoose.model('articles', articleSchema)

@@ -121,6 +121,12 @@ module.exports = {
                     isError = true
                     errMsg = stderr
                     task.error = stderr
+                    task.updateTs = new Date()
+                    task.save()
+                } else {
+                    task.status = constants.status.FINISHED
+                    task.updateTs = new Date()
+                    task.save()
                 }
             })
         }
