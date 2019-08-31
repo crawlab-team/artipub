@@ -20,6 +20,15 @@ module.exports = {
     },
     addTask: async (req, res) => {
         let Task = new models.Task({
+            articleId: req.body.articleId,
+            platform: req.body.platform,
+            status: req.body.status,
+            createTs: new Date(),
+            updateTs: new Date(),
+
+            // 配置信息
+            category: req.body.category,
+            tag: req.body.tag,
         })
         Task = await Task.save()
         res.json({

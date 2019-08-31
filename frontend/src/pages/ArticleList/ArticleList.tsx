@@ -199,7 +199,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     }
   ];
 
-  const platformColumns: ColumnProps<any>[] = [
+  const taskColumns: ColumnProps<any>[] = [
     {
       title: '',
       key: 'checkbox',
@@ -217,12 +217,10 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       dataIndex: 'icon',
       width: '80px',
       render: (text, d) => {
-        if (d.name === 'juejin') {
+        if (d.platform === 'juejin') {
           return <img className={style.siteLogo} alt={d.label} src={imgJuejin}/>
-        } else if (d.name === 'segmentfault') {
+        } else if (d.platform === 'segmentfault') {
           return <img className={style.siteLogo} alt={d.label} src={imgSegmentfault}/>
-        } else if (d.name === 'jianshu') {
-          return <img className={style.siteLogo} alt={d.label} src={imgJianshu}/>
         } else {
           return <div/>
         }
@@ -315,7 +313,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     <PageHeaderWrapper>
       <Modal title="发布文章" visible={article.pubModalVisible} onCancel={onPubModalCancel} width="600px" okText="发布"
              onOk={onPublish()}>
-        <Table dataSource={article.platformList} columns={platformColumns} pagination={false}/>
+        <Table dataSource={article.currentArticle.tasks} columns={taskColumns} pagination={false}/>
       </Modal>
       <Modal title={article.currentPlatform ? article.currentPlatform.label : ''}
              visible={article.platformModalVisible}

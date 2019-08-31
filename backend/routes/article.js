@@ -6,7 +6,6 @@ const path = require('path')
 const platforms = [
     'juejin',
     'segmentfault',
-    'jianshu',
 ]
 
 module.exports = {
@@ -19,20 +18,46 @@ module.exports = {
     },
     getArticle: async (req, res) => {
         const article = await models.Article.findOne({ _id: ObjectId(req.params.id) })
+        article.tasks = await models.Task.find({ articleId: article._id })
         res.json({
             status: 'ok',
             data: article
         })
     },
+    getArticleTaskList: async (req, res) => {
+        const article = await models.Article.findOne({ _id: ObjectId(req.params.id) })
+        const tasks = await models.Task.find({ articleId: article._id })
+        res.json({
+            status: 'ok',
+            data: tasks,
+        })
+    },
     addArticle: async (req, res) => {
+        // 创建文章
         let article = new models.Article({
             title: req.body.title,
             content: req.body.content,
             createTs: new Date(),
             updateTs: new Date(),
         })
-        console.log(article)
         article = await article.save()
+
+        // 创建任务
+        for (let i = 0; i < platforms.length; i++) {
+            const platform = platforms[i]
+            let Task = new models.Task({
+                articleId: article._id,
+                platform,
+                status: 'not-started',
+                createTs: new Date(),
+                updateTs: new Date(),
+
+                // 配置信息
+                category: '',
+                tag: '',
+            })
+            Task = await Task.save()
+        }
         res.json({
             status: 'ok',
             data: article,

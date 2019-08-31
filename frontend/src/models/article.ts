@@ -1,21 +1,13 @@
 import {Effect} from 'dva';
-// import { Reducer } from 'redux';
-
 import {addArticle, deleteArticle, publishArticle, queryArticle, queryArticles, saveArticle} from '@/services/article';
 import {Reducer} from "redux";
+import {Task} from "@/models/task";
 
 export interface Article {
   _id?: string;
   title: string;
   content: string;
-  platforms: object;
-}
-
-export interface Platform {
-  label: string;
-  name: string;
-  icon?: string;
-  checked?: boolean;
+  tasks: Task[];
 }
 
 export interface ArticleModelState {
@@ -23,8 +15,6 @@ export interface ArticleModelState {
   currentArticleId?: string;
   currentArticle?: Article;
   pubModalVisible?: boolean;
-  platformList?: Platform[];
-  currentPlatform?: Platform;
   platformModalVisible?: boolean;
 }
 
@@ -41,10 +31,7 @@ export interface ArticleModelType {
     saveCurrentArticle: Effect;
     deleteArticle: Effect;
     setPubModalVisible: Effect;
-    resetPlatform: Effect;
-    checkPlatform: Effect;
     publishArticle: Effect;
-    setCurrentPlatform: Effect;
     setPlatformModalVisible: Effect;
   };
   reducers: {
@@ -54,30 +41,8 @@ export interface ArticleModelType {
     saveArticleContent: Reducer<ArticleModelState>;
     savePubModalVisible: Reducer<ArticleModelState>;
     savePlatformModalVisible: Reducer<ArticleModelState>;
-    resetPlatform: Reducer<ArticleModelState>;
-    checkPlatform: Reducer<ArticleModelState>;
-    savePlatform: Reducer<ArticleModelState>;
   };
 }
-
-const defaultPlatformList: Platform[] = [
-  {
-    label: '掘金',
-    name: 'juejin',
-    icon: '@/assets/img/juejin-logo.svg',
-    checked: true,
-  },
-  {
-    label: 'SegmentFault',
-    name: 'segmentfault',
-    checked: true,
-  },
-  {
-    label: '简书',
-    name: 'jianshu',
-    checked: true,
-  },
-];
 
 const ArticleModel: ArticleModelType = {
   namespace: 'article',
@@ -85,9 +50,9 @@ const ArticleModel: ArticleModelType = {
   state: {
     articles: [],
     currentArticleId: undefined,
-    currentArticle: {title: '', content: '', platforms: {}},
+    currentArticle: {title: '', content: '', tasks: []},
     pubModalVisible: false,
-    platformList: JSON.parse(JSON.stringify(defaultPlatformList)),
+    platformModalVisible: false,
   },
 
   effects: {
@@ -159,29 +124,8 @@ const ArticleModel: ArticleModelType = {
       })
     },
 
-    * resetPlatform(action, {put}) {
-      yield put({
-        type: 'resetPlatformList',
-        payload: action.payload,
-      })
-    },
-
-    * checkPlatform(action, {put}) {
-      yield put({
-        type: 'checkPlatformList',
-        payload: action.payload,
-      })
-    },
-
     * publishArticle(action, {call}) {
       yield call(publishArticle, action.payload)
-    },
-
-    * setCurrentPlatform(action, {put}) {
-      yield put({
-        type: 'savePlatform',
-        payload: action.payload,
-      })
     },
 
     * setPlatformModalVisible(action, {put}) {
@@ -228,34 +172,6 @@ const ArticleModel: ArticleModelType = {
         ...state,
         pubModalVisible: action.payload,
       }
-    },
-    resetPlatform(state, action) {
-      if (!state || !state.platformList) return {...state};
-      console.log(action.payload);
-      state.platformList.forEach(d => {
-        d.checked = action.payload;
-      });
-      return {
-        ...state,
-      }
-    },
-    checkPlatform(state, action) {
-      if (!state || !state.platformList) return {...state};
-      const {name, checked} = action.payload;
-      state.platformList.forEach(d => {
-        if (name === d.name) {
-          d.checked = checked;
-        }
-      });
-      return {
-        ...state,
-      }
-    },
-    savePlatform(state, action) {
-      return {
-        ...state,
-        currentPlatform: action.payload,
-      };
     },
     savePlatformModalVisible(state, action) {
       return {

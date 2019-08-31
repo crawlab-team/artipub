@@ -3,6 +3,7 @@ export default {
   'menu.articles': '文章管理',
   'menu.article-new': '写文章',
   'menu.article-edit': '文章编辑',
+  'menu.platforms': '平台管理',
   'menu.more-blocks': '更多区块',
   'menu.home': '首页',
   'menu.login': '登录',

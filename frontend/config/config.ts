@@ -128,6 +128,12 @@ export default {
           component: './ArticleList/ArticleList'
         },
         {
+          path: '/platforms',
+          name: 'platforms',
+          icon: 'cloud',
+          component: './PlatformList/PlatformList'
+        },
+        {
           component: './404',
         },
       ],
