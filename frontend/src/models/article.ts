@@ -1,13 +1,12 @@
 import {Effect} from 'dva';
 import {addArticle, deleteArticle, publishArticle, queryArticle, queryArticles, saveArticle} from '@/services/article';
 import {Reducer} from "redux";
-import {Task} from "@/models/task";
 
 export interface Article {
   _id?: string;
   title: string;
   content: string;
-  tasks: Task[];
+  platformIds: string[];
 }
 
 export interface ArticleModelState {
@@ -28,6 +27,7 @@ export interface ArticleModelType {
     resetArticle: Effect;
     setArticleTitle: Effect;
     setArticleContent: Effect;
+    setArticlePlatformIds: Effect;
     saveCurrentArticle: Effect;
     deleteArticle: Effect;
     setPubModalVisible: Effect;
@@ -39,6 +39,7 @@ export interface ArticleModelType {
     saveArticleList: Reducer<ArticleModelState>;
     saveArticleTitle: Reducer<ArticleModelState>;
     saveArticleContent: Reducer<ArticleModelState>;
+    saveArticlePlatformIds: Reducer<ArticleModelState>;
     savePubModalVisible: Reducer<ArticleModelState>;
     savePlatformModalVisible: Reducer<ArticleModelState>;
   };
@@ -50,7 +51,7 @@ const ArticleModel: ArticleModelType = {
   state: {
     articles: [],
     currentArticleId: undefined,
-    currentArticle: {title: '', content: '', tasks: []},
+    currentArticle: {title: '', content: '', platformIds: []},
     pubModalVisible: false,
     platformModalVisible: false,
   },
@@ -97,6 +98,13 @@ const ArticleModel: ArticleModelType = {
     * setArticleContent(action, {put}) {
       yield put({
         type: 'saveArticleContent',
+        payload: action.payload,
+      })
+    },
+
+    * setArticlePlatformIds(action, {put}) {
+      yield put({
+        type: 'saveArticlePlatformIds',
         payload: action.payload,
       })
     },
@@ -162,6 +170,15 @@ const ArticleModel: ArticleModelType = {
       if (!state || !state.currentArticle) return {...state};
       const currentArticle = state.currentArticle;
       currentArticle.content = action.payload.content;
+      return {
+        ...state,
+        currentArticle
+      }
+    },
+    saveArticlePlatformIds(state, action) {
+      if (!state || !state.currentArticle) return {...state};
+      const currentArticle = state.currentArticle;
+      currentArticle.platformIds = action.payload;
       return {
         ...state,
         currentArticle

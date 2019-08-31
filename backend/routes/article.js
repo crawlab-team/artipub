@@ -1,16 +1,16 @@
 const models = require('../models')
+const constants = require('../constants')
 const ObjectId = require('bson').ObjectId
 const exec = require('child_process').exec
 const path = require('path')
 
-const platforms = [
-    'juejin',
-    'segmentfault',
-]
-
 module.exports = {
     getArticleList: async (req, res) => {
         const articles = await models.Article.find()
+        for (let i = 0; i < articles.length; i++) {
+            const article = articles[i]
+            article.tasks = await models.Task.find({ articleId: article._id })
+        }
         res.json({
             status: 'ok',
             data: articles
@@ -37,27 +37,11 @@ module.exports = {
         let article = new models.Article({
             title: req.body.title,
             content: req.body.content,
+            platformIds: [],
             createTs: new Date(),
             updateTs: new Date(),
         })
         article = await article.save()
-
-        // 创建任务
-        for (let i = 0; i < platforms.length; i++) {
-            const platform = platforms[i]
-            let Task = new models.Task({
-                articleId: article._id,
-                platform,
-                status: 'not-started',
-                createTs: new Date(),
-                updateTs: new Date(),
-
-                // 配置信息
-                category: '',
-                tag: '',
-            })
-            Task = await Task.save()
-        }
         res.json({
             status: 'ok',
             data: article,
@@ -177,5 +161,21 @@ module.exports = {
                 data: article,
             })
         }
-    }
+    },
+    addArticleTask: async (req, res) => {
+        let task = new models.Task({
+            articleId: ObjectId(req.params.id),
+            platformId: ObjectId(req.body.platformId),
+            status: constants.status.NOT_STARTED,
+            createTs: new Date(),
+            updateTs: new Date(),
+            category: req.body.category,
+            tag: req.body.tag,
+        })
+        task = await task.save()
+        res.json({
+            status: 'ok',
+            data: task,
+        })
+    },
 }

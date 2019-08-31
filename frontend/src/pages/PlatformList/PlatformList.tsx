@@ -22,14 +22,16 @@ const PlatformList: React.FC<PlatformListProps> = props => {
   const {dispatch, platform} = props;
 
   const onEdit: Function = (d: Platform) => {
-    dispatch({
-      type: 'platform/saveCurrentPlatform',
-      payload: d,
-    });
-    dispatch({
-      type: 'platform/setModalVisible',
-      payload: true,
-    });
+    return () => {
+      dispatch({
+        type: 'platform/saveCurrentPlatform',
+        payload: d,
+      });
+      dispatch({
+        type: 'platform/saveModalVisible',
+        payload: true,
+      });
+    }
   };
 
   const onAdd = () => {
@@ -42,21 +44,20 @@ const PlatformList: React.FC<PlatformListProps> = props => {
       }
     });
     dispatch({
-      type: 'platform/setModalVisible',
+      type: 'platform/saveModalVisible',
       payload: true,
     });
   };
 
   const onDelete: Function = (d: Platform) => {
-    return () => {
+    return async () => {
       if (dispatch) {
-        dispatch({
-          type: 'article/deletePlatform',
+        await dispatch({
+          type: 'platform/deletePlatform',
           payload: d
-        }).then(() => {
-          dispatch({
-            type: 'article/fetchPlatformList',
-          })
+        });
+        await dispatch({
+          type: 'platform/fetchPlatformList',
         });
       }
     }
@@ -77,14 +78,13 @@ const PlatformList: React.FC<PlatformListProps> = props => {
 
   const onModalCancel = () => {
     dispatch({
-      type: 'platform/setModalVisible',
+      type: 'platform/saveModalVisible',
       payload: false,
     })
   };
 
   const onSave = async () => {
     if (platform.currentPlatform) {
-      console.log(platform.currentPlatform);
       if (platform.currentPlatform._id) {
         // 更改
         await dispatch({
@@ -102,7 +102,7 @@ const PlatformList: React.FC<PlatformListProps> = props => {
         type: 'platform/fetchPlatformList',
       });
       await dispatch({
-        type: 'platform/setModalVisible',
+        type: 'platform/saveModalVisible',
         payload: false,
       });
     }
@@ -112,8 +112,8 @@ const PlatformList: React.FC<PlatformListProps> = props => {
     {
       title: '图标',
       width: '80px',
-      key: '_id',
       dataIndex: '_id',
+      key: '_id',
       render: (text: string, d: Platform) => {
         if (d.name === constants.platform.JUEJIN) {
           return <img className={style.siteLogo} src={imgJuejin}/>
@@ -177,13 +177,16 @@ const PlatformList: React.FC<PlatformListProps> = props => {
              onCancel={onModalCancel}>
         <Form labelCol={{sm: {span: 4}}} wrapperCol={{sm: {span: 20}}}>
           <Form.Item label="代号">
-            <Input onChange={onFieldChange('name')}/>
+            <Input value={platform.currentPlatform ? platform.currentPlatform.name : ''}
+                   onChange={onFieldChange('name')}/>
           </Form.Item>
           <Form.Item label="名称">
-            <Input onChange={onFieldChange('label')}/>
+            <Input value={platform.currentPlatform ? platform.currentPlatform.label : ''}
+                   onChange={onFieldChange('label')}/>
           </Form.Item>
           <Form.Item label="描述">
-            <Input.TextArea onChange={onFieldChange('description')}/>
+            <Input.TextArea value={platform.currentPlatform ? platform.currentPlatform.description : ''}
+                            onChange={onFieldChange('description')}/>
           </Form.Item>
         </Form>
       </Modal>

@@ -11,3 +11,7 @@ export async function addPlatform(payload: any): Promise<any> {
 export async function savePlatform(payload: any): Promise<any> {
   return request.post(`/platforms/${payload._id}`, {data: payload});
 }
+
+export async function deletePlatform(payload: any): Promise<any> {
+  return request.delete(`/platforms/${payload._id}`);
+}

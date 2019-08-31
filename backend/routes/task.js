@@ -1,28 +1,56 @@
 const models = require('../models')
+const constants = require('../constants')
 const ObjectId = require('bson').ObjectId
 const exec = require('child_process').exec
 const path = require('path')
 
 module.exports = {
     getTaskList: async (req, res) => {
-        const Tasks = await models.Task.find()
+        const tasks = await models.Task.find()
         res.json({
             status: 'ok',
-            data: Tasks
+            data: tasks
         })
     },
     getTask: async (req, res) => {
-        const Task = await models.Task.findOne({ _id: ObjectId(req.params.id) })
+        const task = await models.Task.findOne({ _id: ObjectId(req.params.id) })
         res.json({
             status: 'ok',
-            data: Task
+            data: task
+        })
+    },
+    addTasks: async (req, res) => {
+        for (let _task of req.body) {
+            let task
+            if (_task._id) {
+                task = await models.Task.findOne({ _id: ObjectId(_task._id) })
+                task.category = _task.category
+                task.tag = _task.tag
+                task.updateTs = new Date()
+            } else {
+                task = new models.Task({
+                    articleId: ObjectId(_task.articleId),
+                    platformId: ObjectId(_task.platformId),
+                    status: constants.status.NOT_STARTED,
+                    createTs: new Date(),
+                    updateTs: new Date(),
+
+                    // 配置信息
+                    category: _task.category,
+                    tag: _task.tag,
+                })
+            }
+            task = await task.save()
+        }
+        res.json({
+            status: 'ok',
         })
     },
     addTask: async (req, res) => {
-        let Task = new models.Task({
-            articleId: req.body.articleId,
-            platform: req.body.platform,
-            status: req.body.status,
+        let task = new models.Task({
+            articleId: ObjectId(req.body.articleId),
+            platformId: ObjectId(req.body.platformId),
+            status: constants.status.NOT_STARTED,
             createTs: new Date(),
             updateTs: new Date(),
 
@@ -30,42 +58,32 @@ module.exports = {
             category: req.body.category,
             tag: req.body.tag,
         })
-        Task = await Task.save()
+        task = await task.save()
         res.json({
             status: 'ok',
-            data: Task,
+            data: task,
         })
     },
     editTask: async (req, res) => {
-        let Task = await models.Task.findOne({ _id: ObjectId(req.params.id) })
-        if (!Task) {
+        let task = await models.Task.findOne({ _id: ObjectId(req.params.id) })
+        if (!task) {
             return res.json({
                 status: 'ok',
                 error: 'not found'
             }, 404)
         }
-        Task.title = req.body.title
-        Task.content = req.body.content
-        Task.updateTs = new Date()
-
-        // 平台
-        platforms.forEach(platform => {
-            if (req.body[platform]) {
-                Task.platforms[platform] = req.body[platform]
-            }
-        })
-
-        // 更新
-        Task = await Task.updateOne(Task)
-
+        task.category = req.body.category
+        task.tag = req.body.tag
+        task.updateTs = new Date()
+        task = await task.save()
         res.json({
             status: 'ok',
-            data: Task,
+            data: task,
         })
     },
     deleteTask: async (req, res) => {
-        let Task = await models.Task.findOne({ _id: ObjectId(req.params.id) })
-        if (!Task) {
+        let task = await models.Task.findOne({ _id: ObjectId(req.params.id) })
+        if (!task) {
             return res.json({
                 status: 'ok',
                 error: 'not found'

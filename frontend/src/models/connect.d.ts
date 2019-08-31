@@ -7,6 +7,7 @@ import {DefaultSettings as SettingModelState} from '../../config/defaultSettings
 import {UserModelState} from './user';
 import {ArticleModelState} from "@/models/article";
 import {PlatformModelState} from "@/models/platform";
+import {TaskModelState} from "@/models/task";
 
 export {GlobalModelState, SettingModelState, UserModelState};
 
@@ -29,6 +30,7 @@ export interface ConnectState {
   user: UserModelState;
   article: ArticleModelState;
   platform: PlatformModelState;
+  task: TaskModelState;
 }
 
 export type Effect = (

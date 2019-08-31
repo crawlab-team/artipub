@@ -1,13 +1,16 @@
 import React, {useEffect} from 'react';
 import {PageHeaderWrapper} from '@ant-design/pro-layout';
-import {Button, Checkbox, Form, Input, message, Modal, Popconfirm, Select, Table, Tag} from "antd";
-import {Article, ArticleModelState, Platform} from "@/models/article";
+import {Button, Form, Input, message, Modal, Popconfirm, Select, Table, Tag} from "antd";
+import {Article, ArticleModelState} from "@/models/article";
 import {ConnectProps, ConnectState, Dispatch} from "@/models/connect";
 import {connect} from "dva";
-import {ColumnProps} from "antd/lib/table";
+import {ColumnProps, SelectionSelectFn, TableRowSelection} from "antd/lib/table";
 import router from "umi/router";
 import style from './ArticleList.scss'
+import {Platform, PlatformModelState} from "@/models/platform";
 import moment from "moment";
+import {Task, TaskModelState} from "@/models/task";
+import constants from "@/constants";
 
 // logo images
 import imgJuejin from '@/assets/img/juejin-logo.svg';
@@ -15,12 +18,14 @@ import imgSegmentfault from '@/assets/img/segmentfault-logo.jpg';
 import imgJianshu from '@/assets/img/jianshu-logo.png';
 
 export interface ArticleListProps extends ConnectProps {
+  task: TaskModelState;
   article: ArticleModelState;
+  platform: PlatformModelState;
   dispatch: Dispatch;
 }
 
 const ArticleList: React.FC<ArticleListProps> = props => {
-  const {dispatch, article} = props;
+  const {dispatch, article, platform, task} = props;
 
   const onEdit: Function = (d: Article) => {
     return () => {
@@ -66,9 +71,17 @@ const ArticleList: React.FC<ArticleListProps> = props => {
           payload: true,
         });
         await dispatch({
-          type: 'article/resetPlatform',
-          payload: true,
-        });
+          type: 'task/saveTaskList',
+          payload: platform.platforms.map((d: Platform): Task => {
+            return {
+              platformId: d._id || '',
+              articleId: article.currentArticle ? (article.currentArticle._id || '') : '',
+              category: '',
+              tag: '',
+              checked: true,
+            }
+          })
+        })
       }
     }
   };
@@ -80,20 +93,6 @@ const ArticleList: React.FC<ArticleListProps> = props => {
         payload: false,
       })
     }
-  };
-
-  const onPlatformCheck: Function = (d: Platform) => {
-    return (ev: any) => {
-      if (dispatch) {
-        dispatch({
-          type: 'article/checkPlatform',
-          payload: {
-            name: d.name,
-            checked: ev.target.checked,
-          },
-        })
-      }
-    };
   };
 
   const onPublish: Function = () => {
@@ -125,12 +124,13 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     }
   };
 
-  const onConfig: Function = (d: Platform) => {
+  const onConfig: Function = (p: Platform) => {
     return () => {
-      if (dispatch) {
+      if (article.currentArticle) {
+        const t: Task = task.tasks.filter((t: Task) => t.platformId === p._id)[0];
         dispatch({
-          type: 'article/setCurrentPlatform',
-          payload: d,
+          type: 'task/saveCurrentTask',
+          payload: t,
         });
         dispatch({
           type: 'article/setPlatformModalVisible',
@@ -147,17 +147,60 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     });
   };
 
-  const onChangePlatformConfig: Function = (platform: string, key: string) => {
+  const onPlatformSelect: SelectionSelectFn<any> = (d: any, selected: boolean, selectedPlatforms: Object[], nativeEvent: Event) => {
+    dispatch({
+      type: 'article/setArticlePlatformIds',
+      payload: selectedPlatforms.map((d: any) => d._id),
+    });
+    const tasks = task.tasks.map((t: Task) => {
+      t.checked = selectedPlatforms.map((p: any) => p._id).includes(t.platformId);
+      return t;
+    });
+    dispatch({
+      type: 'task/saveTaskList',
+      payload: tasks,
+    });
+  };
+
+  const onPlatformSelectAll = (selected: boolean, selectedPlatforms: Object[]) => {
+    dispatch({
+      type: 'article/setArticlePlatformIds',
+      payload: selectedPlatforms.map((d: any) => d._id),
+    });
+    const tasks = task.tasks.map((t: Task) => {
+      t.checked = selectedPlatforms.map((p: any) => p._id).includes(t.platformId);
+      return t;
+    });
+    dispatch({
+      type: 'task/saveTaskList',
+      payload: tasks,
+    });
+  };
+
+  const onTaskChange: Function = (type: string, key: string) => {
     return (ev: any) => {
-      if (article.currentArticle) {
-        if (!article.currentArticle.platforms) article.currentArticle.platforms = {};
-        article.currentArticle.platforms[platform][key] = ev.target.value;
+      let value;
+      if (type === constants.inputType.SELECT) {
+        value = ev;
+      } else if (type === constants.inputType.INPUT) {
+        value = ev.target.value;
+      }
+      if (value !== undefined) {
+        task.currentTask[key] = value;
         dispatch({
-          type: 'article/saveCurrentArticle',
-          payload: article.currentArticle,
-        })
+          type: 'task/saveCurrentTask',
+          payload: task.currentTask,
+        });
       }
     };
+  };
+
+  const platformRowSelection: TableRowSelection<any> = {
+    selectedRowKeys: task.tasks
+      .filter((d: Task) => d.checked)
+      .map((d: Task) => d.platformId),
+    onSelect: onPlatformSelect,
+    onSelectAll: onPlatformSelectAll,
   };
 
   const columns: ColumnProps<any>[] = [
@@ -199,28 +242,19 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     }
   ];
 
-  const taskColumns: ColumnProps<any>[] = [
-    {
-      title: '',
-      key: 'checkbox',
-      dataIndex: 'checkbox',
-      width: '40px',
-      render: (text, d) => {
-        return (
-          <Checkbox checked={d.checked} onChange={onPlatformCheck(d)}/>
-        );
-      },
-    },
+  const platformColumns: ColumnProps<any>[] = [
     {
       title: '平台',
       key: 'icon',
       dataIndex: 'icon',
       width: '80px',
       render: (text, d) => {
-        if (d.platform === 'juejin') {
+        if (d.name === constants.platform.JUEJIN) {
           return <img className={style.siteLogo} alt={d.label} src={imgJuejin}/>
-        } else if (d.platform === 'segmentfault') {
+        } else if (d.name === constants.platform.SEGMENTFAULT) {
           return <img className={style.siteLogo} alt={d.label} src={imgSegmentfault}/>
+        } else if (d.name === constants.platform.JIANSHU) {
+          return <img className={style.siteLogo} alt={d.label} src={imgJianshu}/>
         } else {
           return <div/>
         }
@@ -254,18 +288,18 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       key: 'action',
       dataIndex: 'action',
       width: '120px',
-      render: (text, d) => {
+      render: (text: string, p: Platform) => {
         let isFinished = false;
-        if (article.currentArticle && article.currentArticle[d.name] && article.currentArticle[d.name].url) {
+        if (article.currentArticle && article.currentArticle[p.name] && article.currentArticle[p.name].url) {
           isFinished = true;
         }
+        const t: Task = task.tasks.filter((t: Task) => t.platformId === p._id)[0];
         return (
           <div>
-            {/*<Button disabled={isFinished} type="primary" shape="circle" icon="cloud" onClick={onPublish(d)}/>*/}
             <Button disabled={!isFinished} type="default" shape="circle" icon="search"
-                    className={style.viewBtn} onClick={onViewArticle(d)}/>
-            <Button type="primary" shape="circle" icon="tool"
-                    className={style.configBtn} onClick={onConfig(d)}/>
+                    className={style.viewBtn} onClick={onViewArticle(p)}/>
+            <Button disabled={t && !t.checked} type="primary" shape="circle" icon="tool"
+                    className={style.configBtn} onClick={onConfig(p)}/>
           </div>
         )
       }
@@ -277,46 +311,65 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       dispatch({
         type: 'article/fetchArticleList',
       });
+      dispatch({
+        type: 'platform/fetchPlatformList',
+      });
     }
   }, []);
 
   // 平台配置
   let platformContent = <div></div>;
-  if (article.currentPlatform && article.currentArticle) {
-    if (article.currentPlatform.name === 'juejin') {
-      const categories = [
-        '前端',
-        '后端',
-        'Android',
-        'iOS',
-        '人工智能',
-        '开发工具',
-        '代码人生',
-        '阅读',
-      ];
-      platformContent = (
-        <Form labelCol={{sm: {span: 4}}} wrapperCol={{sm: {span: 20}}}>
-          <Form.Item label="类别">
-            <Select placeholder="点击选择类别" value={article.currentArticle.platforms ? article.currentArticle.platforms['juejin'].category : ''}
-                    onChange={onChangePlatformConfig('juejin', 'category')}>
-              {categories.map(category => (<Select.Option key={category}>{category}</Select.Option>))}
-            </Select>
-          </Form.Item>
-          <Form.Item label="标签">
-            <Input placeholder="输入标签" value={article.currentArticle.platforms ? article.currentArticle.platforms['juejin'].tag : ''}/>
-          </Form.Item>
-        </Form>)
-    }
+  const currentPlatform = platform.platforms.filter((p: Platform) => !!task.currentTask && p._id === task.currentTask.platformId)[0];
+  if (currentPlatform && currentPlatform.name === constants.platform.JUEJIN) {
+    const categories = [
+      '前端',
+      '后端',
+      'Android',
+      'iOS',
+      '人工智能',
+      '开发工具',
+      '代码人生',
+      '阅读',
+    ];
+    platformContent = (
+      <Form labelCol={{sm: {span: 4}}} wrapperCol={{sm: {span: 20}}}>
+        <Form.Item label="类别">
+          <Select placeholder="点击选择类别" onChange={onTaskChange('select', 'category')}>
+            {categories.map(category => (<Select.Option key={category}>{category}</Select.Option>))}
+          </Select>
+        </Form.Item>
+        <Form.Item label="标签">
+          <Input placeholder="输入标签" onChange={onTaskChange('input', 'tag')}/>
+        </Form.Item>
+      </Form>
+    );
+  } else if (currentPlatform && currentPlatform.name === constants.platform.SEGMENTFAULT) {
+    platformContent = (
+      <Form labelCol={{sm: {span: 4}}} wrapperCol={{sm: {span: 20}}}>
+        <Form.Item label="标签">
+          <Input placeholder="输入标签（用逗号分割）" onChange={onTaskChange('input', 'tag')}/>
+        </Form.Item>
+      </Form>
+    );
   }
 
   return (
     <PageHeaderWrapper>
       <Modal title="发布文章" visible={article.pubModalVisible} onCancel={onPubModalCancel} width="600px" okText="发布"
              onOk={onPublish()}>
-        <Table dataSource={article.currentArticle.tasks} columns={taskColumns} pagination={false}/>
+        <Table dataSource={platform.platforms ? platform.platforms.map((d: Platform) => {
+          return {
+            key: d._id,
+            ...d
+          }
+        }) : []}
+               rowSelection={platformRowSelection}
+               columns={platformColumns}
+               pagination={false}/>
       </Modal>
-      <Modal title={article.currentPlatform ? article.currentPlatform.label : ''}
+      <Modal title={currentPlatform ? '配置-' + currentPlatform.label : '配置'}
              visible={article.platformModalVisible}
+             onOk={onConfigCancel}
              onCancel={onConfigCancel}>
         {platformContent}
       </Modal>
@@ -328,6 +381,8 @@ const ArticleList: React.FC<ArticleListProps> = props => {
   );
 };
 
-export default connect(({article}: ConnectState) => ({
-  article
+export default connect(({article, platform, task}: ConnectState) => ({
+  article,
+  platform,
+  task
 }))(ArticleList);
