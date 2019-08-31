@@ -8,6 +8,8 @@ const taskSchema = new mongoose.Schema({
     url: String,
     createTs: Date,
     updateTs: Date,
+    error: String,
+    checked: Boolean,
 
     // 配置信息
     category: String, // 类别: juejin

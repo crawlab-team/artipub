@@ -27,6 +27,7 @@ module.exports = {
                 task.category = _task.category
                 task.tag = _task.tag
                 task.updateTs = new Date()
+                task.checked = _task.checked
             } else {
                 task = new models.Task({
                     articleId: ObjectId(_task.articleId),
@@ -34,6 +35,7 @@ module.exports = {
                     status: constants.status.NOT_STARTED,
                     createTs: new Date(),
                     updateTs: new Date(),
+                    checked: _task.checked,
 
                     // 配置信息
                     category: _task.category,

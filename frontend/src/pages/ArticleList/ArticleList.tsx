@@ -57,32 +57,30 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     router.push('/articles/new')
   };
 
-  const onPublishPopup: Function = (d: any) => {
+  const onPublishPopup: Function = (a: Article) => {
     return async () => {
-      if (dispatch) {
-        await dispatch({
-          type: 'article/fetchArticle',
-          payload: {
-            id: d._id
+      await dispatch({
+        type: 'article/fetchArticle',
+        payload: {
+          id: a._id
+        }
+      });
+      await dispatch({
+        type: 'article/setPubModalVisible',
+        payload: true,
+      });
+      await dispatch({
+        type: 'task/saveTaskList',
+        payload: platform.platforms.map((p: Platform): Task => {
+          return {
+            platformId: p._id || '',
+            articleId: article.currentArticle ? (article.currentArticle._id || '') : '',
+            category: '',
+            tag: '',
+            checked: true,
           }
-        });
-        await dispatch({
-          type: 'article/setPubModalVisible',
-          payload: true,
-        });
-        await dispatch({
-          type: 'task/saveTaskList',
-          payload: platform.platforms.map((d: Platform): Task => {
-            return {
-              platformId: d._id || '',
-              articleId: article.currentArticle ? (article.currentArticle._id || '') : '',
-              category: '',
-              tag: '',
-              checked: true,
-            }
-          })
         })
-      }
+      })
     }
   };
 
@@ -97,23 +95,30 @@ const ArticleList: React.FC<ArticleListProps> = props => {
 
   const onPublish: Function = () => {
     return async () => {
-      if (dispatch) {
-        if (article.platformList && article.currentArticle) {
-          const platforms = article.platformList.filter(d => d.checked).map(d => d.name).join(',');
-          await dispatch({
-            type: 'article/publishArticle',
-            payload: {
-              id: article.currentArticle._id,
-              platforms
-            }
-          });
-          await dispatch({
-            type: 'article/fetchArticleList',
-          });
-          message.success('已开始发布')
-        }
+      if (article.currentArticle) {
+        await dispatch({
+          type: 'task/addTasks',
+          payload: task.tasks
+            .map((t: Task) => {
+              t.articleId = article.currentArticle ? (article.currentArticle._id || '') : '';
+              return t;
+            }),
+        });
+        await dispatch({
+          type: 'task/fetchTaskList',
+          payload: {
+            id: article.currentArticle._id,
+          }
+        });
+        await dispatch({
+          type: 'article/publishArticle',
+          payload: {
+            id: article.currentArticle._id,
+          }
+        });
+        message.success('已开始发布')
       }
-    };
+    }
   };
 
   const onViewArticle: Function = (d: any) => {
@@ -185,7 +190,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       } else if (type === constants.inputType.INPUT) {
         value = ev.target.value;
       }
-      if (value !== undefined) {
+      if (value !== undefined && !!task.currentTask) {
         task.currentTask[key] = value;
         dispatch({
           type: 'task/saveCurrentTask',

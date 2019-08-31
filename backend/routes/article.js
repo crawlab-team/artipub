@@ -58,17 +58,7 @@ module.exports = {
         article.title = req.body.title
         article.content = req.body.content
         article.updateTs = new Date()
-
-        // 平台
-        platforms.forEach(platform => {
-            if (req.body[platform]) {
-                article.platforms[platform] = req.body[platform]
-            }
-        })
-
-        // 更新
-        article = await article.updateOne(article)
-
+        article = await article.save()
         res.json({
             status: 'ok',
             data: article,
@@ -96,12 +86,14 @@ module.exports = {
                 error: 'not found'
             }, 404)
         }
-        const platforms = req.body.platforms.split(',')
+        const tasks = await models.Task.find({ articleId: article._id, checked: true })
         let isError = false
         let errMsg = ''
-        for (let i = 0; i < platforms.length; i++) {
+        for (let task of tasks) {
             if (isError) break
-            const platform = platforms[i]
+
+            // 获取平台
+            const platform = await models.Platform.findOne({ _id: ObjectId(task.platformId) })
 
             // 获取执行路径
             let execPath
@@ -116,23 +108,11 @@ module.exports = {
             }
             const filePath = path.join(__dirname, '..', '..', 'spiders', execPath)
 
-            // 初始化平台
-            if (!article.platforms[platform]) {
-                article.platforms[platform] = {}
-            }
-
-            // 初始化执行结果
-            if (article.platforms[platform].url || article.platforms[platform].status === 'processing') {
-                // 如果结果已经存在或状态为正在处理，跳过
-                console.log(`skipped ${platform}`)
-                continue
-            } else {
-                article.platforms[platform] = {
-                    status: 'processing',
-                    updateTs: new Date(),
-                }
-                await article.updateOne(article)
-            }
+            // 更新任务
+            const task = await models.Task.findOne({ articleId: ObjectId(req.params.id), platformId: platform._id })
+            task.status = constants.status.PROCESSING
+            task.updateTs = new Date()
+            await task.save()
 
             console.log(`node ${filePath} ${article._id.toString()}`)
             await exec(`node ${filePath} ${article._id.toString()}`, (err, stdout, stderr) => {
@@ -140,12 +120,7 @@ module.exports = {
                     console.error(stderr)
                     isError = true
                     errMsg = stderr
-                    article.platforms[platform] = {
-                        status: 'error',
-                        updateTs: new Date(),
-                        error: errMsg,
-                    }
-                    article.updateOne(article)
+                    task.error = stderr
                 }
             })
         }

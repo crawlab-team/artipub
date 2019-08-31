@@ -49,9 +49,9 @@ app.delete('/articles/:id', routes.article.deleteArticle)
 app.post('/articles/:id/publish', routes.article.publishArticle)
 // 任务
 app.get('/tasks', routes.task.getTaskList)
-app.put('/tasks/batch', routes.task.addTasks)
 app.get('/tasks/:id', routes.task.getTask)
 app.put('/tasks', routes.task.addTask)
+app.put('/tasks/batch', routes.task.addTasks)
 app.post('/tasks/:id', routes.task.editTask)
 app.delete('/tasks/:id', routes.task.deleteTask)
 // 平台

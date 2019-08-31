@@ -43,8 +43,8 @@ const TaskModel: TaskModelType = {
 
   effects: {
     * fetchTaskList(action, {call, put}) {
-      const response = yield call(queryTaskList);
-      put({
+      const response = yield call(queryTaskList, action.payload);
+      yield put({
         type: 'setTaskList',
         payload: response.data
       })
