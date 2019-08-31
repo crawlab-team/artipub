@@ -87,6 +87,7 @@ module.exports = {
             }, 404)
         }
         const tasks = await models.Task.find({ articleId: article._id, checked: true })
+        console.log(tasks);
         let isError = false
         let errMsg = ''
         for (let task of tasks) {
@@ -109,7 +110,6 @@ module.exports = {
             const filePath = path.join(__dirname, '..', '..', 'spiders', execPath)
 
             // 更新任务
-            const task = await models.Task.findOne({ articleId: ObjectId(req.params.id), platformId: platform._id })
             task.status = constants.status.PROCESSING
             task.updateTs = new Date()
             await task.save()

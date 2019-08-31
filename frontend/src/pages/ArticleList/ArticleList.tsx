@@ -70,17 +70,11 @@ const ArticleList: React.FC<ArticleListProps> = props => {
         payload: true,
       });
       await dispatch({
-        type: 'task/saveTaskList',
-        payload: platform.platforms.map((p: Platform): Task => {
-          return {
-            platformId: p._id || '',
-            articleId: article.currentArticle ? (article.currentArticle._id || '') : '',
-            category: '',
-            tag: '',
-            checked: true,
-          }
-        })
-      })
+        type: 'task/fetchTaskList',
+        payload: {
+          id: a._id,
+        }
+      });
     }
   };
 
@@ -157,10 +151,23 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       type: 'article/setArticlePlatformIds',
       payload: selectedPlatforms.map((d: any) => d._id),
     });
-    const tasks = task.tasks.map((t: Task) => {
-      t.checked = selectedPlatforms.map((p: any) => p._id).includes(t.platformId);
-      return t;
-    });
+    let tasks;
+    if (task.tasks.length) {
+      tasks = task.tasks.map((t: Task) => {
+        t.checked = selectedPlatforms.map((p: any) => p._id).includes(t.platformId);
+        return t;
+      });
+    } else {
+      tasks = platform.platforms.map((p: Platform): Task => {
+        return {
+          platformId: p._id || '',
+          articleId: article.currentArticle ? (article.currentArticle._id || '') : '',
+          category: '',
+          tag: '',
+          checked: selectedPlatforms.map((_p: any) => _p._id).includes(p._id),
+        }
+      });
+    }
     dispatch({
       type: 'task/saveTaskList',
       payload: tasks,
@@ -172,10 +179,23 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       type: 'article/setArticlePlatformIds',
       payload: selectedPlatforms.map((d: any) => d._id),
     });
-    const tasks = task.tasks.map((t: Task) => {
-      t.checked = selectedPlatforms.map((p: any) => p._id).includes(t.platformId);
-      return t;
-    });
+    let tasks;
+    if (task.tasks.length) {
+      tasks = task.tasks.map((t: Task) => {
+        t.checked = selectedPlatforms.map((p: any) => p._id).includes(t.platformId);
+        return t;
+      });
+    } else {
+      tasks = platform.platforms.map((p: Platform): Task => {
+        return {
+          platformId: p._id || '',
+          articleId: article.currentArticle ? (article.currentArticle._id || '') : '',
+          category: '',
+          tag: '',
+          checked: selectedPlatforms.map((_p: any) => _p._id).includes(p._id),
+        }
+      });
+    }
     dispatch({
       type: 'task/saveTaskList',
       payload: tasks,
