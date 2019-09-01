@@ -10,6 +10,7 @@ const taskSchema = new mongoose.Schema({
     updateTs: Date,
     error: String,
     checked: Boolean,
+    ready: Boolean,
 
     // 配置信息
     category: String, // 类别: juejin

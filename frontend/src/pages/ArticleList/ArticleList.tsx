@@ -27,13 +27,13 @@ export interface ArticleListProps extends ConnectProps {
 const ArticleList: React.FC<ArticleListProps> = props => {
   const {dispatch, article, platform, task} = props;
 
-  const onEdit: Function = (d: Article) => {
+  const onArticleEdit: Function = (d: Article) => {
     return () => {
       router.push(`/articles/edit/${d._id}`);
     }
   };
 
-  const onDelete: Function = (d: Article) => {
+  const onArticleDelete: Function = (d: Article) => {
     return () => {
       if (dispatch) {
         dispatch({
@@ -48,7 +48,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     }
   };
 
-  const onNew = () => {
+  const onArticleCreate = () => {
     if (dispatch) {
       dispatch({
         type: 'article/resetArticle',
@@ -57,7 +57,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     router.push('/articles/new')
   };
 
-  const onPublishPopup: Function = (a: Article) => {
+  const onArticleTasksModalOpen: Function = (a: Article) => {
     return async () => {
       await dispatch({
         type: 'article/fetchArticle',
@@ -78,7 +78,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     }
   };
 
-  const onPubModalCancel = () => {
+  const onArticleTasksModalCancel = () => {
     if (dispatch) {
       dispatch({
         type: 'article/setPubModalVisible',
@@ -87,23 +87,9 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     }
   };
 
-  const onPublish: Function = () => {
+  const onArticleTasksPublish: Function = () => {
     return async () => {
       if (article.currentArticle) {
-        await dispatch({
-          type: 'task/addTasks',
-          payload: task.tasks
-            .map((t: Task) => {
-              t.articleId = article.currentArticle ? (article.currentArticle._id || '') : '';
-              return t;
-            }),
-        });
-        await dispatch({
-          type: 'task/fetchTaskList',
-          payload: {
-            id: article.currentArticle._id,
-          }
-        });
         await dispatch({
           type: 'article/publishArticle',
           payload: {
@@ -115,7 +101,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     }
   };
 
-  const onViewArticle: Function = (d: any) => {
+  const onTaskViewArticle: Function = (d: any) => {
     return () => {
       if (article.currentArticle) {
         window.open(article.currentArticle[d.name].url);
@@ -123,7 +109,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     }
   };
 
-  const onConfig: Function = (p: Platform) => {
+  const onTaskModalOpen: Function = (p: Platform) => {
     return () => {
       if (article.currentArticle) {
         const t: Task = task.tasks.filter((t: Task) => t.platformId === p._id)[0];
@@ -139,14 +125,25 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     };
   };
 
-  const onConfigCancel = () => {
+  const onTaskModalCancel = () => {
     dispatch({
       type: 'article/setPlatformModalVisible',
       payload: false,
     });
   };
 
-  const onPlatformSelect: SelectionSelectFn<any> = (d: any, selected: boolean, selectedPlatforms: Object[], nativeEvent: Event) => {
+  const onTaskModalConfirm = () => {
+    dispatch({
+      type: 'task/addTasks',
+      payload: task.tasks,
+    });
+    dispatch({
+      type: 'article/setPlatformModalVisible',
+      payload: false,
+    });
+  };
+
+  const onTaskSelect: SelectionSelectFn<any> = (d: any, selected: boolean, selectedPlatforms: Object[], nativeEvent: Event) => {
     dispatch({
       type: 'article/setArticlePlatformIds',
       payload: selectedPlatforms.map((d: any) => d._id),
@@ -174,7 +171,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     });
   };
 
-  const onPlatformSelectAll = (selected: boolean, selectedPlatforms: Object[]) => {
+  const onTaskSelectAll = (selected: boolean, selectedPlatforms: Object[]) => {
     dispatch({
       type: 'article/setArticlePlatformIds',
       payload: selectedPlatforms.map((d: any) => d._id),
@@ -224,8 +221,8 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     selectedRowKeys: task.tasks
       .filter((d: Task) => d.checked)
       .map((d: Task) => d.platformId),
-    onSelect: onPlatformSelect,
-    onSelectAll: onPlatformSelectAll,
+    onSelect: onTaskSelect,
+    onSelectAll: onTaskSelectAll,
   };
 
   const columns: ColumnProps<any>[] = [
@@ -256,9 +253,9 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       render: (text, d) => {
         return (
           <div>
-            <Button type="primary" shape="circle" icon="cloud" className={style.pubBtn} onClick={onPublishPopup(d)}/>
-            <Button type="default" shape="circle" icon="edit" className={style.editBtn} onClick={onEdit(d)}/>
-            <Popconfirm title="您确认删除该文章吗？" onConfirm={onDelete(d)}>
+            <Button type="primary" shape="circle" icon="cloud" className={style.pubBtn} onClick={onArticleTasksModalOpen(d)}/>
+            <Button type="default" shape="circle" icon="edit" className={style.editBtn} onClick={onArticleEdit(d)}/>
+            <Popconfirm title="您确认删除该文章吗？" onConfirm={onArticleDelete(d)}>
               <Button type="danger" shape="circle" icon="delete" className={style.delBtn}/>
             </Popconfirm>
           </div>
@@ -322,9 +319,9 @@ const ArticleList: React.FC<ArticleListProps> = props => {
         return (
           <div>
             <Button disabled={!isFinished} type="default" shape="circle" icon="search"
-                    className={style.viewBtn} onClick={onViewArticle(p)}/>
+                    className={style.viewBtn} onClick={onTaskViewArticle(p)}/>
             <Button disabled={t && !t.checked} type="primary" shape="circle" icon="tool"
-                    className={style.configBtn} onClick={onConfig(p)}/>
+                    className={style.configBtn} onClick={onTaskModalOpen(p)}/>
           </div>
         )
       }
@@ -359,12 +356,14 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     platformContent = (
       <Form labelCol={{sm: {span: 4}}} wrapperCol={{sm: {span: 20}}}>
         <Form.Item label="类别">
-          <Select placeholder="点击选择类别" onChange={onTaskChange('select', 'category')}>
+          <Select placeholder="点击选择类别" value={task.currentTask ? task.currentTask.category : undefined}
+                  onChange={onTaskChange('select', 'category')}>
             {categories.map(category => (<Select.Option key={category}>{category}</Select.Option>))}
           </Select>
         </Form.Item>
         <Form.Item label="标签">
-          <Input placeholder="输入标签" onChange={onTaskChange('input', 'tag')}/>
+          <Input placeholder="输入标签" value={task.currentTask ? task.currentTask.tag : undefined}
+                 onChange={onTaskChange('input', 'tag')}/>
         </Form.Item>
       </Form>
     );
@@ -372,7 +371,9 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     platformContent = (
       <Form labelCol={{sm: {span: 4}}} wrapperCol={{sm: {span: 20}}}>
         <Form.Item label="标签">
-          <Input placeholder="输入标签（用逗号分割）" onChange={onTaskChange('input', 'tag')}/>
+          <Input placeholder="输入标签（用逗号分割）"
+                 value={task.currentTask ? task.currentTask.tag : undefined}
+                 onChange={onTaskChange('input', 'tag')}/>
         </Form.Item>
       </Form>
     );
@@ -380,8 +381,8 @@ const ArticleList: React.FC<ArticleListProps> = props => {
 
   return (
     <PageHeaderWrapper>
-      <Modal title="发布文章" visible={article.pubModalVisible} onCancel={onPubModalCancel} width="600px" okText="发布"
-             onOk={onPublish()}>
+      <Modal title="发布文章" visible={article.pubModalVisible} onCancel={onArticleTasksModalCancel} width="600px" okText="发布"
+             onOk={onArticleTasksPublish()}>
         <Table dataSource={platform.platforms ? platform.platforms.map((d: Platform) => {
           return {
             key: d._id,
@@ -394,12 +395,12 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       </Modal>
       <Modal title={currentPlatform ? '配置-' + currentPlatform.label : '配置'}
              visible={article.platformModalVisible}
-             onOk={onConfigCancel}
-             onCancel={onConfigCancel}>
+             onOk={onTaskModalConfirm}
+             onCancel={onTaskModalCancel}>
         {platformContent}
       </Modal>
       <div className={style.actions}>
-        <Button className={style.addBtn} type="primary" onClick={onNew}>创建文章</Button>
+        <Button className={style.addBtn} type="primary" onClick={onArticleCreate}>创建文章</Button>
       </div>
       <Table dataSource={article.articles} columns={columns}/>
     </PageHeaderWrapper>

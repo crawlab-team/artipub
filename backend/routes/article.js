@@ -87,61 +87,18 @@ module.exports = {
             }, 404)
         }
         const tasks = await models.Task.find({ articleId: article._id, checked: true })
-        console.log(tasks);
-        let isError = false
-        let errMsg = ''
         for (let task of tasks) {
-            if (isError) break
-
-            // 获取平台
-            const platform = await models.Platform.findOne({ _id: ObjectId(task.platformId) })
-
             // 获取执行路径
-            let execPath
-            if (platform === 'juejin') {
-                execPath = 'juejin/juejin_spider.js'
-            } else if (platform === 'segmentfault') {
-                execPath = 'segmentfault/segmentfault_spider.js'
-            } else if (platform === 'jianshu') {
-                execPath = 'jianshu/jianshu_spider.js'
-            } else {
-                continue
-            }
-            const filePath = path.join(__dirname, '..', '..', 'spiders', execPath)
+            const filePath = path.join(__dirname, '..', '..', 'spiders', 'index.js')
 
-            // 更新任务
-            task.status = constants.status.PROCESSING
-            task.updateTs = new Date()
-            await task.save()
-
-            console.log(`node ${filePath} ${article._id.toString()}`)
-            await exec(`node ${filePath} ${article._id.toString()}`, (err, stdout, stderr) => {
-                if (err) {
-                    console.error(stderr)
-                    isError = true
-                    errMsg = stderr
-                    task.error = stderr
-                    task.updateTs = new Date()
-                    task.save()
-                } else {
-                    task.status = constants.status.FINISHED
-                    task.updateTs = new Date()
-                    task.save()
-                }
-            })
+            const cmd = `node ${filePath} ${task._id.toString()}`
+            console.log(cmd)
+            await exec(cmd)
         }
 
-        if (isError) {
-            res.json({
-                status: 'ok',
-                error: errMsg,
-            }, 500)
-        } else {
-            res.json({
-                status: 'ok',
-                data: article,
-            })
-        }
+        res.json({
+            status: 'ok',
+        })
     },
     addArticleTask: async (req, res) => {
         let task = new models.Task({

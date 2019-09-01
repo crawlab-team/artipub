@@ -1,14 +1,10 @@
 const PCR = require('puppeteer-chromium-resolver')
 const ObjectId = require('bson').ObjectId
-const log4js = require('log4js')
 const credentials = require('../credentials')
 const models = require('../models')
 const constants = require('../constants')
 const config = require('./config')
-
-// 日志配置
-const logger = log4js.getLogger()
-logger.level = 'debug'
+const logger = require('../logger')
 
 class BaseSpider {
     constructor(taskId) {
@@ -183,15 +179,6 @@ class BaseSpider {
     async run() {
         // 初始化
         await this.init()
-
-        // 判断任务状态
-        if (
-            this.task.status !== constants.status.NOT_STARTED &&
-            this.task.status !== constants.status.ERROR
-        ) {
-            logger.info(`task (ID: ${this.task._id.toString()} has already been run. exit`)
-            return
-        }
 
         // 登陆
         await this.login()

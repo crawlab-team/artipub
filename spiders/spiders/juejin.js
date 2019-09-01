@@ -15,13 +15,13 @@ class JuejinSpider extends BaseSpider {
 
         // 选择类别
         await this.page.evaluate((task) => {
-            document.querySelectorAll('.category-list > .item').forEach(tag => {
-                if (tag.textContent === task.tag) {
-                    tag.click()
+            document.querySelectorAll('.category-list > .item').forEach(el => {
+                if (el.textContent === task.category) {
+                    el.click()
                 }
             })
         }, this.task)
-        await this.page.waitFor(1000)
+        await this.page.waitFor(3000)
 
         // 选择标签
         const elTagInput = await this.page.$('.tag-input > input')
