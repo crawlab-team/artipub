@@ -1,0 +1,39 @@
+{
+  "name": "ArtiPub",
+  "version": "0.0.1",
+  "manifest_version": 2,
+  "description": "ArtiPub登陆助手",
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  },
+  "browser_action": {
+    "default_title": "ArtiPub登陆助手",
+    "default_icon": "icon.png",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "css": [
+        "antd.min.css"
+      ],
+      "js": [
+        "popup.js"
+      ],
+      "all_frames": false,
+      "run_at": "document_idle"
+    }
+  ],
+  "permissions": [
+    "cookies",
+    "tabs",
+    "http://*/*",
+    "https://*/*",
+    "storage"
+  ]
+}

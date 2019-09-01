@@ -1,8 +1,6 @@
 const models = require('../models')
 const constants = require('../constants')
 const ObjectId = require('bson').ObjectId
-const exec = require('child_process').exec
-const path = require('path')
 
 module.exports = {
     getArticleList: async (req, res) => {
@@ -86,14 +84,21 @@ module.exports = {
                 error: 'not found'
             }, 404)
         }
-        const tasks = await models.Task.find({ articleId: article._id, checked: true })
+        const tasks = await models.Task.find({
+            articleId: article._id,
+            status: {
+                $in: [
+                    constants.status.NOT_STARTED,
+                    constants.status.ERROR,
+                ]
+            },
+            checked: true,
+        })
         for (let task of tasks) {
-            // 获取执行路径
-            const filePath = path.join(__dirname, '..', '..', 'spiders', 'index.js')
-
-            const cmd = `node ${filePath} ${task._id.toString()}`
-            console.log(cmd)
-            await exec(cmd)
+            task.status = constants.status.NOT_STARTED
+            task.ready = true
+            task.updateTs = new Date()
+            await task.save()
         }
 
         res.json({

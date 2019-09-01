@@ -19,7 +19,7 @@ if (config.MONGO_USERNAME) {
     let interrupted = false
 
     while (!interrupted) {
-        const task = await models.Task.findOne({
+        let task = await models.Task.findOne({
             status: constants.status.NOT_STARTED,
             ready: true,
             checked: true
@@ -48,6 +48,8 @@ if (config.MONGO_USERNAME) {
             spider = new spiders.JuejinSpider(task._id)
         } else if (spiderName === constants.platform.SEGMENTFAULT) {
             spider = new spiders.SegmentfaultSpider(task._id)
+        } else if (spiderName === constants.platform.JIANSHU) {
+            spider = new spiders.JianshuSpider(task._id)
         }
 
         if (spider) {
@@ -57,15 +59,27 @@ if (config.MONGO_USERNAME) {
                 await task.save()
                 await spider.run()
 
-                task.status = constants.status.FINISHED
-                task.updateTs = new Date()
-                await task.save()
+                // 检查URL结果
+                task = await models.Task.findOne({ _id: task._id })
+                if (task.url) {
+                    // URL保存成功
+                    task.status = constants.status.FINISHED
+                    task.updateTs = new Date()
+                    await task.save()
+                } else {
+                    // URL保存失败
+                    task.status = constants.status.ERROR
+                    task.error = '文章URL未保存成功'
+                    task.updateTs = new Date()
+                    await task.save()
+                }
             } catch (e) {
                 task.status = constants.status.ERROR
                 task.error = e.toString()
                 task.updateTs = new Date()
                 await task.save()
                 console.error(e)
+                await spider.browser.close()
             }
         }
 

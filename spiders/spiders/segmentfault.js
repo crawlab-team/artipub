@@ -8,7 +8,12 @@ class SegmentfaultSpider extends BaseSpider {
         for (const tag of tags) {
             await elTagInput.type(tag)
             await this.page.waitFor(1000)
-            await elTagInput.type(',')
+            await this.page.evaluate(() => {
+                const el = document.querySelector('.sf-typeHelper-list > li:nth-child(1)')
+                if (el) {
+                    el.click()
+                }
+            })
             await this.page.waitFor(1000)
         }
         await this.page.waitFor(3000)

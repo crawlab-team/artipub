@@ -1,13 +1,13 @@
-const path = require("path");
+const path = require("path")
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 module.exports = {
   entry: {
-    popup: path.join(__dirname, "src/extensions/popup/index.tsx"),
-    tab: path.join(__dirname, "src/extensions/tab/index.tsx"),
-    background: path.join(__dirname, "src/extensions/background.ts")
+    popup: path.join(__dirname, "src/popup/index.tsx"),
   },
   output: {
-    path: path.join(__dirname, "dist/js"),
+    path: path.join(__dirname, "dist"),
     filename: "[name].js"
   },
   module: {
@@ -36,5 +36,16 @@ module.exports = {
   },
   resolve: {
     extensions: [".ts", ".tsx", ".js"]
-  }
-};
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      filename: "popup.html",
+      template: "./src/popup/popup.html"
+    }),
+    new CopyWebpackPlugin([
+      'src/manifest.json',
+      'src/icon.png',
+      'src/antd.min.css',
+    ])
+  ]
+}

@@ -10,6 +10,8 @@ export interface Task {
   category: string;
   tag: string;
   checked: boolean;
+  ready?: boolean;
+  error?: boolean;
 }
 
 export interface TaskModelState {

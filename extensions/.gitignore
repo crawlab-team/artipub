@@ -1,2 +1,3 @@
-dist/js
+dist
 node_modules
+*.pem
