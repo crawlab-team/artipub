@@ -12,6 +12,7 @@ export interface Task {
   checked: boolean;
   ready?: boolean;
   error?: boolean;
+  authType: string;
 }
 
 export interface TaskModelState {
@@ -45,6 +46,7 @@ const TaskModel: TaskModelType = {
 
   effects: {
     * fetchTaskList(action, {call, put}) {
+      console.log('fetchTaskList');
       const response = yield call(queryTaskList, action.payload);
       yield put({
         type: 'setTaskList',
@@ -85,6 +87,7 @@ const TaskModel: TaskModelType = {
       }
     },
     setTaskList(state, action) {
+      console.log('setTaskList');
       return {
         ...state,
         tasks: action.payload

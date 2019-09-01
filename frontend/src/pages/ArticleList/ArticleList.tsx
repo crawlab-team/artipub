@@ -78,11 +78,15 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     }
   };
 
-  const onArticleTasksModalCancel = () => {
+  const onArticleTasksModalCancel = async () => {
     if (dispatch) {
-      dispatch({
+      await dispatch({
         type: 'article/setPubModalVisible',
         payload: false,
+      });
+      await dispatch({
+        type: 'task/setTaskList',
+        payload: [],
       })
     }
   };
@@ -143,40 +147,44 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     });
   };
 
-  const saveTasks = (selectedPlatforms: Object[]) => {
-    let tasks;
-    if (task.tasks.length) {
-      tasks = task.tasks.map((t: Task) => {
-        t.checked = selectedPlatforms.map((p: any) => p._id).includes(t.platformId);
-        return t;
-      });
-    } else {
-      tasks = platform.platforms.map((p: Platform): Task => {
-        return {
+  const saveTasks = async (selectedPlatforms: Object[], _article: Article) => {
+    let tasks: Task[] = [];
+    platform.platforms.forEach((p: Platform) => {
+      let t: Task = task.tasks.filter((_t: Task) => _t.platformId === p._id)[0];
+      if (t) {
+        t.checked = selectedPlatforms.map((p: any) => p._id || '').includes(t.platformId);
+      } else {
+        t = {
           platformId: p._id || '',
-          articleId: article.currentArticle ? (article.currentArticle._id || '') : '',
+          articleId: _article._id || '',
           category: '',
           tag: '',
           checked: selectedPlatforms.map((_p: any) => _p._id).includes(p._id),
-        }
-      });
-    }
-    dispatch({
-      type: 'task/saveTaskList',
+          authType: constants.authType.LOGIN,
+        };
+      }
+      tasks.push(t);
+    });
+    await dispatch({
+      type: 'task/setTaskList',
       payload: tasks,
     });
-    dispatch({
+    await dispatch({
       type: 'task/addTasks',
       payload: tasks,
     });
   };
 
-  const onTaskSelect: SelectionSelectFn<any> = (d: any, selected: boolean, selectedPlatforms: Object[], nativeEvent: Event) => {
-    saveTasks(selectedPlatforms);
+  const onTaskSelect: SelectionSelectFn<any> = async (d: any, selected: boolean, selectedPlatforms: Object[], nativeEvent: Event) => {
+    if (article.currentArticle) {
+      await saveTasks(selectedPlatforms, article.currentArticle);
+    }
   };
 
-  const onTaskSelectAll = (selected: boolean, selectedPlatforms: Object[]) => {
-    saveTasks(selectedPlatforms);
+  const onTaskSelectAll = async (selected: boolean, selectedPlatforms: Object[]) => {
+    if (article.currentArticle) {
+      await saveTasks(selectedPlatforms, article.currentArticle);
+    }
   };
 
   const onTaskChange: Function = (type: string, key: string) => {
@@ -197,7 +205,32 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     };
   };
 
-  const platformRowSelection: TableRowSelection<any> = {
+  /**
+   * 选择验证方式
+   * 假设已经获取task.tasks
+   * @param t
+   * @param authType
+   */
+  const onSelectAuthType: Function = (t: Task, authType: string) => {
+    return async () => {
+      const tasks = task.tasks.map((_t: Task) => {
+        if (t === _t) {
+          _t.authType = authType;
+        }
+        return _t;
+      });
+      await dispatch({
+        type: 'task/saveTaskList',
+        payload: tasks,
+      });
+      await dispatch({
+        type: 'task/addTasks',
+        payload: tasks,
+      });
+    }
+  };
+
+  const taskRowSelection: TableRowSelection<any> = {
     selectedRowKeys: task.tasks
       .filter((d: Task) => d.checked)
       .map((d: Task) => d.platformId),
@@ -205,7 +238,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     onSelectAll: onTaskSelectAll,
   };
 
-  const columns: ColumnProps<any>[] = [
+  const articleColumns: ColumnProps<any>[] = [
     {
       title: '文章标题',
       dataIndex: 'title',
@@ -251,7 +284,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     }
   ];
 
-  const platformColumns: ColumnProps<any>[] = [
+  const taskColumns: ColumnProps<any>[] = [
     {
       title: '平台',
       key: 'icon',
@@ -296,9 +329,35 @@ const ArticleList: React.FC<ArticleListProps> = props => {
           );
         } else if (t.status === constants.status.FINISHED) {
           el = <Tag color="green">已发布</Tag>;
+        } else {
+          el = <Tag color="grey">未发布</Tag>;
         }
         return el
       }
+    },
+    {
+      title: '验证方式',
+      dataIndex: '_id',
+      key: '_id',
+      width: '150px',
+      render: (text: string, p: Platform) => {
+        const t: Task = task.tasks.filter((t: Task) => t.platformId === p._id)[0];
+        if (!t) return <div/>;
+        return (
+          <Button.Group>
+            <Button type={t.authType === constants.authType.LOGIN ? 'primary' : 'default'}
+                    size="small"
+                    onClick={onSelectAuthType(t, constants.authType.LOGIN)}>
+              登陆
+            </Button>
+            <Button type={t.authType === constants.authType.COOKIE ? 'primary' : 'default'}
+                    size="small"
+                    onClick={onSelectAuthType(t, constants.authType.COOKIE)}>
+              Cookie
+            </Button>
+          </Button.Group>
+        )
+      },
     },
     {
       title: '操作',
@@ -380,7 +439,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
 
   return (
     <PageHeaderWrapper>
-      <Modal title="发布文章" visible={article.pubModalVisible} onCancel={onArticleTasksModalCancel} width="600px"
+      <Modal title="发布文章" visible={article.pubModalVisible} onCancel={onArticleTasksModalCancel} width="800px"
              okText="发布"
              onOk={onArticleTasksPublish()}>
         <Table dataSource={platform.platforms ? platform.platforms.map((d: Platform) => {
@@ -389,8 +448,8 @@ const ArticleList: React.FC<ArticleListProps> = props => {
             ...d
           }
         }) : []}
-               rowSelection={platformRowSelection}
-               columns={platformColumns}
+               rowSelection={taskRowSelection}
+               columns={taskColumns}
                pagination={false}/>
       </Modal>
       <Modal title={currentPlatform ? '配置-' + currentPlatform.label : '配置'}
@@ -402,7 +461,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       <div className={style.actions}>
         <Button className={style.addBtn} type="primary" onClick={onArticleCreate}>创建文章</Button>
       </div>
-      <Table dataSource={article.articles} columns={columns}/>
+      <Table dataSource={article.articles} columns={articleColumns}/>
     </PageHeaderWrapper>
   );
 };

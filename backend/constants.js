@@ -9,5 +9,9 @@ module.exports = {
         PROCESSING: 'processing',
         FINISHED: 'finished',
         ERROR: 'error',
+    },
+    authType: {
+        LOGIN: 'login',
+        COOKIES: 'cookie',
     }
 }

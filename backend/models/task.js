@@ -11,6 +11,7 @@ const taskSchema = new mongoose.Schema({
     error: String,
     checked: Boolean,
     ready: Boolean,
+    authType: String,
 
     // 配置信息
     category: String, // 类别: juejin

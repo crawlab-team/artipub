@@ -13,5 +13,9 @@ export default {
   inputType: {
     SELECT: 'select',
     INPUT: 'input'
+  },
+  authType: {
+    LOGIN: 'login',
+    COOKIE: 'cookie',
   }
 }

@@ -28,6 +28,7 @@ module.exports = {
                 task.tag = _task.tag
                 task.updateTs = new Date()
                 task.checked = _task.checked
+                task.authType = _task.authType
             } else {
                 task = new models.Task({
                     articleId: ObjectId(_task.articleId),
@@ -36,6 +37,7 @@ module.exports = {
                     createTs: new Date(),
                     updateTs: new Date(),
                     checked: _task.checked,
+                    authType: _task.authType,
 
                     // 配置信息
                     category: _task.category,
