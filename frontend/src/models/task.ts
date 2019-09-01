@@ -9,7 +9,9 @@ export interface Task {
   status?: string;
   category: string;
   tag: string;
+  pubType: string;
   checked: boolean;
+  url: string;
   ready?: boolean;
   error?: boolean;
   authType: string;

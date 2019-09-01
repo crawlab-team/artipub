@@ -16,6 +16,7 @@ import constants from "@/constants";
 import imgJuejin from '@/assets/img/juejin-logo.svg';
 import imgSegmentfault from '@/assets/img/segmentfault-logo.jpg';
 import imgJianshu from '@/assets/img/jianshu-logo.png';
+import imgCsdn from '@/assets/img/csdn-logo.jpg';
 
 export interface ArticleListProps extends ConnectProps {
   task: TaskModelState;
@@ -105,11 +106,9 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     }
   };
 
-  const onTaskViewArticle: Function = (d: any) => {
+  const onTaskViewArticle: Function = (t: Task) => {
     return () => {
-      if (article.currentArticle) {
-        window.open(article.currentArticle[d.name].url);
-      }
+      window.open(t.url);
     }
   };
 
@@ -147,6 +146,16 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     });
   };
 
+  const getDefaultCategory = (p: Platform) => {
+    if (p.name === constants.platform.JUEJIN) {
+      return '前端';
+    } else if (p.name === constants.platform.CSDN) {
+      return '1'; // 原创
+    } else {
+      return '';
+    }
+  };
+
   const saveTasks = async (selectedPlatforms: Object[], _article: Article) => {
     let tasks: Task[] = [];
     platform.platforms.forEach((p: Platform) => {
@@ -157,10 +166,12 @@ const ArticleList: React.FC<ArticleListProps> = props => {
         t = {
           platformId: p._id || '',
           articleId: _article._id || '',
-          category: '',
+          category: getDefaultCategory(p),
           tag: '',
+          pubType: 'public',
           checked: selectedPlatforms.map((_p: any) => _p._id).includes(p._id),
           authType: constants.authType.LOGIN,
+          url: '',
         };
       }
       tasks.push(t);
@@ -172,6 +183,10 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     await dispatch({
       type: 'task/addTasks',
       payload: tasks,
+    });
+    await dispatch({
+      type: 'task/fetchTaskList',
+      payload: {id: _article._id},
     });
   };
 
@@ -297,6 +312,8 @@ const ArticleList: React.FC<ArticleListProps> = props => {
           return <img className={style.siteLogo} alt={d.label} src={imgSegmentfault}/>
         } else if (d.name === constants.platform.JIANSHU) {
           return <img className={style.siteLogo} alt={d.label} src={imgJianshu}/>
+        } else if (d.name === constants.platform.CSDN) {
+          return <img className={style.siteLogo} alt={d.label} src={imgCsdn}/>
         } else {
           return <div/>
         }
@@ -365,16 +382,13 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       dataIndex: 'action',
       width: '120px',
       render: (text: string, p: Platform) => {
-        let isFinished = false;
-        if (article.currentArticle && article.currentArticle[p.name] && article.currentArticle[p.name].url) {
-          isFinished = true;
-        }
         const t: Task = task.tasks.filter((t: Task) => t.platformId === p._id)[0];
+        if (!t) return <div/>;
         return (
           <div>
             <Tooltip title="查看文章">
-              <Button disabled={!isFinished} type="default" shape="circle" icon="search"
-                      className={style.viewBtn} onClick={onTaskViewArticle(p)}/>
+              <Button disabled={!t.url} type="default" shape="circle" icon="search"
+                      className={style.viewBtn} onClick={onTaskViewArticle(t)}/>
             </Tooltip>
             <Tooltip title="配置">
               <Button disabled={t && !t.checked} type="primary" shape="circle" icon="tool"
@@ -432,6 +446,37 @@ const ArticleList: React.FC<ArticleListProps> = props => {
           <Input placeholder="输入标签（用逗号分割）"
                  value={task.currentTask ? task.currentTask.tag : undefined}
                  onChange={onTaskChange('input', 'tag')}/>
+        </Form.Item>
+      </Form>
+    );
+  } else if (currentPlatform && currentPlatform.name === constants.platform.JIANSHU) {
+  } else if (currentPlatform && currentPlatform.name === constants.platform.CSDN) {
+    const categories = [
+      {value: '1', label: '原创'},
+      {value: '2', label: '转载'},
+      {value: '4', label: '翻译'},
+    ];
+    const pubTypes = [
+      {value: 'public', label: '公开'},
+      {value: 'private', label: '私密'},
+      {value: 'needfans', label: '粉丝可见'},
+      {value: 'needvip', label: 'VIP可见'},
+    ];
+    platformContent = (
+      <Form labelCol={{sm: {span: 4}}} wrapperCol={{sm: {span: 20}}}>
+        <Form.Item label="文章类型">
+          <Select placeholder="选择文章类型"
+                  value={task.currentTask ? task.currentTask.category : undefined}
+                  onChange={onTaskChange('select', 'category')}>
+            {categories.map(c => <Select.Option key={c.value}>{c.label}</Select.Option>)}
+          </Select>
+        </Form.Item>
+        <Form.Item label="发布形式">
+          <Select placeholder="选择发布形式"
+                  value={task.currentTask ? task.currentTask.pubType : undefined}
+                  onChange={onTaskChange('select', 'pubType')}>
+            {pubTypes.map(pt => <Select.Option key={pt.value}>{pt.label}</Select.Option>)}
+          </Select>
         </Form.Item>
       </Form>
     );

@@ -23,7 +23,9 @@ class SegmentfaultSpider extends BaseSpider {
         this.task.url = this.page.url()
         this.task.updateTs = new Date()
         this.task.status = constants.status.FINISHED
-        await this.article.save()
+        if (this.task.url.includes('https://segmentfault.com/a/')) {
+            await this.task.save()
+        }
     }
 }
 

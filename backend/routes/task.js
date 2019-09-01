@@ -26,6 +26,7 @@ module.exports = {
                 task = await models.Task.findOne({ _id: ObjectId(_task._id) })
                 task.category = _task.category
                 task.tag = _task.tag
+                task.pubType = _task.pubType
                 task.updateTs = new Date()
                 task.checked = _task.checked
                 task.authType = _task.authType
@@ -42,6 +43,7 @@ module.exports = {
                     // 配置信息
                     category: _task.category,
                     tag: _task.tag,
+                    pubType: _task.pubType,
                 })
             }
             task = await task.save()

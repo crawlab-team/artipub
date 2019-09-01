@@ -85,7 +85,14 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
     if (!article || !article.currentArticle) return;
     const $el = document.getElementById('content');
     if (!$el) return;
-    $el.innerHTML = converter.makeHtml(article.currentArticle.content);
+    const contentHtml = converter.makeHtml(article.currentArticle.content);
+    $el.innerHTML = contentHtml;
+    dispatch({
+      type: 'article/setArticleContentHtml',
+      payload: {
+        contentHtml,
+      },
+    })
   };
 
   // 调整CodeMirror高度
@@ -113,28 +120,21 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
   };
 
   // 点击保存
-  const onSave = () => {
-    if (dispatch) {
-      if (isEdit()) {
-        // 如果为编辑文章
-        dispatch({
-          type: 'article/saveCurrentArticle',
-          payload: article.currentArticle,
-        })
-          .then(() => {
-            message.success('文章保存成功');
-          })
-      } else {
-        console.log(article.currentArticle);
-        // 如果为创建文章
-        dispatch({
-          type: 'article/newArticle',
-          payload: article.currentArticle,
-        })
-          .then(() => {
-            message.success('文章保存成功');
-          })
-      }
+  const onSave = async () => {
+    if (isEdit()) {
+      // 如果为编辑文章
+      await dispatch({
+        type: 'article/saveCurrentArticle',
+        payload: article.currentArticle,
+      });
+      message.success('文章保存成功');
+    } else {
+      // 如果为创建文章
+      await dispatch({
+        type: 'article/newArticle',
+        payload: article.currentArticle,
+      });
+      message.success('文章保存成功');
     }
   };
 

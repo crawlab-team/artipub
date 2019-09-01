@@ -2,6 +2,17 @@ const constants = require('../constants')
 const BaseSpider = require('./base')
 
 class JianshuSpider extends BaseSpider {
+    async afterGoToEditor() {
+        await this.page.evaluate(() => {
+            document.querySelectorAll('span').forEach(el => {
+                if (el.textContent.trim() === '新建文章') {
+                    el.click()
+                }
+            })
+        })
+        await this.page.waitFor(3000)
+    }
+
     async afterInputEditor() {
     }
 

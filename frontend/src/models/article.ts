@@ -6,6 +6,7 @@ export interface Article {
   _id?: string;
   title: string;
   content: string;
+  contentHtml: string;
   platformIds: string[];
 }
 
@@ -27,6 +28,7 @@ export interface ArticleModelType {
     resetArticle: Effect;
     setArticleTitle: Effect;
     setArticleContent: Effect;
+    setArticleContentHtml: Effect;
     setArticlePlatformIds: Effect;
     saveCurrentArticle: Effect;
     deleteArticle: Effect;
@@ -39,6 +41,7 @@ export interface ArticleModelType {
     saveArticleList: Reducer<ArticleModelState>;
     saveArticleTitle: Reducer<ArticleModelState>;
     saveArticleContent: Reducer<ArticleModelState>;
+    saveArticleContentHtml: Reducer<ArticleModelState>;
     saveArticlePlatformIds: Reducer<ArticleModelState>;
     savePubModalVisible: Reducer<ArticleModelState>;
     savePlatformModalVisible: Reducer<ArticleModelState>;
@@ -51,7 +54,7 @@ const ArticleModel: ArticleModelType = {
   state: {
     articles: [],
     currentArticleId: undefined,
-    currentArticle: {title: '', content: '', platformIds: []},
+    currentArticle: {title: '', content: '', contentHtml: '', platformIds: []},
     pubModalVisible: false,
     platformModalVisible: false,
   },
@@ -99,6 +102,13 @@ const ArticleModel: ArticleModelType = {
       yield put({
         type: 'saveArticleContent',
         payload: action.payload,
+      })
+    },
+
+    * setArticleContentHtml(action, {put}) {
+      yield put({
+        type: 'saveArticleContentHtml',
+        payload: action.payload
       })
     },
 
@@ -170,6 +180,15 @@ const ArticleModel: ArticleModelType = {
       if (!state || !state.currentArticle) return {...state};
       const currentArticle = state.currentArticle;
       currentArticle.content = action.payload.content;
+      return {
+        ...state,
+        currentArticle
+      }
+    },
+    saveArticleContentHtml(state, action) {
+      if (!state || !state.currentArticle) return {...state};
+      const currentArticle = state.currentArticle;
+      currentArticle.contentHtml = action.payload.contentHtml;
       return {
         ...state,
         currentArticle

@@ -55,7 +55,7 @@ class BaseSpider {
         this.browser = await this.pcr.puppeteer.launch({
             executablePath: this.pcr.executablePath,
             //设置超时时间
-            timeout: 15000,
+            timeout: 120000,
             //如果是访问https页面 此属性会忽略https错误
             ignoreHTTPSErrors: true,
             // 打开开发者工具, 当此值为true时, headless总为false
@@ -88,6 +88,14 @@ class BaseSpider {
 
         // 编辑器选择器
         this.editorSel = this.config.editorSel
+
+
+        // 隐藏navigator
+        await this.page.evaluate(() => {
+            Object.defineProperty(navigator, 'webdriver', {
+                get: () => false
+            })
+        })
     }
 
     /**
@@ -122,12 +130,27 @@ class BaseSpider {
     }
 
     /**
+     * 设置Cookie
+     */
+    async setCookies() {
+        const cookies = await models.Cookie.find({ domain: { $regex: this.platform.name } })
+        for (let i = 0; i < cookies.length; i++) {
+            const c = cookies[i]
+            await this.page.setCookie({
+                name: c.name,
+                value: c.value,
+                domain: c.domain,
+            })
+        }
+    }
+
+    /**
      * 导航至写作页面
      */
     async goToEditor() {
         logger.info(`navigating to ${this.urls.editor}`)
         await this.page.goto(this.urls.editor)
-        await this.page.waitFor(3000)
+        await this.page.waitFor(5000)
         await this.afterGoToEditor()
     }
 
@@ -136,20 +159,42 @@ class BaseSpider {
         // 掘金等网站会先弹出Markdown页面，需要特殊处理
     }
 
+    async inputTitle(article, editorSel) {
+        const el = document.querySelector(editorSel.title)
+        el.focus()
+        el.select()
+        document.execCommand('delete', false)
+        document.execCommand('insertText', false, article.title)
+    }
+
+    async inputContent(article, editorSel) {
+        const el = document.querySelector(editorSel.content)
+        el.focus()
+        el.select()
+        document.execCommand('delete', false)
+        document.execCommand('insertText', false, article.content)
+    }
+
+    async inputFooter(article, editorSel) {
+        const footerContent = `\n\n> 本文由文章发布工具[ArtiPub](https://github.com/crawlab-team/artipub)自动生成`
+        const el = document.querySelector(editorSel.content)
+        el.focus()
+        document.execCommand('insertText', false, footerContent)
+    }
+
     async inputEditor() {
         logger.info(`input editor title and content`)
         // 输入标题
-        const elTitle = await this.page.$(this.editorSel.title)
-        await elTitle.type(this.article.title)
+        await this.page.evaluate(this.inputTitle, this.article, this.editorSel)
         await this.page.waitFor(3000)
 
         // 输入内容
-        await this.page.evaluate((article, editorSel) => {
-            const el = document.querySelector(editorSel.content)
-            el.focus()
-            document.execCommand('insertText', false, article.content)
-        }, this.article, this.editorSel)
-        await this.page.waitFor(1000)
+        await this.page.evaluate(this.inputContent, this.article, this.editorSel)
+        await this.page.waitFor(3000)
+
+        // 输入脚注
+        await this.page.evaluate(this.inputFooter, this.article, this.editorSel)
+        await this.page.waitFor(3000)
 
         // 后续处理
         await this.afterInputEditor()
@@ -165,7 +210,7 @@ class BaseSpider {
         // 发布文章
         const elPub = await this.page.$(this.editorSel.publish)
         await elPub.click()
-        await this.page.waitFor(5000)
+        await this.page.waitFor(10000)
 
         // 后续处理
         await this.afterPublish()
@@ -180,8 +225,13 @@ class BaseSpider {
         // 初始化
         await this.init()
 
-        // 登陆
-        await this.login()
+        if (this.task.authType === constants.authType.LOGIN) {
+            // 登陆
+            await this.login()
+        } else {
+            // 使用Cookie
+            await this.setCookies()
+        }
 
         // 导航至编辑器
         await this.goToEditor()
@@ -190,7 +240,7 @@ class BaseSpider {
         await this.inputEditor()
 
         // 发布文章
-        // await this.publish()
+        await this.publish()
 
         // 关闭浏览器
         await this.browser.close()

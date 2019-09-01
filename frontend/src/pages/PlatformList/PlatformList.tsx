@@ -6,12 +6,13 @@ import {ConnectProps, ConnectState, Dispatch} from "@/models/connect";
 import {connect} from "dva";
 import {ColumnProps} from "antd/lib/table";
 import style from './PlatformList.scss'
+import constants from "@/constants";
 
 // logo images
 import imgJuejin from '@/assets/img/juejin-logo.svg';
 import imgSegmentfault from '@/assets/img/segmentfault-logo.jpg';
 import imgJianshu from '@/assets/img/jianshu-logo.png';
-import constants from "@/constants";
+import imgCsdn from '@/assets/img/csdn-logo.jpg';
 
 export interface PlatformListProps extends ConnectProps {
   platform: PlatformModelState;
@@ -121,6 +122,8 @@ const PlatformList: React.FC<PlatformListProps> = props => {
           return <img className={style.siteLogo} src={imgSegmentfault}/>
         } else if (d.name === constants.platform.JIANSHU) {
           return <img className={style.siteLogo} src={imgJianshu}/>
+        } else if (d.name === constants.platform.CSDN) {
+          return <img className={style.siteLogo} src={imgCsdn}/>
         } else {
           return <span>Logo</span>
         }

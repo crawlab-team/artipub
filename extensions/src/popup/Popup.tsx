@@ -28,6 +28,7 @@ export default class Popup extends React.Component<AppProps, AppState> {
         'juejin',
         'segmentfault',
         'jianshu',
+        'csdn',
       ],
       configVisible: false,
       url: 'http://localhost:3000',

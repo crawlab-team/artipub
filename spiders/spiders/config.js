@@ -36,17 +36,33 @@ module.exports = {
     jianshu: {
         urls: {
             login: 'https://www.jianshu.com/sign_in',
-            editor: '',
+            editor: 'https://www.jianshu.com/writer',
         },
         loginSel: {
-            username: '#session_email_or_mobile_number',
-            password: '#session_password',
-            submit: '#sign-in-form-submit-btn',
+            username: '',
+            password: '',
+            submit: '',
         },
         editorSel: {
-            title: '',
-            content: '',
-            publish: ''
+            title: 'input:not([name="name"])',
+            content: '#arthur-editor',
+            publish: 'a[data-action="publicize"]'
+        }
+    },
+
+    csdn: {
+        urls: {
+            login: '',
+            editor: 'https://mp.csdn.net/postedit',
+        },
+        loginSel: {
+            username: '',
+            password: '',
+        },
+        editorSel: {
+            title: '#txtTitle',
+            content: '.htmledit_views',
+            publish: '#btnPublish'
         }
     }
 }

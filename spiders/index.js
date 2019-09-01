@@ -50,6 +50,8 @@ if (config.MONGO_USERNAME) {
             spider = new spiders.SegmentfaultSpider(task._id)
         } else if (spiderName === constants.platform.JIANSHU) {
             spider = new spiders.JianshuSpider(task._id)
+        } else if (spiderName === constants.platform.CSDN) {
+            spider = new spiders.CsdnSpider(task._id)
         }
 
         if (spider) {

@@ -35,6 +35,7 @@ module.exports = {
         let article = new models.Article({
             title: req.body.title,
             content: req.body.content,
+            contentHtml: req.body.contentHtml,
             platformIds: [],
             createTs: new Date(),
             updateTs: new Date(),
@@ -55,6 +56,7 @@ module.exports = {
         }
         article.title = req.body.title
         article.content = req.body.content
+        article.contentHtml = req.body.contentHtml
         article.updateTs = new Date()
         article = await article.save()
         res.json({
