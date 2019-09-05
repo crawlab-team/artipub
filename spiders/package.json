@@ -4,18 +4,16 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "async-lock": "^1.2.2",
     "clipboardy": "^2.1.0",
+    "cron": "^1.7.1",
     "log4js": "^5.1.0",
     "mongoose": "^5.6.11",
     "puppeteer": "^1.19.0",
     "puppeteer-chromium-resolver": "^2.0.1"
   },
   "devDependencies": {},
-  "scripts": {
-    "juejin": "node juejin/juejin_spider.js",
-    "segmentfault": "node segmentfault/segmentfault_spider.js",
-    "csdn": "node csdn/csdn_spider.js"
-  },
+  "scripts": {},
   "author": "",
   "license": "ISC"
 }

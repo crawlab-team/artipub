@@ -1,9 +1,12 @@
 const mongoose = require('mongoose')
-const spiders = require('./spiders')
+const CronJob = require('cron').CronJob
+const AsyncLock = require('async-lock')
 const constants = require('./constants')
 const models = require('./models')
 const config = require('./config')
 const logger = require('./logger')
+const ArticlePublisher = require('./lib/ArticlePublisher')
+const StatsFetcher = require('./lib/StatsFetcher')
 
 // mongodb连接
 mongoose.Promise = global.Promise
@@ -14,78 +17,33 @@ if (config.MONGO_USERNAME) {
 }
 
 (async () => {
-    logger.info('program started')
+    // 任务执行器
+    const taskLock = new AsyncLock()
+    const taskCronJob = new CronJob('* * * * * *', () => {
+        if (!taskLock.isBusy()) {
+            taskLock.acquire('key', async () => {
+                let task = await models.Task.findOne({
+                    status: constants.status.NOT_STARTED,
+                    ready: true,
+                    checked: true
+                })
+                if (!task) return
 
-    let interrupted = false
-
-    while (!interrupted) {
-        let task = await models.Task.findOne({
-            status: constants.status.NOT_STARTED,
-            ready: true,
-            checked: true
-        })
-        if (!task) {
-            // sleep 1 sec
-            await new Promise(resolve => setTimeout(resolve, 1000))
-            continue
+                logger.info('Task started')
+                const executor = new ArticlePublisher(task)
+                await executor.run()
+                logger.info('Task ended')
+            })
         }
+    })
+    taskCronJob.start()
 
-        // 判断任务状态
-        if (
-            task.status !== constants.status.NOT_STARTED &&
-            task.status !== constants.status.ERROR
-        ) {
-            logger.info(`task (ID: ${task._id.toString()} has already been run. exit`)
-            return
+    // 数据统计执行器
+    const statsLock = new AsyncLock()
+    const statsCronJob = new CronJob('0 0/5 * * * *', () => {
+        if (!statsLock.isBusy()) {
+            statsLock.acquire('key', async () => {
+            })
         }
-
-        // 平台
-        const platform = await models.Platform.findOne({ _id: task.platformId })
-        const spiderName = platform.name
-
-        let spider
-        if (spiderName === constants.platform.JUEJIN) {
-            spider = new spiders.JuejinSpider(task._id)
-        } else if (spiderName === constants.platform.SEGMENTFAULT) {
-            spider = new spiders.SegmentfaultSpider(task._id)
-        } else if (spiderName === constants.platform.JIANSHU) {
-            spider = new spiders.JianshuSpider(task._id)
-        } else if (spiderName === constants.platform.CSDN) {
-            spider = new spiders.CsdnSpider(task._id)
-        }
-
-        if (spider) {
-            try {
-                task.status = constants.status.PROCESSING
-                task.updateTs = new Date()
-                await task.save()
-                await spider.run()
-
-                // 检查URL结果
-                task = await models.Task.findOne({ _id: task._id })
-                if (task.url) {
-                    // URL保存成功
-                    task.status = constants.status.FINISHED
-                    task.updateTs = new Date()
-                    await task.save()
-                } else {
-                    // URL保存失败
-                    task.status = constants.status.ERROR
-                    task.error = '文章URL未保存成功'
-                    task.updateTs = new Date()
-                    await task.save()
-                }
-            } catch (e) {
-                task.status = constants.status.ERROR
-                task.error = e.toString()
-                task.updateTs = new Date()
-                await task.save()
-                console.error(e)
-                await spider.browser.close()
-            }
-        }
-
-        // sleep 1 sec
-        await new Promise(resolve => setTimeout(resolve, 1000))
-    }
+    })
 })()
