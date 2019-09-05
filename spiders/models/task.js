@@ -12,6 +12,9 @@ const taskSchema = new mongoose.Schema({
     checked: Boolean,
     ready: Boolean,
     authType: String,
+    readNum: Number,
+    likeNum: Number,
+    commentNum: Number,
 
     // 配置信息
     category: String, // 类别: juejin

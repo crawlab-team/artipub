@@ -245,6 +245,10 @@ class BaseSpider {
         // 关闭浏览器
         await this.browser.close()
     }
+
+    async fetchStats() {
+        // to be inherited
+    }
 }
 
 module.exports = BaseSpider
