@@ -11,12 +11,12 @@ const StatsFetcher = require('./lib/StatsFetcher')
 // mongodb连接
 mongoose.Promise = global.Promise
 if (config.MONGO_USERNAME) {
-  mongoose.connect(`mongodb://${ config.MONGO_USERNAME }:${ config.MONGO_PASSWORD }@${ config.MONGO_HOST }:${ config.MONGO_PORT }/${ config.MONGO_DB }`, { useNewUrlParser: true })
+  mongoose.connect(`mongodb://${config.MONGO_USERNAME}:${config.MONGO_PASSWORD}@${config.MONGO_HOST}:${config.MONGO_PORT}/${config.MONGO_DB}`, { useNewUrlParser: true })
 } else {
-  mongoose.connect(`mongodb://${ config.MONGO_HOST }:${ config.MONGO_PORT }/${ config.MONGO_DB }`, { useNewUrlParser: true })
+  mongoose.connect(`mongodb://${config.MONGO_HOST}:${config.MONGO_PORT}/${config.MONGO_DB}`, { useNewUrlParser: true })
 }
 
-class Executor {
+class Runner {
   constructor() {
   }
 
@@ -33,10 +33,10 @@ class Executor {
           })
           if (!task) return
 
-          logger.info('Task started')
+          logger.info('Publish task started')
           const executor = new ArticlePublisher(task)
           await executor.run()
-          logger.info('Task ended')
+          logger.info('Publish task ended')
         })
       }
     })
@@ -47,12 +47,26 @@ class Executor {
     const statsCronJob = new CronJob('0 0/5 * * * *', () => {
       if (!statsLock.isBusy()) {
         statsLock.acquire('key', async () => {
+          const tasks = await models.Task.find({
+            url: {
+              $ne: '',
+              $exists:true
+            }
+          })
+          for (let i = 0; i < tasks.length; i++) {
+            logger.info('Stats fetch task started')
+            let task = await tasks[i]
+            const executor = new StatsFetcher(task)
+            await executor.run()
+            logger.info('Stats fetch task ended')
+          }
         })
       }
     })
+    statsCronJob.start()
   }
 }
 
 module.exports = {
-  Executor,
+  Runner,
 }

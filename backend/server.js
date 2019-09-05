@@ -69,5 +69,5 @@ app.listen(config.PORT, () => {
 })
 
 // 启动执行器
-const executor = new exec.Executor()
-executor.run()
+const runner = new exec.Runner()
+runner.run()
