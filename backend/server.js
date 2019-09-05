@@ -5,6 +5,7 @@ const logger = require('morgan')
 
 const config = require('./config')
 const routes = require('./routes')
+const exec = require('./exec')
 
 // express实例
 const app = express()
@@ -62,6 +63,11 @@ app.delete('/platforms/:id', routes.platform.deletePlatform)
 // Cookie
 app.post('/cookies', routes.cookie.addCookies)
 
+// 启动express server
 app.listen(config.PORT, () => {
     console.log('listening on port ' + config.PORT)
 })
+
+// 启动执行器
+const executor = new exec.Executor()
+executor.run()
