@@ -3,4 +3,4 @@ node_modules
 logs/
 .idea/
 tmp/
-.cred
+yarn.lock
