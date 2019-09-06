@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg width="200px" height="200px" viewBox="0 0 200 200" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-  <circle r="90px" cx="100px" cy="100px" stroke-width="12px" stroke="#1890FF" fill="transparent"/>
-  <text x="38px" y="155px" fill="#1890FF" style="font-size:180px;font-family:Verdana">A</text>
+  <circle r="90px" cx="100px" cy="100px" stroke-width="16px" stroke="#1890FF" fill="transparent"/>
+  <text x="38px" y="155px" fill="#1890FF" style="font-size:180px;font-family:Verdana;font-style:italic">A</text>
 </svg>

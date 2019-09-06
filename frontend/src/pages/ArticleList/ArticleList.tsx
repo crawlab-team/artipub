@@ -157,6 +157,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
   };
 
   const saveTasks = async (selectedPlatforms: Object[], _article: Article) => {
+    if (!platform.platforms) return;
     let tasks: Task[] = [];
     platform.platforms.forEach((p: Platform) => {
       let t: Task = task.tasks.filter((_t: Task) => _t.platformId === p._id)[0];
@@ -482,9 +483,11 @@ const ArticleList: React.FC<ArticleListProps> = props => {
 
   // 平台配置
   let platformContent = <div></div>;
-  const currentPlatform = platform.platforms.filter(
-    (p: Platform) => !!task.currentTask && p._id === task.currentTask.platformId,
-  )[0];
+  const currentPlatform = platform.platforms
+    ? platform.platforms.filter(
+        (p: Platform) => !!task.currentTask && p._id === task.currentTask.platformId,
+      )[0]
+    : undefined;
   if (currentPlatform && currentPlatform.name === constants.platform.JUEJIN) {
     const categories = [
       '前端',

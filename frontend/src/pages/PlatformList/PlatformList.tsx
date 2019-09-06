@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { Form, Input, Modal, Select, Table } from 'antd';
-import { Platform, PlatformModelState } from '@/models/platform';
+import { Button, Form, Input, Modal, Select, Spin, Table, Tag, Tooltip } from 'antd';
+import { Platform, PlatformModelState, SiteArticle } from '@/models/platform';
 import { ConnectProps, ConnectState, Dispatch } from '@/models/connect';
 import { connect } from 'dva';
-import { ColumnProps } from 'antd/lib/table';
+import { ColumnProps, SelectionSelectFn, TableRowSelection } from 'antd/lib/table';
 import style from './PlatformList.scss';
 import constants from '@/constants';
 
@@ -113,6 +113,51 @@ const PlatformList: React.FC<PlatformListProps> = props => {
     }
   };
 
+  const onFetch: Function = (d: Platform) => {
+    return async () => {
+      await dispatch({
+        type: 'platform/saveFetchModalVisible',
+        payload: true,
+      });
+      await dispatch({
+        type: 'platform/fetchSiteArticles',
+        payload: d,
+      });
+      await dispatch({
+        type: 'platform/saveCurrentPlatform',
+        payload: d,
+      });
+    };
+  };
+
+  const onFetchModalCancel = () => {
+    dispatch({
+      type: 'platform/saveFetchModalVisible',
+      payload: false,
+    });
+  };
+
+  const onImport = () => {};
+
+  const getStatsComponent = (d: any) => {
+    d.readNum = d.readNum || 0;
+    d.likeNum = d.likeNum || 0;
+    d.commentNum = d.commentNum || 0;
+    return (
+      <div>
+        <Tooltip title={'阅读数: ' + d.readNum.toString()}>
+          <Tag color="green">{d.readNum}</Tag>
+        </Tooltip>
+        <Tooltip title={'点赞数: ' + d.likeNum.toString()}>
+          <Tag color="orange">{d.likeNum}</Tag>
+        </Tooltip>
+        <Tooltip title={'评论数: ' + d.commentNum.toString()}>
+          <Tag color="blue">{d.commentNum}</Tag>
+        </Tooltip>
+      </div>
+    );
+  };
+
   const columns: ColumnProps<any>[] = [
     {
       title: '图标',
@@ -151,22 +196,96 @@ const PlatformList: React.FC<PlatformListProps> = props => {
       key: 'description',
       width: 'auto',
     },
-    // {
-    //   title: '操作',
-    //   dataIndex: 'action',
-    //   key: 'action',
-    //   render: (text, d) => {
-    //     return (
-    //       <div>
-    //         <Button type="default" shape="circle" icon="edit" className={style.editBtn} onClick={onEdit(d)}/>
-    //         <Popconfirm title="您确认删除该平台吗？" onConfirm={onDelete(d)}>
-    //           <Button type="danger" shape="circle" icon="delete" className={style.delBtn}/>
-    //         </Popconfirm>
-    //       </div>
-    //     );
-    //   }
-    // }
+    {
+      title: '操作',
+      dataIndex: 'action',
+      key: 'action',
+      width: '180px',
+      render: (text, d) => {
+        return (
+          <div>
+            <Tooltip title="导入文章">
+              <Button
+                type="primary"
+                shape="circle"
+                icon="import"
+                className={style.fetchBtn}
+                onClick={onFetch(d)}
+              />
+            </Tooltip>
+            {/*<Popconfirm title="您确认删除该平台吗？" onConfirm={onDelete(d)}>*/}
+            {/*  <Button type="danger" shape="circle" icon="delete" className={style.delBtn}/>*/}
+            {/*</Popconfirm>*/}
+          </div>
+        );
+      },
+    },
   ];
+
+  const siteArticlesColumns: ColumnProps<any>[] = [
+    {
+      title: '标题',
+      dataIndex: 'title',
+      key: 'title',
+      width: '400px',
+      render: (text: string, d: SiteArticle) => {
+        return (
+          <a href={d.url} target="_blank">
+            {text}
+          </a>
+        );
+      },
+    },
+    {
+      title: '存在状态',
+      dataIndex: 'exists',
+      key: 'exits',
+      width: '120px',
+      render: (text: string, d: SiteArticle) => {
+        if (d.exists) {
+          return <Tag color="green">已存在</Tag>;
+        } else {
+          return <Tag color="red">不存在</Tag>;
+        }
+      },
+    },
+    {
+      title: '数据统计',
+      dataIndex: '_id',
+      key: '_id',
+      width: '200px',
+      render: (text: string, d: SiteArticle) => {
+        return getStatsComponent(d);
+      },
+    },
+  ];
+
+  const onSiteArticleSelect: SelectionSelectFn<any> = async (
+    d: any,
+    selected: boolean,
+    selectedSiteArticles: Object[],
+    nativeEvent: Event,
+  ) => {
+    await dispatch({
+      type: 'platform/saveSiteArticles',
+      payload: selectedSiteArticles,
+    });
+  };
+
+  const onSiteArticleSelectAll = async (selected: boolean, selectedSiteArticles: Object[]) => {
+    await dispatch({
+      type: 'platform/saveSiteArticles',
+      payload: selectedSiteArticles,
+    });
+  };
+
+  const siteArticlesRowSelection: TableRowSelection<any> = {
+    selectedRowKeys: platform.siteArticles
+      ? platform.siteArticles.filter((d: SiteArticle) => d.checked).map((d: SiteArticle) => d.url)
+      : [],
+    onSelect: onSiteArticleSelect,
+    onSelectAll: onSiteArticleSelectAll,
+  };
 
   useEffect(() => {
     if (dispatch) {
@@ -213,6 +332,21 @@ const PlatformList: React.FC<PlatformListProps> = props => {
             />
           </Form.Item>
         </Form>
+      </Modal>
+      <Modal
+        title="导入文章"
+        visible={platform.fetchModalVisible}
+        width="1000px"
+        onOk={onImport}
+        onCancel={onFetchModalCancel}
+      >
+        <Spin spinning={platform.fetchLoading}>
+          <Table
+            rowSelection={siteArticlesRowSelection}
+            dataSource={platform.siteArticles}
+            columns={siteArticlesColumns}
+          />
+        </Spin>
       </Modal>
       {/*<div className={style.actions}>*/}
       {/*  <Button className={style.addBtn} type="primary" onClick={onAdd}>添加平台</Button>*/}

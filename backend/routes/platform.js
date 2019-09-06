@@ -23,12 +23,12 @@ module.exports = {
             editorType: req.body.editorType,
             description: req.body.description,
             createTs: new Date(),
-            updateTs: new Date(),
+            updateTs: new Date()
         })
         Platform = await Platform.save()
         await res.json({
             status: 'ok',
-            data: Platform,
+            data: Platform
         })
     },
     editPlatform: async (req, res) => {
@@ -47,7 +47,7 @@ module.exports = {
         platform.save()
         await res.json({
             status: 'ok',
-            data: platform,
+            data: platform
         })
     },
     deletePlatform: async (req, res) => {
@@ -61,7 +61,33 @@ module.exports = {
         await models.Platform.remove({ _id: ObjectId(req.params.id) })
         await res.json({
             status: 'ok',
-            data: platform,
+            data: platform
         })
     },
+    getPlatformArticles: async (req, res) => {
+        let platform = await models.Platform.findOne({ _id: ObjectId(req.params.id) })
+        if (!platform) {
+            return await res.json({
+                status: 'ok',
+                error: 'not found'
+            }, 404)
+        }
+        const ImportSpider = require('../spiders/import/' + platform.name)
+        const spider = new ImportSpider(platform.name)
+        const siteArticles = await spider.fetch()
+        for (let i = 0; i < siteArticles.length; i++) {
+            const siteArticle = siteArticles[i]
+            const article = await models.Article.findOne({title: siteArticle.title})
+            siteArticles[i].exists = !!article
+            if (article) {
+                siteArticles[i].articleId = article._id
+            }
+        }
+        await res.json({
+            status: 'ok',
+            data: siteArticles
+        })
+    },
+    importPlatformArticles: async (req, res) => {
+    }
 }

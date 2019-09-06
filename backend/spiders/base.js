@@ -61,7 +61,8 @@ class BaseSpider {
             // 打开开发者工具, 当此值为true时, headless总为false
             devtools: false,
             // 关闭headless模式, 不会打开浏览器
-            headless: false
+            // headless: false
+            headless: true
         })
 
         // 页面
@@ -88,7 +89,6 @@ class BaseSpider {
 
         // 编辑器选择器
         this.editorSel = this.config.editorSel
-
 
         // 隐藏navigator
         await this.page.evaluate(() => {
@@ -268,6 +268,9 @@ class BaseSpider {
         await this.article.save()
     }
 
+    /**
+     * 获取文章数据
+     */
     async runFetchStats() {
         // 初始化
         await this.init()

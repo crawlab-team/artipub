@@ -5,6 +5,7 @@ const platformSchema = new mongoose.Schema({
     label: String,
     editorType: String,
     description: String,
+    url: String,
     createTs: Date,
     updateTs: Date,
 })

@@ -62,6 +62,7 @@ app.get('/platforms/:id', routes.platform.getPlatform)
 app.put('/platforms', routes.platform.addPlatform)
 app.post('/platforms/:id', routes.platform.editPlatform)
 app.delete('/platforms/:id', routes.platform.deletePlatform)
+app.get('/platforms/:id/articles', routes.platform.getPlatformArticles)
 // Cookie
 app.post('/cookies', routes.cookie.addCookies)
 

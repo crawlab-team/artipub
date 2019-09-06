@@ -49,3 +49,10 @@ Content-Type: application/json
 }
 
 ###
+
+GET http://localhost:3000/platforms/5d71bfb2eebe31547cdd936d/articles
+Content-Type: application/json
+
+{}
+
+###
