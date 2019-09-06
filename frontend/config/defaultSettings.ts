@@ -54,7 +54,7 @@ export default {
   menu: {
     locale: true,
   },
-  title: 'Ant Design Pro',
+  title: 'ArtiPub v0.1.0',
   pwa: false,
   iconfontUrl: '',
 } as DefaultSettings;
