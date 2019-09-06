@@ -7,7 +7,6 @@ class BaseExecutor {
         this.task = task
         this.platform = undefined
         this.spider = undefined
-        this.init()
     }
 
     async init() {
@@ -28,6 +27,15 @@ class BaseExecutor {
             spider = new spiders.CsdnSpider(task._id)
         }
         this.spider = spider
+    }
+
+    async run() {
+        // to be inherited
+    }
+
+    async start() {
+        await this.init()
+        await this.run()
     }
 }
 

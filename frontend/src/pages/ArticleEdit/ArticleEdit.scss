@@ -56,7 +56,7 @@
   flex-direction: column;
   width: 50%;
   height: 100%;
-  min-height: calc(100vh - 50px - 50px);
+  min-height: calc(100vh - 50px);
   overflow-y: auto;
   background-color: #f8f9fa;
   border-right: 1px solid #eee;
@@ -67,7 +67,7 @@
   flex-basis: 50%;
   flex-direction: column;
   width: 50%;
-  height: calc(100vh - 50px - 50px);
+  height: calc(100vh - 50px);
 }
 
 .footer {
@@ -85,8 +85,12 @@
   overflow-y: auto;
 }
 
+.content {
+  //height: calc(100vh - 50px - 50px);
+  height: 100%;
+}
+
 .codeMirror {
-  //height: 640px;
   height: 100%;
 }
 

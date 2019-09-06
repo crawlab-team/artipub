@@ -1,6 +1,6 @@
-import {Effect} from 'dva';
-import {addTask, addTasks, queryTaskList, saveTask} from "@/services/task";
-import {Reducer} from "redux";
+import { Effect } from 'dva';
+import { addTask, addTasks, queryTaskList, saveTask } from '@/services/task';
+import { Reducer } from 'redux';
 
 export interface Task {
   _id?: string;
@@ -15,6 +15,9 @@ export interface Task {
   ready?: boolean;
   error?: boolean;
   authType: string;
+  readNum?: number;
+  likeNum?: number;
+  commentNum?: number;
 }
 
 export interface TaskModelState {
@@ -47,54 +50,55 @@ const TaskModel: TaskModelType = {
   },
 
   effects: {
-    * fetchTaskList(action, {call, put}) {
+    *fetchTaskList(action, { call, put }) {
       console.log('fetchTaskList');
       const response = yield call(queryTaskList, action.payload);
       yield put({
         type: 'setTaskList',
-        payload: response.data
-      })
+        payload: response.data,
+      });
     },
-    * addTasks(action, {call}) {
-      yield call(addTasks, action.payload)
+    *addTasks(action, { call }) {
+      yield call(addTasks, action.payload);
     },
-    * addTask(action, {call}) {
-      yield call(addTask, action.payload)
+    *addTask(action, { call }) {
+      yield call(addTask, action.payload);
     },
-    * saveTaskList(action, {put}) {
+    *saveTaskList(action, { put }) {
       yield put({
         type: 'setTaskList',
         payload: action.payload,
-      })
+      });
     },
-    * saveTask(action, {call}) {
-      yield call(saveTask, action.payload)
+    *saveTask(action, { call }) {
+      yield call(saveTask, action.payload);
     },
-    * saveCurrentTask(action, {put}) {
+    *saveCurrentTask(action, { put }) {
       yield put({
         type: 'setCurrentTask',
         payload: action.payload,
-      })
-    }
+      });
+    },
   },
 
   reducers: {
     setCurrentTask(state, action) {
-      if (!state) return {
-        tasks: []
-      };
+      if (!state)
+        return {
+          tasks: [],
+        };
       return {
         ...state,
         currentTask: action.payload,
-      }
+      };
     },
     setTaskList(state, action) {
       console.log('setTaskList');
       return {
         ...state,
-        tasks: action.payload
-      }
-    }
+        tasks: action.payload,
+      };
+    },
   },
 };
 

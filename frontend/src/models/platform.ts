@@ -1,12 +1,13 @@
-import {Effect} from 'dva';
-import {addPlatform, deletePlatform, queryPlatformList, savePlatform} from "@/services/platform";
-import {Reducer} from "redux";
+import { Effect } from 'dva';
+import { addPlatform, deletePlatform, queryPlatformList, savePlatform } from '@/services/platform';
+import { Reducer } from 'redux';
 
 export interface Platform {
   _id?: string;
-  name: string,
-  label: string,
-  description: string,
+  name: string;
+  label: string;
+  editorType: string;
+  description: string;
 }
 
 export interface PlatformModelState {
@@ -42,29 +43,29 @@ const PlatformModel: PlatformModelType = {
   },
 
   effects: {
-    * fetchPlatformList(_, {call, put}) {
+    *fetchPlatformList(_, { call, put }) {
       const response = yield call(queryPlatformList);
       yield put({
         type: 'setPlatformList',
         payload: response.data,
-      })
+      });
     },
-    * savePlatform(action, {call}) {
+    *savePlatform(action, { call }) {
       yield call(savePlatform, action.payload);
     },
-    * addPlatform(action, {call}) {
+    *addPlatform(action, { call }) {
       yield call(addPlatform, action.payload);
     },
-    * deletePlatform(action, {call}) {
+    *deletePlatform(action, { call }) {
       yield call(deletePlatform, action.payload);
     },
-    * saveCurrentPlatform(action, {put}) {
+    *saveCurrentPlatform(action, { put }) {
       yield put({
         type: 'setCurrentPlatform',
         payload: action.payload,
       });
     },
-    * saveModalVisible(action, {put}) {
+    *saveModalVisible(action, { put }) {
       yield put({
         type: 'setModalVisible',
         payload: action.payload,
@@ -74,35 +75,38 @@ const PlatformModel: PlatformModelType = {
 
   reducers: {
     setPlatformList(state, action) {
-      if (!state) return {
-        platforms: [],
-        modalVisible: false,
-      };
+      if (!state)
+        return {
+          platforms: [],
+          modalVisible: false,
+        };
       return {
         ...state,
         platforms: action.payload,
-      }
+      };
     },
     setModalVisible(state, action) {
-      if (!state) return {
-        platforms: [],
-        modalVisible: false,
-      };
+      if (!state)
+        return {
+          platforms: [],
+          modalVisible: false,
+        };
       return {
         ...state,
         modalVisible: action.payload,
-      }
+      };
     },
     setCurrentPlatform(state, action) {
-      if (!state) return {
-        platforms: [],
-        modalVisible: false,
-      };
+      if (!state)
+        return {
+          platforms: [],
+          modalVisible: false,
+        };
       return {
         ...state,
         currentPlatform: action.payload,
-      }
-    }
+      };
+    },
   },
 };
 

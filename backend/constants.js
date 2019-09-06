@@ -3,16 +3,20 @@ module.exports = {
         JUEJIN: 'juejin',
         SEGMENTFAULT: 'segmentfault',
         JIANSHU: 'jianshu',
-        CSDN: 'csdn',
+        CSDN: 'csdn'
     },
     status: {
         NOT_STARTED: 'not-started',
         PROCESSING: 'processing',
         FINISHED: 'finished',
-        ERROR: 'error',
+        ERROR: 'error'
     },
     authType: {
         LOGIN: 'login',
-        COOKIES: 'cookie',
+        COOKIES: 'cookie'
+    },
+    editorType: {
+        MARKDOWN: 'markdown',
+        RICH_TEXT: 'rich-text'
     }
 }

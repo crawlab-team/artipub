@@ -1,19 +1,19 @@
-import React, {ChangeEventHandler, useEffect} from 'react';
+import React, { ChangeEventHandler, useEffect } from 'react';
 // import {PageHeaderWrapper} from '@ant-design/pro-layout';
 import BlankLayout from '@/layouts/BlankLayout';
 // import UserLayout from '@/layouts/UserLayout';
-import {ArticleModelState} from "@/models/article";
-import {ConnectProps, ConnectState, Dispatch} from "@/models/connect";
-import {connect} from "dva";
-import {Button, Input, message} from "antd";
-import {Controlled as CodeMirror} from 'react-codemirror2'
-import {Editor, EditorChange, ScrollInfo} from "codemirror";
+import { ArticleModelState } from '@/models/article';
+import { ConnectProps, ConnectState, Dispatch } from '@/models/connect';
+import { connect } from 'dva';
+import { Button, Input, message } from 'antd';
+import { Controlled as CodeMirror } from 'react-codemirror2';
+import { Editor, EditorChange, ScrollInfo } from 'codemirror';
 import showdown from 'showdown';
 
 // 引入codemirror样式
 import style from './ArticleEdit.scss';
 import 'codemirror/mode/markdown/markdown';
-import {router} from "umi";
+import { router } from 'umi';
 
 showdown.setOption('tables', true);
 showdown.setOption('tasklists', true);
@@ -25,10 +25,13 @@ export interface ArticleEditProps extends ConnectProps {
 }
 
 const ArticleEdit: React.FC<ArticleEditProps> = props => {
-  const {dispatch, article} = props;
+  const { dispatch, article } = props;
 
   const isEdit = (): Boolean => {
-    return !!location.pathname.match(/edit/) || (!!article.currentArticle && !!article.currentArticle._id);
+    return (
+      !!location.pathname.match(/edit/) ||
+      (!!article.currentArticle && !!article.currentArticle._id)
+    );
   };
 
   useEffect(() => {
@@ -39,8 +42,8 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
         dispatch({
           type: 'article/fetchArticle',
           payload: {
-            id: arr[arr.length - 1]
-          }
+            id: arr[arr.length - 1],
+          },
         });
       } else {
         // 如果为新增文章
@@ -57,8 +60,8 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
         type: 'article/setArticleTitle',
         payload: {
           title: ev.target.value,
-        }
-      })
+        },
+      });
     }
   };
 
@@ -69,7 +72,7 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
         type: 'article/setArticleContent',
         payload: {
           content: value,
-        }
+        },
       });
       setTimeout(() => {
         updatePreview();
@@ -92,7 +95,7 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
       payload: {
         contentHtml,
       },
-    })
+    });
   };
 
   // 调整CodeMirror高度
@@ -112,12 +115,14 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
   const onEditorScroll = (editor: Editor, scrollInfo: ScrollInfo) => {
     const $el = document.querySelector('#content') as HTMLDivElement;
     if (!$el) return;
-    $el.scrollTo(0, Math.round(scrollInfo.top / scrollInfo.height * ($el.scrollHeight + $el.clientHeight)));
+    $el.scrollTo(
+      0,
+      Math.round((scrollInfo.top / scrollInfo.height) * ($el.scrollHeight + $el.clientHeight)),
+    );
   };
 
   // 监听预览上下滑动
-  const onPreviewScroll = (ev: any) => {
-  };
+  const onPreviewScroll = (ev: any) => {};
 
   // 点击保存
   const onSave = async () => {
@@ -140,7 +145,7 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
 
   // 点击返回
   const onBack = () => {
-    router.push('/articles')
+    router.push('/articles');
   };
 
   return (
@@ -155,18 +160,10 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
             onChange={onTitleChange}
           />
           <div className={style.actions}>
-            <Button
-              className={style.backBtn}
-              type="default"
-              onClick={onBack}
-            >
+            <Button className={style.backBtn} type="default" onClick={onBack}>
               返回
             </Button>
-            <Button
-              className={style.saveBtn}
-              type="primary"
-              onClick={onSave}
-            >
+            <Button className={style.saveBtn} type="primary" onClick={onSave}>
               保存
             </Button>
           </div>
@@ -190,21 +187,15 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
               onScroll={onEditorScroll}
             />
             <div className={style.footer}>
-              <label style={{marginLeft: 20}}>Markdown编辑器</label>
+              <label style={{ marginLeft: 20 }}>Markdown编辑器</label>
             </div>
           </div>
 
           {/*右侧HTML预览*/}
           <div id="preview" className={style.preview}>
-            <div className={style.contentWrapper}>
-              <article
-                id="content"
-                className={style.content}
-                onScroll={onPreviewScroll}
-              />
-              <div className={style.footer}>
-                <label style={{marginLeft: 20}}>预览</label>
-              </div>
+            <article id="content" className={style.content} onScroll={onPreviewScroll} />
+            <div className={style.footer}>
+              <label style={{ marginLeft: 20 }}>预览</label>
             </div>
           </div>
         </div>
@@ -213,6 +204,6 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
   );
 };
 
-export default connect(({article}: ConnectState) => ({
-  article
+export default connect(({ article }: ConnectState) => ({
+  article,
 }))(ArticleEdit);

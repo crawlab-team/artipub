@@ -35,7 +35,7 @@ class Runner {
 
           logger.info('Publish task started')
           const executor = new ArticlePublisher(task)
-          await executor.run()
+          await executor.start()
           logger.info('Publish task ended')
         })
       }
@@ -57,7 +57,7 @@ class Runner {
             logger.info('Stats fetch task started')
             let task = await tasks[i]
             const executor = new StatsFetcher(task)
-            await executor.run()
+            await executor.start()
             logger.info('Stats fetch task ended')
           }
         })

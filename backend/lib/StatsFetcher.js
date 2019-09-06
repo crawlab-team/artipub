@@ -7,7 +7,7 @@ const BaseExecutor = require('./BaseExecutor')
 class StatsFetcher extends BaseExecutor {
     async run() {
         if (this.spider) {
-            await this.spider.fetchStats()
+            await this.spider.runFetchStats()
         }
     }
 }

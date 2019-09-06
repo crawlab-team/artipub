@@ -1,6 +1,5 @@
 const models = require('../models')
 const logger = require('../logger')
-const spiders = require('../spiders')
 const constants = require('../constants')
 const BaseExecutor = require('./BaseExecutor')
 
@@ -22,7 +21,7 @@ class ArticlePublisher extends BaseExecutor {
                 task.status = constants.status.PROCESSING
                 task.updateTs = new Date()
                 await task.save()
-                await spider.run()
+                await this.spider.run()
 
                 // 检查URL结果
                 task = await models.Task.findOne({ _id: task._id })

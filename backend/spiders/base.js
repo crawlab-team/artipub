@@ -249,6 +249,17 @@ class BaseSpider {
     async fetchStats() {
         // to be inherited
     }
+
+    async runFetchStats() {
+        // 初始化
+        await this.init()
+
+        // 获取文章数据
+        await this.fetchStats()
+
+        // 关闭浏览器
+        await this.browser.close()
+    }
 }
 
 module.exports = BaseSpider
