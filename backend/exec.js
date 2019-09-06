@@ -44,7 +44,7 @@ class Runner {
 
     // 数据统计执行器
     const statsLock = new AsyncLock()
-    const statsCronJob = new CronJob('0 0/5 * * * *', () => {
+    const statsCronJob = new CronJob('0 0/30 * * * *', () => {
       if (!statsLock.isBusy()) {
         statsLock.acquire('key', async () => {
           const tasks = await models.Task.find({

@@ -44,6 +44,27 @@ class JuejinSpider extends BaseSpider {
     }
 
     async fetchStats() {
+        if (!this.task.url) return
+        await this.page.goto(this.task.url, { timeout: 60000 })
+        await this.page.waitFor(5000)
+
+        const stats = await this.page.evaluate(() => {
+            const text = document.querySelector('body').innerText
+            const mRead = text.match(/阅读 (\d+)/)
+            const readNum = mRead ? Number(mRead[1]) : 0
+            const likeNum = Number(document.querySelector('.like-btn').getAttribute('badge'))
+            const commentNum = Number(document.querySelector('.comment-btn').getAttribute('badge'))
+            return {
+                readNum,
+                likeNum,
+                commentNum
+            }
+        })
+        this.task.readNum = stats.readNum
+        this.task.likeNum = stats.likeNum
+        this.task.commentNum = stats.commentNum
+        await this.task.save()
+        await this.page.waitFor(3000)
     }
 }
 
