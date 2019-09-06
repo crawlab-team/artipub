@@ -22,6 +22,10 @@ class JianshuSpider extends BaseSpider {
         this.task.status = constants.status.FINISHED
         await this.article.save()
     }
+
+    async fetchStats() {
+        // TODO: implement this method
+    }
 }
 
 module.exports = JianshuSpider

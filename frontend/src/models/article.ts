@@ -1,6 +1,13 @@
-import {Effect} from 'dva';
-import {addArticle, deleteArticle, publishArticle, queryArticle, queryArticles, saveArticle} from '@/services/article';
-import {Reducer} from "redux";
+import { Effect } from 'dva';
+import {
+  addArticle,
+  deleteArticle,
+  publishArticle,
+  queryArticle,
+  queryArticles,
+  saveArticle,
+} from '@/services/article';
+import { Reducer } from 'redux';
 
 export interface Article {
   _id?: string;
@@ -8,6 +15,9 @@ export interface Article {
   content: string;
   contentHtml: string;
   platformIds: string[];
+  readNum?: number;
+  likeNum?: number;
+  commentNum?: number;
 }
 
 export interface ArticleModelState {
@@ -54,13 +64,13 @@ const ArticleModel: ArticleModelType = {
   state: {
     articles: [],
     currentArticleId: undefined,
-    currentArticle: {title: '', content: '', contentHtml: '', platformIds: []},
+    currentArticle: { title: '', content: '', contentHtml: '', platformIds: [] },
     pubModalVisible: false,
     platformModalVisible: false,
   },
 
   effects: {
-    * fetchArticle(action, {call, put}) {
+    *fetchArticle(action, { call, put }) {
       const response = yield call(queryArticle, action.payload);
       yield put({
         type: 'saveArticle',
@@ -68,7 +78,7 @@ const ArticleModel: ArticleModelType = {
       });
     },
 
-    * fetchArticleList(_, {call, put}) {
+    *fetchArticleList(_, { call, put }) {
       const response = yield call(queryArticles);
       yield put({
         type: 'saveArticleList',
@@ -76,50 +86,50 @@ const ArticleModel: ArticleModelType = {
       });
     },
 
-    * newArticle(action, {call, put}) {
+    *newArticle(action, { call, put }) {
       const response = yield call(addArticle, action.payload);
       yield put({
         type: 'saveArticle',
-        payload: response.data
+        payload: response.data,
       });
     },
 
-    * resetArticle(_, {put}) {
+    *resetArticle(_, { put }) {
       yield put({
         type: 'saveArticle',
-        payload: {title: '', content: ''}
+        payload: { title: '', content: '' },
       });
     },
 
-    * setArticleTitle(action, {put}) {
+    *setArticleTitle(action, { put }) {
       yield put({
         type: 'saveArticleTitle',
         payload: action.payload,
-      })
+      });
     },
 
-    * setArticleContent(action, {put}) {
+    *setArticleContent(action, { put }) {
       yield put({
         type: 'saveArticleContent',
         payload: action.payload,
-      })
+      });
     },
 
-    * setArticleContentHtml(action, {put}) {
+    *setArticleContentHtml(action, { put }) {
       yield put({
         type: 'saveArticleContentHtml',
-        payload: action.payload
-      })
+        payload: action.payload,
+      });
     },
 
-    * setArticlePlatformIds(action, {put}) {
+    *setArticlePlatformIds(action, { put }) {
       yield put({
         type: 'saveArticlePlatformIds',
         payload: action.payload,
-      })
+      });
     },
 
-    * saveCurrentArticle(action, {call, put}) {
+    *saveCurrentArticle(action, { call, put }) {
       if (action.payload._id) {
         yield call(saveArticle, action.payload);
       } else {
@@ -127,31 +137,31 @@ const ArticleModel: ArticleModelType = {
         yield put({
           type: 'saveArticle',
           payload: response.data,
-        })
+        });
       }
     },
 
-    * deleteArticle(action, {call}) {
+    *deleteArticle(action, { call }) {
       yield call(deleteArticle, action.payload);
     },
 
-    * setPubModalVisible(action, {put}) {
+    *setPubModalVisible(action, { put }) {
       yield put({
         type: 'savePubModalVisible',
         payload: action.payload,
-      })
+      });
     },
 
-    * publishArticle(action, {call}) {
-      yield call(publishArticle, action.payload)
+    *publishArticle(action, { call }) {
+      yield call(publishArticle, action.payload);
     },
 
-    * setPlatformModalVisible(action, {put}) {
+    *setPlatformModalVisible(action, { put }) {
       yield put({
         type: 'savePlatformModalVisible',
         payload: action.payload,
-      })
-    }
+      });
+    },
   },
 
   reducers: {
@@ -159,62 +169,62 @@ const ArticleModel: ArticleModelType = {
       return {
         ...state,
         currentArticle: action.payload,
-      }
+      };
     },
     saveArticleList(state, action) {
       return {
         ...state,
         articles: action.payload,
-      }
+      };
     },
     saveArticleTitle(state, action) {
-      if (!state || !state.currentArticle) return {...state};
+      if (!state || !state.currentArticle) return { ...state };
       const currentArticle = state.currentArticle;
       currentArticle.title = action.payload.title;
       return {
         ...state,
-        currentArticle
-      }
+        currentArticle,
+      };
     },
     saveArticleContent(state, action) {
-      if (!state || !state.currentArticle) return {...state};
+      if (!state || !state.currentArticle) return { ...state };
       const currentArticle = state.currentArticle;
       currentArticle.content = action.payload.content;
       return {
         ...state,
-        currentArticle
-      }
+        currentArticle,
+      };
     },
     saveArticleContentHtml(state, action) {
-      if (!state || !state.currentArticle) return {...state};
+      if (!state || !state.currentArticle) return { ...state };
       const currentArticle = state.currentArticle;
       currentArticle.contentHtml = action.payload.contentHtml;
       return {
         ...state,
-        currentArticle
-      }
+        currentArticle,
+      };
     },
     saveArticlePlatformIds(state, action) {
-      if (!state || !state.currentArticle) return {...state};
+      if (!state || !state.currentArticle) return { ...state };
       const currentArticle = state.currentArticle;
       currentArticle.platformIds = action.payload;
       return {
         ...state,
-        currentArticle
-      }
+        currentArticle,
+      };
     },
     savePubModalVisible(state, action) {
       return {
         ...state,
         pubModalVisible: action.payload,
-      }
+      };
     },
     savePlatformModalVisible(state, action) {
       return {
         ...state,
         platformModalVisible: action.payload,
-      }
-    }
+      };
+    },
   },
 };
 

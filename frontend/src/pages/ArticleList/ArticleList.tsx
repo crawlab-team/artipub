@@ -170,7 +170,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
           tag: '',
           pubType: 'public',
           checked: selectedPlatforms.map((_p: any) => _p._id).includes(p._id),
-          authType: constants.authType.LOGIN,
+          authType: constants.authType.COOKIE,
           url: '',
         };
       }
@@ -250,6 +250,25 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     };
   };
 
+  const getStatsComponent = (d: any) => {
+    d.readNum = d.readNum || 0;
+    d.likeNum = d.likeNum || 0;
+    d.commentNum = d.commentNum || 0;
+    return (
+      <div>
+        <Tooltip title={'阅读数: ' + d.readNum.toString()}>
+          <Tag color="green">{d.readNum}</Tag>
+        </Tooltip>
+        <Tooltip title={'点赞数: ' + d.likeNum.toString()}>
+          <Tag color="orange">{d.likeNum}</Tag>
+        </Tooltip>
+        <Tooltip title={'评论数: ' + d.commentNum.toString()}>
+          <Tag color="blue">{d.commentNum}</Tag>
+        </Tooltip>
+      </div>
+    );
+  };
+
   const taskRowSelection: TableRowSelection<any> = {
     selectedRowKeys: task.tasks.filter((d: Task) => d.checked).map((d: Task) => d.platformId),
     onSelect: onTaskSelect,
@@ -276,6 +295,15 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       key: 'updateTs',
       width: '180px',
       render: text => moment(text).format('YYYY-MM-DD HH:mm:ss'),
+    },
+    {
+      title: '数据统计',
+      dataIndex: '_id',
+      key: '_id',
+      width: '200px',
+      render: (text: string, d: Article) => {
+        return getStatsComponent(d);
+      },
     },
     {
       title: '操作',
@@ -402,22 +430,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       render: (text: string, p: Platform) => {
         const t: Task = task.tasks.filter((t: Task) => t.platformId === p._id)[0];
         if (!t) return <div />;
-        t.readNum = t.readNum || 0;
-        t.likeNum = t.likeNum || 0;
-        t.commentNum = t.commentNum || 0;
-        return (
-          <div>
-            <Tooltip title={'阅读数: ' + t.readNum.toString()}>
-              <Tag color="green">{t.readNum}</Tag>
-            </Tooltip>
-            <Tooltip title={'点赞数: ' + t.likeNum.toString()}>
-              <Tag color="orange">{t.likeNum}</Tag>
-            </Tooltip>
-            <Tooltip title={'评论数: ' + t.commentNum.toString()}>
-              <Tag color="blue">{t.commentNum}</Tag>
-            </Tooltip>
-          </div>
-        );
+        return getStatsComponent(t);
       },
     },
     {
@@ -564,7 +577,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
         title="发布文章"
         visible={article.pubModalVisible}
         onCancel={onArticleTasksModalCancel}
-        width="900px"
+        width="1000px"
         okText="发布"
         onOk={onArticleTasksPublish()}
       >
