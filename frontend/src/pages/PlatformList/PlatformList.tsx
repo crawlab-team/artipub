@@ -340,7 +340,7 @@ const PlatformList: React.FC<PlatformListProps> = props => {
         onOk={onImport}
         onCancel={onFetchModalCancel}
       >
-        <Spin spinning={platform.fetchLoading}>
+        <Spin spinning={platform.fetchLoading} tip="正在获取文章，需要大约30-60秒，请耐心等待...">
           <Table
             rowSelection={siteArticlesRowSelection}
             dataSource={platform.siteArticles}
