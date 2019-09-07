@@ -281,7 +281,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       title: '文章标题',
       dataIndex: 'title',
       key: 'title',
-      width: '400px',
+      width: 'auto',
     },
     {
       title: '创建时间',
@@ -310,6 +310,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       title: '操作',
       dataIndex: 'action',
       key: 'action',
+      width: '200px',
       render: (text, d) => {
         return (
           <div>

@@ -77,11 +77,16 @@ module.exports = {
         const siteArticles = await spider.fetch()
         for (let i = 0; i < siteArticles.length; i++) {
             const siteArticle = siteArticles[i]
-            const article = await models.Article.findOne({title: siteArticle.title})
+            const article = await models.Article.findOne({ title: siteArticle.title })
             siteArticles[i].exists = !!article
+
+            let task
             if (article) {
                 siteArticles[i].articleId = article._id
+                task = await models.Task.findOne({ platformId: platform._id, articleId: article._id })
             }
+
+            siteArticles[i].associated = !!(task && task.url && task.url === siteArticle.url)
         }
         await res.json({
             status: 'ok',

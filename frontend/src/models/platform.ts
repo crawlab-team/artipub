@@ -21,6 +21,7 @@ export interface SiteArticle {
   title: string;
   url: string;
   exists: boolean;
+  associated: boolean;
   articleId?: string;
   checked?: boolean;
 }

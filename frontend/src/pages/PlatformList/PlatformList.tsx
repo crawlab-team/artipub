@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react';
-import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { Button, Form, Input, Modal, Select, Spin, Table, Tag, Tooltip } from 'antd';
-import { Platform, PlatformModelState, SiteArticle } from '@/models/platform';
-import { ConnectProps, ConnectState, Dispatch } from '@/models/connect';
-import { connect } from 'dva';
-import { ColumnProps, SelectionSelectFn, TableRowSelection } from 'antd/lib/table';
+import React, {useEffect} from 'react';
+import {PageHeaderWrapper} from '@ant-design/pro-layout';
+import {Button, Form, Input, Modal, Select, Spin, Table, Tag, Tooltip} from 'antd';
+import {Platform, PlatformModelState, SiteArticle} from '@/models/platform';
+import {ConnectProps, ConnectState, Dispatch} from '@/models/connect';
+import {connect} from 'dva';
+import {ColumnProps, SelectionSelectFn, TableRowSelection} from 'antd/lib/table';
 import style from './PlatformList.scss';
 import constants from '@/constants';
 
@@ -20,7 +20,7 @@ export interface PlatformListProps extends ConnectProps {
 }
 
 const PlatformList: React.FC<PlatformListProps> = props => {
-  const { dispatch, platform } = props;
+  const {dispatch, platform} = props;
 
   // const onEdit: Function = (d: Platform) => {
   //   return () => {
@@ -137,7 +137,8 @@ const PlatformList: React.FC<PlatformListProps> = props => {
     });
   };
 
-  const onImport = () => {};
+  const onImport = () => {
+  };
 
   const getStatsComponent = (d: any) => {
     d.readNum = d.readNum || 0;
@@ -166,13 +167,13 @@ const PlatformList: React.FC<PlatformListProps> = props => {
       key: '_id',
       render: (text: string, d: Platform) => {
         if (d.name === constants.platform.JUEJIN) {
-          return <img className={style.siteLogo} src={imgJuejin} />;
+          return <img className={style.siteLogo} src={imgJuejin}/>;
         } else if (d.name === constants.platform.SEGMENTFAULT) {
-          return <img className={style.siteLogo} src={imgSegmentfault} />;
+          return <img className={style.siteLogo} src={imgSegmentfault}/>;
         } else if (d.name === constants.platform.JIANSHU) {
-          return <img className={style.siteLogo} src={imgJianshu} />;
+          return <img className={style.siteLogo} src={imgJianshu}/>;
         } else if (d.name === constants.platform.CSDN) {
-          return <img className={style.siteLogo} src={imgCsdn} />;
+          return <img className={style.siteLogo} src={imgCsdn}/>;
         } else {
           return <span>Logo</span>;
         }
@@ -195,6 +196,17 @@ const PlatformList: React.FC<PlatformListProps> = props => {
       dataIndex: 'description',
       key: 'description',
       width: 'auto',
+      render: text => {
+        let shortText = text
+        if (text && text.length > 50) {
+          shortText = shortText.substr(0, 50) + '...'
+        }
+        return (
+          <div className={style.description} title={text}>
+            {shortText}
+          </div>
+        )
+      }
     },
     {
       title: '操作',
@@ -240,12 +252,25 @@ const PlatformList: React.FC<PlatformListProps> = props => {
       title: '存在状态',
       dataIndex: 'exists',
       key: 'exits',
-      width: '120px',
+      width: '80px',
       render: (text: string, d: SiteArticle) => {
         if (d.exists) {
           return <Tag color="green">已存在</Tag>;
         } else {
           return <Tag color="red">不存在</Tag>;
+        }
+      },
+    },
+    {
+      title: '关联状态',
+      dataIndex: 'associated',
+      key: 'associated',
+      width: '80px',
+      render: (text: string, d: SiteArticle) => {
+        if (d.associated) {
+          return <Tag color="green">已关联</Tag>;
+        } else {
+          return <Tag color="red">未关联</Tag>;
         }
       },
     },
@@ -303,7 +328,7 @@ const PlatformList: React.FC<PlatformListProps> = props => {
         onOk={onSave}
         onCancel={onModalCancel}
       >
-        <Form labelCol={{ sm: { span: 4 } }} wrapperCol={{ sm: { span: 20 } }}>
+        <Form labelCol={{sm: {span: 4}}} wrapperCol={{sm: {span: 20}}}>
           <Form.Item label="代号">
             <Input
               value={platform.currentPlatform ? platform.currentPlatform.name : ''}
@@ -351,11 +376,11 @@ const PlatformList: React.FC<PlatformListProps> = props => {
       {/*<div className={style.actions}>*/}
       {/*  <Button className={style.addBtn} type="primary" onClick={onAdd}>添加平台</Button>*/}
       {/*</div>*/}
-      <Table dataSource={platform.platforms} columns={columns} />
+      <Table dataSource={platform.platforms} columns={columns}/>
     </PageHeaderWrapper>
   );
 };
 
-export default connect(({ platform }: ConnectState) => ({
+export default connect(({platform}: ConnectState) => ({
   platform,
 }))(PlatformList);
