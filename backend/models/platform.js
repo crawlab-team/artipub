@@ -6,6 +6,7 @@ const platformSchema = new mongoose.Schema({
     editorType: String,
     description: String,
     url: String,
+    enableImport: Boolean,
     createTs: Date,
     updateTs: Date,
 })

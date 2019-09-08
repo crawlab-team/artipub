@@ -28,22 +28,14 @@ class BaseImportSpider extends BaseSpider {
         // 浏览器
         this.browser = await this.pcr.puppeteer.launch({
             executablePath: this.pcr.executablePath,
+            timeout: 60000,
             //如果是访问https页面 此属性会忽略https错误
             ignoreHTTPSErrors: true,
             // 打开开发者工具, 当此值为true时, headless总为false
             devtools: false,
             // 关闭headless模式, 不会打开浏览器
-            // headless: false,
-            headless: true,
-            args: [
-                '–disable-gpu',
-                '–disable-dev-shm-usage',
-                '–disable-setuid-sandbox',
-                '–no-first-run',
-                '–no-sandbox',
-                '–no-zygote',
-                '–single-process'
-            ]
+            headless: false,
+            // headless: true,
         })
 
         // 页面
@@ -64,7 +56,7 @@ class BaseImportSpider extends BaseSpider {
         await this.init()
         await this.setCookies()
         try {
-            await this.page.goto(this.platform.url, { timeout: 0 })
+            await this.page.goto(this.platform.url, { timeout: 60000 })
         } catch (e) {
             console.error(e)
             await this.browser.close()
@@ -76,11 +68,18 @@ class BaseImportSpider extends BaseSpider {
         return articles
     }
 
-    async importArticles(urls) {
+    async importArticle(siteArticle) {
         // to be overridden
     }
 
-    async import(urls) {
+    async import(siteArticles) {
+        await this.init()
+        await this.setCookies()
+        for (let i = 0; i < siteArticles.length; i++) {
+            const siteArticle = siteArticles[i]
+            await this.importArticle(siteArticle)
+        }
+        await this.browser.close()
     }
 }
 

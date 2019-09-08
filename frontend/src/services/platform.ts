@@ -19,3 +19,7 @@ export async function deletePlatform(payload: any): Promise<any> {
 export async function fetchPlatformArticles(payload: any): Promise<any> {
   return request.get(`/platforms/${payload._id}/articles`);
 }
+
+export async function importPlatformArticles(payload: any): Promise<any> {
+  return request.post(`/platforms/${payload.platformId}/articles`, { data: payload.siteArticles });
+}

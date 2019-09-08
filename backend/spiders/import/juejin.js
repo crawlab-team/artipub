@@ -12,7 +12,7 @@ class JuejinImportSpider extends BaseImportSpider {
                 }
             }
         })
-        await this.page.goto('https://juejin.im' + userPath + '/posts')
+        await this.page.goto('https://juejin.im' + userPath + '/posts', { waitUntil: 'networkidle2' })
         await this.page.waitFor(3000)
 
         return await this.page.evaluate(() => {
@@ -33,6 +33,12 @@ class JuejinImportSpider extends BaseImportSpider {
             }
             return _articles
         })
+    }
+
+    async importArticle(siteArticle) {
+        const id = siteArticle.url.match(/\/(\w+)$/)[1]
+        await this.page.goto(`https://juejin.im/editor/posts/${id}`)
+        await this.page.waitFor(10000)
     }
 }
 

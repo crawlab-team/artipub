@@ -2,7 +2,7 @@ import { Effect } from 'dva';
 import {
   addPlatform,
   deletePlatform,
-  fetchPlatformArticles,
+  fetchPlatformArticles, importPlatformArticles,
   queryPlatformList,
   savePlatform,
 } from '@/services/platform';
@@ -15,6 +15,7 @@ export interface Platform {
   label: string;
   editorType: string;
   description: string;
+  enableImport: boolean;
 }
 
 export interface SiteArticle {
@@ -33,6 +34,7 @@ export interface PlatformModelState {
   modalVisible?: boolean;
   fetchModalVisible?: boolean;
   fetchLoading?: boolean;
+  importProgressModalVisible?: boolean;
 }
 
 export interface PlatformModelType {
@@ -48,6 +50,8 @@ export interface PlatformModelType {
     saveFetchModalVisible: Effect;
     fetchSiteArticles: Effect;
     saveSiteArticles: Effect;
+    saveImportProgressModalVisible: Effect;
+    importArticles: Effect;
   };
   reducers: {
     setPlatformList: Reducer<PlatformModelState>;
@@ -56,6 +60,7 @@ export interface PlatformModelType {
     setCurrentPlatform: Reducer<PlatformModelState>;
     setSiteArticles: Reducer<PlatformModelState>;
     setFetchLoading: Reducer<PlatformModelState>;
+    setImportProgressModalVisible: Reducer<PlatformModelState>;
   };
 }
 
@@ -67,6 +72,7 @@ const PlatformModel: PlatformModelType = {
     modalVisible: false,
     fetchModalVisible: false,
     fetchLoading: false,
+    importProgressModalVisible: false,
   },
 
   effects: {
@@ -132,6 +138,15 @@ const PlatformModel: PlatformModelType = {
         payload: action.payload,
       });
     },
+    *saveImportProgressModalVisible(action, {put}) {
+      yield put({
+        type: 'setImportProgressModalVisible',
+        payload: action.payload,
+      })
+    },
+    *importArticles(action, {call}) {
+      yield call(importPlatformArticles, action.payload);
+    }
   },
 
   reducers: {
@@ -171,6 +186,12 @@ const PlatformModel: PlatformModelType = {
         fetchLoading: action.payload,
       };
     },
+    setImportProgressModalVisible(state, action) {
+      return {
+        ...state,
+        importProgressModalVisible: action.payload,
+      }
+    }
   },
 };
 

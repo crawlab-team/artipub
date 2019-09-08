@@ -137,7 +137,18 @@ const PlatformList: React.FC<PlatformListProps> = props => {
     });
   };
 
-  const onImport = () => {
+  const onImport = async () => {
+    await dispatch({
+      type: 'platform/saveImportProgressModalVisible',
+      payload: true,
+    });
+    await dispatch({
+      type: 'platform/importArticles',
+      payload: {
+        platformId: platform.currentPlatform ? platform.currentPlatform._id : '',
+        siteArticles: platform.siteArticles ? platform.siteArticles.filter((d: SiteArticle) => d.checked) : [],
+      },
+    });
   };
 
   const getStatsComponent = (d: any) => {
@@ -197,7 +208,7 @@ const PlatformList: React.FC<PlatformListProps> = props => {
       key: 'description',
       width: 'auto',
       render: text => {
-        let shortText = text
+        let shortText = text;
         if (text && text.length > 50) {
           shortText = shortText.substr(0, 50) + '...'
         }
@@ -213,11 +224,12 @@ const PlatformList: React.FC<PlatformListProps> = props => {
       dataIndex: 'action',
       key: 'action',
       width: '180px',
-      render: (text, d) => {
+      render: (text: string, d: Platform) => {
         return (
           <div>
             <Tooltip title="导入文章">
               <Button
+                disabled={!d.enableImport}
                 type="primary"
                 shape="circle"
                 icon="import"
@@ -276,8 +288,8 @@ const PlatformList: React.FC<PlatformListProps> = props => {
     },
     {
       title: '数据统计',
-      dataIndex: '_id',
-      key: '_id',
+      dataIndex: 'url',
+      key: 'url',
       width: '200px',
       render: (text: string, d: SiteArticle) => {
         return getStatsComponent(d);
@@ -291,16 +303,24 @@ const PlatformList: React.FC<PlatformListProps> = props => {
     selectedSiteArticles: Object[],
     nativeEvent: Event,
   ) => {
+    const siteArticles = platform.siteArticles || [];
+    for (let i = 0; i < siteArticles.length; i++) {
+      siteArticles[i].checked = selectedSiteArticles.map((d: any) => d.url).includes(siteArticles[i].url);
+    }
     await dispatch({
       type: 'platform/saveSiteArticles',
-      payload: selectedSiteArticles,
+      payload: siteArticles,
     });
   };
 
-  const onSiteArticleSelectAll = async (selected: boolean, selectedSiteArticles: Object[]) => {
+  const onSiteArticleSelectAll = async (selected: boolean) => {
+    const siteArticles = platform.siteArticles || [];
+    for (let i = 0; i < siteArticles.length; i++) {
+      siteArticles[i].checked = selected;
+    }
     await dispatch({
       type: 'platform/saveSiteArticles',
-      payload: selectedSiteArticles,
+      payload: siteArticles,
     });
   };
 
@@ -363,15 +383,26 @@ const PlatformList: React.FC<PlatformListProps> = props => {
         visible={platform.fetchModalVisible}
         width="1000px"
         onOk={onImport}
+        okText="导入"
         onCancel={onFetchModalCancel}
       >
         <Spin spinning={platform.fetchLoading} tip="正在获取文章，需要大约30-60秒，请耐心等待...">
           <Table
             rowSelection={siteArticlesRowSelection}
-            dataSource={platform.siteArticles}
+            dataSource={platform.siteArticles ? platform.siteArticles.map((d: SiteArticle) => {
+              return {
+                key: d.url,
+                ...d
+              }
+            }) : []}
             columns={siteArticlesColumns}
           />
         </Spin>
+      </Modal>
+      <Modal
+        title="导入文章进度"
+        visible={platform.importProgressModalVisible}
+      >
       </Modal>
       {/*<div className={style.actions}>*/}
       {/*  <Button className={style.addBtn} type="primary" onClick={onAdd}>添加平台</Button>*/}
