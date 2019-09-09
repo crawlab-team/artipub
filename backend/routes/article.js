@@ -4,7 +4,7 @@ const ObjectId = require('bson').ObjectId
 
 module.exports = {
     getArticleList: async (req, res) => {
-        const articles = await models.Article.find()
+        const articles = await models.Article.find().sort({ _id: -1 })
         for (let i = 0; i < articles.length; i++) {
             const article = articles[i]
             article.tasks = await models.Task.find({ articleId: article._id })

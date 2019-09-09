@@ -123,23 +123,27 @@ export default {
       Routes: ['src/pages/Authorized'],
       authority: ['admin', 'user'],
       routes: [
+        // {
+        //   path: '/',
+        //   name: 'welcome',
+        //   icon: 'smile',
+        //   component: './Welcome',
+        // },
         {
           path: '/',
-          name: 'welcome',
-          icon: 'smile',
-          component: './Welcome',
-        },
-        {
-          path: '/articles',
-          name: 'articles',
-          icon: 'read',
-          component: './ArticleList/ArticleList',
+          redirect: '/platforms',
         },
         {
           path: '/platforms',
           name: 'platforms',
           icon: 'cloud',
           component: './PlatformList/PlatformList',
+        },
+        {
+          path: '/articles',
+          name: 'articles',
+          icon: 'read',
+          component: './ArticleList/ArticleList',
         },
         {
           component: './404',

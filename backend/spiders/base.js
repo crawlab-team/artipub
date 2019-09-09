@@ -4,6 +4,7 @@ const credentials = require('../credentials')
 const models = require('../models')
 const constants = require('../constants')
 const config = require('./config')
+const globalConfig = require('../config')
 const logger = require('../logger')
 
 class BaseSpider {
@@ -61,8 +62,7 @@ class BaseSpider {
             // 打开开发者工具, 当此值为true时, headless总为false
             devtools: false,
             // 关闭headless模式, 不会打开浏览器
-            headless: false
-            // headless: true
+            headless: globalConfig.HEADLESS
         })
 
         // 页面
@@ -176,7 +176,7 @@ class BaseSpider {
     }
 
     async inputFooter(article, editorSel) {
-        const footerContent = `\n\n> 本文由文章发布工具[ArtiPub](https://github.com/crawlab-team/artipub)自动生成`
+        const footerContent = `\n\n> 本篇文章由[ArtiPub](https://github.com/crawlab-team/artipub)自动发布, ArtiPub让您的文章随处可阅`
         const el = document.querySelector(editorSel.content)
         el.focus()
         document.execCommand('insertText', false, footerContent)

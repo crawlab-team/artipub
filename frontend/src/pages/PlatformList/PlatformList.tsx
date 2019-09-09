@@ -336,6 +336,19 @@ const PlatformList: React.FC<PlatformListProps> = props => {
     onSelectAll: onSiteArticleSelectAll,
   };
 
+  const getTip = () => {
+    if (platform.fetchLoading) {
+      return '正在获取文章列表，需要大约15-60秒，请耐心等待...';
+    } else if (platform.importLoading) {
+      const articleNum = platform.siteArticles
+        ? platform.siteArticles.filter(d => d.checked && (!d.exists || !d.associated)).length
+        : 0;
+      return `正在导入文章，需要大约${15 * articleNum}秒（每篇文章大约15秒），请耐心等待...`;
+    } else {
+      return '';
+    }
+  };
+
   useEffect(() => {
     if (dispatch) {
       dispatch({
@@ -343,13 +356,6 @@ const PlatformList: React.FC<PlatformListProps> = props => {
       });
     }
   }, []);
-
-  const onProgressCancel = () => {
-    dispatch({
-      type: 'platform/saveImportProgressModalVisible',
-      payload: false,
-    });
-  };
 
   return (
     <PageHeaderWrapper>
@@ -393,11 +399,20 @@ const PlatformList: React.FC<PlatformListProps> = props => {
         title="导入文章"
         visible={platform.fetchModalVisible}
         width="1000px"
+        closable={false}
+        maskClosable={false}
         onOk={onImport}
         okText="导入"
         onCancel={onFetchModalCancel}
+        okButtonProps={{
+          disabled: platform.fetchLoading,
+          loading: platform.importLoading,
+        }}
+        cancelButtonProps={{
+          disabled: platform.fetchLoading || platform.importLoading,
+        }}
       >
-        <Spin spinning={platform.fetchLoading} tip="正在获取文章，需要大约30-60秒，请耐心等待...">
+        <Spin spinning={platform.fetchLoading || platform.importLoading} tip={getTip()}>
           <Table
             rowSelection={siteArticlesRowSelection}
             dataSource={
@@ -414,11 +429,6 @@ const PlatformList: React.FC<PlatformListProps> = props => {
           />
         </Spin>
       </Modal>
-      <Modal
-        title="导入文章进度"
-        visible={platform.importProgressModalVisible}
-        onCancel={onProgressCancel}
-      ></Modal>
       {/*<div className={style.actions}>*/}
       {/*  <Button className={style.addBtn} type="primary" onClick={onAdd}>添加平台</Button>*/}
       {/*</div>*/}

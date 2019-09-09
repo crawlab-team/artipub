@@ -2,7 +2,9 @@ const PCR = require('puppeteer-chromium-resolver')
 const showdown = require('showdown')
 const models = require('../../models')
 const BaseSpider = require('../base')
+const globalConfig = require('../../config')
 const config = require('../config')
+const logger = require('../../logger')
 
 showdown.setOption('tables', true)
 showdown.setOption('tasklists', true)
@@ -40,8 +42,7 @@ class BaseImportSpider extends BaseSpider {
             // 打开开发者工具, 当此值为true时, headless总为false
             devtools: false,
             // 关闭headless模式, 不会打开浏览器
-            headless: false,
-            // headless: true,
+            headless: globalConfig.HEADLESS
         })
 
         // 页面
@@ -76,6 +77,8 @@ class BaseImportSpider extends BaseSpider {
     }
 
     async fetch() {
+        logger.info('fetching articles')
+
         await this.init()
         await this.setCookies()
         try {
@@ -96,6 +99,8 @@ class BaseImportSpider extends BaseSpider {
     }
 
     async import(siteArticles) {
+        logger.info('importing articles')
+
         await this.init()
         await this.setCookies()
         for (let i = 0; i < siteArticles.length; i++) {
@@ -103,7 +108,10 @@ class BaseImportSpider extends BaseSpider {
             if (siteArticle.exists && siteArticle.associated) continue
             await this.importArticle(siteArticle)
         }
+
         await this.browser.close()
+
+        logger.info('imported articles')
     }
 }
 

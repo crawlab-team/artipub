@@ -2,7 +2,8 @@ import { Effect } from 'dva';
 import {
   addPlatform,
   deletePlatform,
-  fetchPlatformArticles, importPlatformArticles,
+  fetchPlatformArticles,
+  importPlatformArticles,
   queryPlatformList,
   savePlatform,
 } from '@/services/platform';
@@ -34,7 +35,7 @@ export interface PlatformModelState {
   modalVisible?: boolean;
   fetchModalVisible?: boolean;
   fetchLoading?: boolean;
-  importProgressModalVisible?: boolean;
+  importLoading?: boolean;
 }
 
 export interface PlatformModelType {
@@ -50,7 +51,6 @@ export interface PlatformModelType {
     saveFetchModalVisible: Effect;
     fetchSiteArticles: Effect;
     saveSiteArticles: Effect;
-    saveImportProgressModalVisible: Effect;
     importArticles: Effect;
   };
   reducers: {
@@ -60,7 +60,7 @@ export interface PlatformModelType {
     setCurrentPlatform: Reducer<PlatformModelState>;
     setSiteArticles: Reducer<PlatformModelState>;
     setFetchLoading: Reducer<PlatformModelState>;
-    setImportProgressModalVisible: Reducer<PlatformModelState>;
+    setImportLoading: Reducer<PlatformModelState>;
   };
 }
 
@@ -72,7 +72,7 @@ const PlatformModel: PlatformModelType = {
     modalVisible: false,
     fetchModalVisible: false,
     fetchLoading: false,
-    importProgressModalVisible: false,
+    importLoading: false,
   },
 
   effects: {
@@ -138,15 +138,26 @@ const PlatformModel: PlatformModelType = {
         payload: action.payload,
       });
     },
-    *saveImportProgressModalVisible(action, {put}) {
+    *importArticles(action, { put, call }) {
       yield put({
-        type: 'setImportProgressModalVisible',
-        payload: action.payload,
-      })
+        type: 'setImportLoading',
+        payload: true,
+      });
+      const response = yield call(importPlatformArticles, action.payload);
+      if (response) {
+        message.success('文章导入完毕');
+      } else {
+        message.error('文章导入出错');
+      }
+      yield put({
+        type: 'setImportLoading',
+        payload: false,
+      });
+      yield put({
+        type: 'setFetchModalVisible',
+        payload: false,
+      });
     },
-    *importArticles(action, {call}) {
-      yield call(importPlatformArticles, action.payload);
-    }
   },
 
   reducers: {
@@ -186,12 +197,12 @@ const PlatformModel: PlatformModelType = {
         fetchLoading: action.payload,
       };
     },
-    setImportProgressModalVisible(state, action) {
+    setImportLoading(state, action) {
       return {
         ...state,
-        importProgressModalVisible: action.payload,
-      }
-    }
+        importLoading: action.payload,
+      };
+    },
   },
 };
 
