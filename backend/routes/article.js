@@ -8,8 +8,15 @@ module.exports = {
         for (let i = 0; i < articles.length; i++) {
             const article = articles[i]
             article.tasks = await models.Task.find({ articleId: article._id })
+            const arr = ['readNum', 'likeNum', 'commentNum']
+            arr.forEach(key => {
+                article[key] = 0
+                article.tasks.forEach(task => {
+                    article[key] += task[key]
+                })
+            })
         }
-        res.json({
+        await res.json({
             status: 'ok',
             data: articles
         })
@@ -17,7 +24,7 @@ module.exports = {
     getArticle: async (req, res) => {
         const article = await models.Article.findOne({ _id: ObjectId(req.params.id) })
         article.tasks = await models.Task.find({ articleId: article._id })
-        res.json({
+        await res.json({
             status: 'ok',
             data: article
         })
@@ -25,7 +32,7 @@ module.exports = {
     getArticleTaskList: async (req, res) => {
         const article = await models.Article.findOne({ _id: ObjectId(req.params.id) })
         const tasks = await models.Task.find({ articleId: article._id })
-        res.json({
+        await res.json({
             status: 'ok',
             data: tasks,
         })
@@ -41,7 +48,7 @@ module.exports = {
             updateTs: new Date(),
         })
         article = await article.save()
-        res.json({
+        await res.json({
             status: 'ok',
             data: article,
         })
@@ -49,7 +56,7 @@ module.exports = {
     editArticle: async (req, res) => {
         let article = await models.Article.findOne({ _id: ObjectId(req.params.id) })
         if (!article) {
-            return res.json({
+            return await res.json({
                 status: 'ok',
                 error: 'not found'
             }, 404)
@@ -59,7 +66,7 @@ module.exports = {
         article.contentHtml = req.body.contentHtml
         article.updateTs = new Date()
         article = await article.save()
-        res.json({
+        await res.json({
             status: 'ok',
             data: article,
         })
@@ -67,13 +74,13 @@ module.exports = {
     deleteArticle: async (req, res) => {
         let article = await models.Article.findOne({ _id: ObjectId(req.params.id) })
         if (!article) {
-            return res.json({
+            return await res.json({
                 status: 'ok',
                 error: 'not found'
             }, 404)
         }
         await models.Article.remove({ _id: ObjectId(req.params.id) })
-        res.json({
+        await res.json({
             status: 'ok',
             data: req.body,
         })
@@ -81,7 +88,7 @@ module.exports = {
     publishArticle: async (req, res) => {
         let article = await models.Article.findOne({ _id: ObjectId(req.params.id) })
         if (!article) {
-            return res.json({
+            return await res.json({
                 status: 'ok',
                 error: 'not found'
             }, 404)
@@ -103,7 +110,7 @@ module.exports = {
             await task.save()
         }
 
-        res.json({
+        await res.json({
             status: 'ok',
         })
     },
@@ -118,7 +125,7 @@ module.exports = {
             tag: req.body.tag,
         })
         task = await task.save()
-        res.json({
+        await res.json({
             status: 'ok',
             data: task,
         })

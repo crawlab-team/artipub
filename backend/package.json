@@ -17,6 +17,7 @@
     "log4js": "^5.1.0",
     "mongoose": "^5.6.12",
     "morgan": "^1.9.1",
-    "puppeteer-chromium-resolver": "^2.0.1"
+    "puppeteer-chromium-resolver": "^2.0.1",
+    "showdown": "^1.9.0"
   }
 }

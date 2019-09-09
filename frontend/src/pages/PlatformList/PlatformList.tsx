@@ -1,10 +1,10 @@
-import React, {useEffect} from 'react';
-import {PageHeaderWrapper} from '@ant-design/pro-layout';
-import {Button, Form, Input, Modal, Select, Spin, Table, Tag, Tooltip} from 'antd';
-import {Platform, PlatformModelState, SiteArticle} from '@/models/platform';
-import {ConnectProps, ConnectState, Dispatch} from '@/models/connect';
-import {connect} from 'dva';
-import {ColumnProps, SelectionSelectFn, TableRowSelection} from 'antd/lib/table';
+import React, { useEffect } from 'react';
+import { PageHeaderWrapper } from '@ant-design/pro-layout';
+import { Button, Form, Input, Modal, Select, Spin, Table, Tag, Tooltip } from 'antd';
+import { Platform, PlatformModelState, SiteArticle } from '@/models/platform';
+import { ConnectProps, ConnectState, Dispatch } from '@/models/connect';
+import { connect } from 'dva';
+import { ColumnProps, SelectionSelectFn, TableRowSelection } from 'antd/lib/table';
 import style from './PlatformList.scss';
 import constants from '@/constants';
 
@@ -20,7 +20,7 @@ export interface PlatformListProps extends ConnectProps {
 }
 
 const PlatformList: React.FC<PlatformListProps> = props => {
-  const {dispatch, platform} = props;
+  const { dispatch, platform } = props;
 
   // const onEdit: Function = (d: Platform) => {
   //   return () => {
@@ -146,7 +146,9 @@ const PlatformList: React.FC<PlatformListProps> = props => {
       type: 'platform/importArticles',
       payload: {
         platformId: platform.currentPlatform ? platform.currentPlatform._id : '',
-        siteArticles: platform.siteArticles ? platform.siteArticles.filter((d: SiteArticle) => d.checked) : [],
+        siteArticles: platform.siteArticles
+          ? platform.siteArticles.filter((d: SiteArticle) => d.checked)
+          : [],
       },
     });
   };
@@ -178,13 +180,13 @@ const PlatformList: React.FC<PlatformListProps> = props => {
       key: '_id',
       render: (text: string, d: Platform) => {
         if (d.name === constants.platform.JUEJIN) {
-          return <img className={style.siteLogo} src={imgJuejin}/>;
+          return <img className={style.siteLogo} src={imgJuejin} />;
         } else if (d.name === constants.platform.SEGMENTFAULT) {
-          return <img className={style.siteLogo} src={imgSegmentfault}/>;
+          return <img className={style.siteLogo} src={imgSegmentfault} />;
         } else if (d.name === constants.platform.JIANSHU) {
-          return <img className={style.siteLogo} src={imgJianshu}/>;
+          return <img className={style.siteLogo} src={imgJianshu} />;
         } else if (d.name === constants.platform.CSDN) {
-          return <img className={style.siteLogo} src={imgCsdn}/>;
+          return <img className={style.siteLogo} src={imgCsdn} />;
         } else {
           return <span>Logo</span>;
         }
@@ -210,14 +212,14 @@ const PlatformList: React.FC<PlatformListProps> = props => {
       render: text => {
         let shortText = text;
         if (text && text.length > 50) {
-          shortText = shortText.substr(0, 50) + '...'
+          shortText = shortText.substr(0, 50) + '...';
         }
         return (
           <div className={style.description} title={text}>
             {shortText}
           </div>
-        )
-      }
+        );
+      },
     },
     {
       title: '操作',
@@ -305,7 +307,9 @@ const PlatformList: React.FC<PlatformListProps> = props => {
   ) => {
     const siteArticles = platform.siteArticles || [];
     for (let i = 0; i < siteArticles.length; i++) {
-      siteArticles[i].checked = selectedSiteArticles.map((d: any) => d.url).includes(siteArticles[i].url);
+      siteArticles[i].checked = selectedSiteArticles
+        .map((d: any) => d.url)
+        .includes(siteArticles[i].url);
     }
     await dispatch({
       type: 'platform/saveSiteArticles',
@@ -340,6 +344,13 @@ const PlatformList: React.FC<PlatformListProps> = props => {
     }
   }, []);
 
+  const onProgressCancel = () => {
+    dispatch({
+      type: 'platform/saveImportProgressModalVisible',
+      payload: false,
+    });
+  };
+
   return (
     <PageHeaderWrapper>
       <Modal
@@ -348,7 +359,7 @@ const PlatformList: React.FC<PlatformListProps> = props => {
         onOk={onSave}
         onCancel={onModalCancel}
       >
-        <Form labelCol={{sm: {span: 4}}} wrapperCol={{sm: {span: 20}}}>
+        <Form labelCol={{ sm: { span: 4 } }} wrapperCol={{ sm: { span: 20 } }}>
           <Form.Item label="代号">
             <Input
               value={platform.currentPlatform ? platform.currentPlatform.name : ''}
@@ -389,12 +400,16 @@ const PlatformList: React.FC<PlatformListProps> = props => {
         <Spin spinning={platform.fetchLoading} tip="正在获取文章，需要大约30-60秒，请耐心等待...">
           <Table
             rowSelection={siteArticlesRowSelection}
-            dataSource={platform.siteArticles ? platform.siteArticles.map((d: SiteArticle) => {
-              return {
-                key: d.url,
-                ...d
-              }
-            }) : []}
+            dataSource={
+              platform.siteArticles
+                ? platform.siteArticles.map((d: SiteArticle) => {
+                    return {
+                      key: d.url,
+                      ...d,
+                    };
+                  })
+                : []
+            }
             columns={siteArticlesColumns}
           />
         </Spin>
@@ -402,16 +417,16 @@ const PlatformList: React.FC<PlatformListProps> = props => {
       <Modal
         title="导入文章进度"
         visible={platform.importProgressModalVisible}
-      >
-      </Modal>
+        onCancel={onProgressCancel}
+      ></Modal>
       {/*<div className={style.actions}>*/}
       {/*  <Button className={style.addBtn} type="primary" onClick={onAdd}>添加平台</Button>*/}
       {/*</div>*/}
-      <Table dataSource={platform.platforms} columns={columns}/>
+      <Table dataSource={platform.platforms} columns={columns} />
     </PageHeaderWrapper>
   );
 };
 
-export default connect(({platform}: ConnectState) => ({
+export default connect(({ platform }: ConnectState) => ({
   platform,
 }))(PlatformList);

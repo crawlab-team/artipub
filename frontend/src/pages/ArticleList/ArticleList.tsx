@@ -399,7 +399,6 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     {
       title: '验证方式',
       dataIndex: '_id',
-      key: '_id',
       width: '150px',
       render: (text: string, p: Platform) => {
         const t: Task = task.tasks.filter((t: Task) => t.platformId === p._id)[0];
@@ -426,8 +425,8 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     },
     {
       title: '数据统计',
-      dataIndex: '_id',
-      key: '_id',
+      dataIndex: 'key',
+      key: 'key',
       width: '200px',
       render: (text: string, p: Platform) => {
         const t: Task = task.tasks.filter((t: Task) => t.platformId === p._id)[0];
@@ -615,6 +614,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
         </Button>
       </div>
       <Table dataSource={article.articles} columns={articleColumns} />
+      <textarea id="paste-area" style={{ display: 'none' }} />
     </PageHeaderWrapper>
   );
 };

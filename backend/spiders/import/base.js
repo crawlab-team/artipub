@@ -1,6 +1,12 @@
 const PCR = require('puppeteer-chromium-resolver')
+const showdown = require('showdown')
 const models = require('../../models')
 const BaseSpider = require('../base')
+const config = require('../config')
+
+showdown.setOption('tables', true)
+showdown.setOption('tasklists', true)
+showdown.setFlavor('github')
 
 class BaseImportSpider extends BaseSpider {
     constructor(platformName) {
@@ -46,6 +52,23 @@ class BaseImportSpider extends BaseSpider {
             width: 1300,
             height: 938
         })
+
+        // 配置
+        this.config = config[this.platform.name]
+        if (!config) {
+            throw new Error(`config (platform: ${this.platform.name}) cannot be found`)
+        }
+
+        // 编辑器选择器
+        this.editorSel = this.config.editorSel
+
+        // showdown配置
+        showdown.setOption('tables', true)
+        showdown.setOption('tasklists', true)
+        showdown.setFlavor('github')
+
+        // markdown to html转换器
+        this.converter = new showdown.Converter()
     }
 
     async fetchArticles() {
@@ -77,6 +100,7 @@ class BaseImportSpider extends BaseSpider {
         await this.setCookies()
         for (let i = 0; i < siteArticles.length; i++) {
             const siteArticle = siteArticles[i]
+            if (siteArticle.exists && siteArticle.associated) continue
             await this.importArticle(siteArticle)
         }
         await this.browser.close()
