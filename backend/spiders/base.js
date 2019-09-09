@@ -62,6 +62,7 @@ class BaseSpider {
             devtools: false,
             // 关闭headless模式, 不会打开浏览器
             headless: false
+            // headless: true
         })
 
         // 页面
@@ -88,7 +89,6 @@ class BaseSpider {
 
         // 编辑器选择器
         this.editorSel = this.config.editorSel
-
 
         // 隐藏navigator
         await this.page.evaluate(() => {
@@ -248,6 +248,41 @@ class BaseSpider {
 
     async fetchStats() {
         // to be inherited
+    }
+
+    async afterFetchStats() {
+        // 统计文章总阅读、点赞、评论数
+        const tasks = await models.Task.find({articleId: this.article._id})
+        let readNum = 0
+        let likeNum = 0
+        let commentNum = 0
+        for (let i = 0; i < tasks.length; i++) {
+            const task = tasks[i]
+            readNum += task.readNum || 0
+            likeNum += task.likeNum || 0
+            commentNum += task.commentNum || 0
+        }
+        this.article.readNum = readNum
+        this.article.likeNum = likeNum
+        this.article.commentNum = commentNum
+        await this.article.save()
+    }
+
+    /**
+     * 获取文章数据
+     */
+    async runFetchStats() {
+        // 初始化
+        await this.init()
+
+        // 获取文章数据
+        await this.fetchStats()
+
+        // 后续操作
+        await this.afterFetchStats()
+
+        // 关闭浏览器
+        await this.browser.close()
     }
 }
 

@@ -7,6 +7,9 @@ const articleSchema = new mongoose.Schema({
     platformIds: Array,
     createTs: Date,
     updateTs: Date,
+    readNum: Number,
+    likeNum: Number,
+    commentNum: Number,
 })
 
 const Article = mongoose.model('articles', articleSchema)

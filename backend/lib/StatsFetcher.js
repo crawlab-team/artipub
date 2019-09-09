@@ -1,13 +1,14 @@
 const models = require('../models')
 const logger = require('../logger')
 const spiders = require('../spiders')
+const constants = require('../constants')
+const BaseExecutor = require('./BaseExecutor')
 
-class StatsFetcher {
-    constructor(task) {
-        this.task = task
-    }
-
+class StatsFetcher extends BaseExecutor {
     async run() {
+        if (this.spider) {
+            await this.spider.runFetchStats()
+        }
     }
 }
 

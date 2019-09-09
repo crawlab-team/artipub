@@ -1,11 +1,13 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
-const logger = require('morgan')
+const morgan = require('morgan')
 
+const init = require('./init')
 const config = require('./config')
 const routes = require('./routes')
 const exec = require('./exec')
+const logger = require('./logger')
 
 // express实例
 const app = express()
@@ -13,16 +15,16 @@ const app = express()
 // mongodb连接
 mongoose.Promise = global.Promise
 if (config.MONGO_USERNAME) {
-    mongoose.connect(`mongodb://${config.MONGO_USERNAME}:${config.MONGO_PASSWORD}@${config.MONGO_HOST}:${config.MONGO_PORT}/${config.MONGO_DB}`, { useNewUrlParser: true })
+    mongoose.connect(`mongodb://${ config.MONGO_USERNAME }:${ config.MONGO_PASSWORD }@${ config.MONGO_HOST }:${ config.MONGO_PORT }/${ config.MONGO_DB }`, { useNewUrlParser: true })
 } else {
-    mongoose.connect(`mongodb://${config.MONGO_HOST}:${config.MONGO_PORT}/${config.MONGO_DB}`, { useNewUrlParser: true })
+    mongoose.connect(`mongodb://${ config.MONGO_HOST }:${ config.MONGO_PORT }/${ config.MONGO_DB }`, { useNewUrlParser: true })
 }
 
 // bodyParser中间件
 app.use(bodyParser.json())
 
 // 日志中间件
-app.use(logger('dev'))
+app.use(morgan('dev'))
 
 // 跨域cors
 app.use('*', function (req, res, next) {
@@ -60,14 +62,19 @@ app.get('/platforms/:id', routes.platform.getPlatform)
 app.put('/platforms', routes.platform.addPlatform)
 app.post('/platforms/:id', routes.platform.editPlatform)
 app.delete('/platforms/:id', routes.platform.deletePlatform)
+app.get('/platforms/:id/articles', routes.platform.getPlatformArticles)
+app.post('/platforms/:id/articles', routes.platform.importPlatformArticles)
 // Cookie
 app.post('/cookies', routes.cookie.addCookies)
 
 // 启动express server
 app.listen(config.PORT, () => {
-    console.log('listening on port ' + config.PORT)
+    logger.info('listening on port ' + config.PORT)
 })
 
+// 初始化
+init()
+
 // 启动执行器
-const executor = new exec.Executor()
-executor.run()
+const runner = new exec.Runner()
+runner.run()

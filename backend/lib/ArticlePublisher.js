@@ -1,13 +1,9 @@
 const models = require('../models')
 const logger = require('../logger')
-const spiders = require('../spiders')
 const constants = require('../constants')
+const BaseExecutor = require('./BaseExecutor')
 
-class ArticlePublisher {
-    constructor(task) {
-        this.task = task
-    }
-
+class ArticlePublisher extends BaseExecutor {
     async run() {
         let task = this.task
 
@@ -20,27 +16,12 @@ class ArticlePublisher {
             return
         }
 
-        // 平台
-        const platform = await models.Platform.findOne({ _id: task.platformId })
-        const spiderName = platform.name
-
-        let spider
-        if (spiderName === constants.platform.JUEJIN) {
-            spider = new spiders.JuejinSpider(task._id)
-        } else if (spiderName === constants.platform.SEGMENTFAULT) {
-            spider = new spiders.SegmentfaultSpider(task._id)
-        } else if (spiderName === constants.platform.JIANSHU) {
-            spider = new spiders.JianshuSpider(task._id)
-        } else if (spiderName === constants.platform.CSDN) {
-            spider = new spiders.CsdnSpider(task._id)
-        }
-
-        if (spider) {
+        if (this.spider) {
             try {
                 task.status = constants.status.PROCESSING
                 task.updateTs = new Date()
                 await task.save()
-                await spider.run()
+                await this.spider.run()
 
                 // 检查URL结果
                 task = await models.Task.findOne({ _id: task._id })
@@ -62,7 +43,7 @@ class ArticlePublisher {
                 task.updateTs = new Date()
                 await task.save()
                 console.error(e)
-                await spider.browser.close()
+                await this.spider.browser.close()
             }
         }
     }

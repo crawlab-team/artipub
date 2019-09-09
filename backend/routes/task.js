@@ -7,14 +7,14 @@ const path = require('path')
 module.exports = {
     getTaskList: async (req, res) => {
         const tasks = await models.Task.find()
-        res.json({
+        await res.json({
             status: 'ok',
             data: tasks
         })
     },
     getTask: async (req, res) => {
         const task = await models.Task.findOne({ _id: ObjectId(req.params.id) })
-        res.json({
+        await res.json({
             status: 'ok',
             data: task
         })
@@ -48,7 +48,7 @@ module.exports = {
             }
             task = await task.save()
         }
-        res.json({
+        await res.json({
             status: 'ok',
         })
     },
@@ -65,7 +65,7 @@ module.exports = {
             tag: req.body.tag,
         })
         task = await task.save()
-        res.json({
+        await res.json({
             status: 'ok',
             data: task,
         })
@@ -96,7 +96,7 @@ module.exports = {
             }, 404)
         }
         await models.Task.remove({ _id: ObjectId(req.params.id) })
-        res.json({
+        await res.json({
             status: 'ok',
             data: req.body,
         })
@@ -164,12 +164,12 @@ module.exports = {
         }
 
         if (isError) {
-            res.json({
+            await res.json({
                 status: 'ok',
                 error: errMsg,
             }, 500)
         } else {
-            res.json({
+            await res.json({
                 status: 'ok',
                 data: Task,
             })

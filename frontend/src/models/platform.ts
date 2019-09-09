@@ -1,18 +1,40 @@
-import {Effect} from 'dva';
-import {addPlatform, deletePlatform, queryPlatformList, savePlatform} from "@/services/platform";
-import {Reducer} from "redux";
+import { Effect } from 'dva';
+import {
+  addPlatform,
+  deletePlatform,
+  fetchPlatformArticles, importPlatformArticles,
+  queryPlatformList,
+  savePlatform,
+} from '@/services/platform';
+import { Reducer } from 'redux';
+import { message } from 'antd';
 
 export interface Platform {
   _id?: string;
-  name: string,
-  label: string,
-  description: string,
+  name: string;
+  label: string;
+  editorType: string;
+  description: string;
+  enableImport: boolean;
+}
+
+export interface SiteArticle {
+  title: string;
+  url: string;
+  exists: boolean;
+  associated: boolean;
+  articleId?: string;
+  checked?: boolean;
 }
 
 export interface PlatformModelState {
-  platforms: Platform[];
+  platforms?: Platform[];
   currentPlatform?: Platform;
-  modalVisible: boolean;
+  siteArticles?: SiteArticle[];
+  modalVisible?: boolean;
+  fetchModalVisible?: boolean;
+  fetchLoading?: boolean;
+  importProgressModalVisible?: boolean;
 }
 
 export interface PlatformModelType {
@@ -25,11 +47,20 @@ export interface PlatformModelType {
     deletePlatform: Effect;
     saveCurrentPlatform: Effect;
     saveModalVisible: Effect;
+    saveFetchModalVisible: Effect;
+    fetchSiteArticles: Effect;
+    saveSiteArticles: Effect;
+    saveImportProgressModalVisible: Effect;
+    importArticles: Effect;
   };
   reducers: {
     setPlatformList: Reducer<PlatformModelState>;
     setModalVisible: Reducer<PlatformModelState>;
+    setFetchModalVisible: Reducer<PlatformModelState>;
     setCurrentPlatform: Reducer<PlatformModelState>;
+    setSiteArticles: Reducer<PlatformModelState>;
+    setFetchLoading: Reducer<PlatformModelState>;
+    setImportProgressModalVisible: Reducer<PlatformModelState>;
   };
 }
 
@@ -39,68 +70,126 @@ const PlatformModel: PlatformModelType = {
   state: {
     platforms: [],
     modalVisible: false,
+    fetchModalVisible: false,
+    fetchLoading: false,
+    importProgressModalVisible: false,
   },
 
   effects: {
-    * fetchPlatformList(_, {call, put}) {
+    *fetchPlatformList(_, { call, put }) {
       const response = yield call(queryPlatformList);
       yield put({
         type: 'setPlatformList',
         payload: response.data,
-      })
+      });
     },
-    * savePlatform(action, {call}) {
+    *savePlatform(action, { call }) {
       yield call(savePlatform, action.payload);
     },
-    * addPlatform(action, {call}) {
+    *addPlatform(action, { call }) {
       yield call(addPlatform, action.payload);
     },
-    * deletePlatform(action, {call}) {
+    *deletePlatform(action, { call }) {
       yield call(deletePlatform, action.payload);
     },
-    * saveCurrentPlatform(action, {put}) {
+    *saveCurrentPlatform(action, { put }) {
       yield put({
         type: 'setCurrentPlatform',
         payload: action.payload,
       });
     },
-    * saveModalVisible(action, {put}) {
+    *saveModalVisible(action, { put }) {
       yield put({
         type: 'setModalVisible',
         payload: action.payload,
       });
     },
+    *saveFetchModalVisible(action, { put }) {
+      yield put({
+        type: 'setFetchModalVisible',
+        payload: action.payload,
+      });
+    },
+    *fetchSiteArticles(action, { call, put }) {
+      yield put({
+        type: 'setFetchLoading',
+        payload: true,
+      });
+      const response = yield call(fetchPlatformArticles, action.payload);
+      if (response) {
+        yield put({
+          type: 'setSiteArticles',
+          payload: response.data.map((d: SiteArticle) => {
+            d.checked = true;
+            return d;
+          }),
+        });
+      } else {
+        message.error('获取文章发生错误');
+      }
+      yield put({
+        type: 'setFetchLoading',
+        payload: false,
+      });
+    },
+    *saveSiteArticles(action, { put }) {
+      yield put({
+        type: 'setSiteArticles',
+        payload: action.payload,
+      });
+    },
+    *saveImportProgressModalVisible(action, {put}) {
+      yield put({
+        type: 'setImportProgressModalVisible',
+        payload: action.payload,
+      })
+    },
+    *importArticles(action, {call}) {
+      yield call(importPlatformArticles, action.payload);
+    }
   },
 
   reducers: {
     setPlatformList(state, action) {
-      if (!state) return {
-        platforms: [],
-        modalVisible: false,
-      };
       return {
         ...state,
         platforms: action.payload,
-      }
+      };
     },
     setModalVisible(state, action) {
-      if (!state) return {
-        platforms: [],
-        modalVisible: false,
-      };
       return {
         ...state,
         modalVisible: action.payload,
-      }
+      };
+    },
+    setFetchModalVisible(state, action) {
+      return {
+        ...state,
+        fetchModalVisible: action.payload,
+      };
     },
     setCurrentPlatform(state, action) {
-      if (!state) return {
-        platforms: [],
-        modalVisible: false,
-      };
       return {
         ...state,
         currentPlatform: action.payload,
+      };
+    },
+    setSiteArticles(state, action) {
+      return {
+        ...state,
+        siteArticles: action.payload,
+      };
+    },
+    setFetchLoading(state, action) {
+      return {
+        ...state,
+        fetchLoading: action.payload,
+      };
+    },
+    setImportProgressModalVisible(state, action) {
+      return {
+        ...state,
+        importProgressModalVisible: action.payload,
       }
     }
   },

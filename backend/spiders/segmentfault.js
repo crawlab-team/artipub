@@ -27,6 +27,31 @@ class SegmentfaultSpider extends BaseSpider {
             await this.task.save()
         }
     }
+
+    async fetchStats() {
+        if (!this.task.url) return
+        await this.page.goto(this.task.url, { timeout: 60000 })
+        await this.page.waitFor(5000)
+
+        const stats = await this.page.evaluate(() => {
+            const text = document.querySelector('body').innerText
+            const mRead = text.match(/(\d+) 次阅读/)
+            const mComment = text.match(/(\d+) 条评论/)
+            const readNum = mRead ? Number(mRead[1]) : 0
+            const likeNum = Number(document.querySelector('#side-widget-votes-num').innerText)
+            const commentNum = mComment ? Number(mComment[1]) : 0
+            return {
+                readNum,
+                likeNum,
+                commentNum
+            }
+        })
+        this.task.readNum = stats.readNum
+        this.task.likeNum = stats.likeNum
+        this.task.commentNum = stats.commentNum
+        await this.task.save()
+        await this.page.waitFor(3000)
+    }
 }
 
 module.exports = SegmentfaultSpider

@@ -1,16 +1,16 @@
-import React, {useEffect} from 'react';
-import {PageHeaderWrapper} from '@ant-design/pro-layout';
-import {Button, Form, Input, message, Modal, Popconfirm, Select, Table, Tag, Tooltip} from "antd";
-import {Article, ArticleModelState} from "@/models/article";
-import {ConnectProps, ConnectState, Dispatch} from "@/models/connect";
-import {connect} from "dva";
-import {ColumnProps, SelectionSelectFn, TableRowSelection} from "antd/lib/table";
-import router from "umi/router";
+import React, { useEffect } from 'react';
+import { PageHeaderWrapper } from '@ant-design/pro-layout';
+import { Button, Form, Input, message, Modal, Popconfirm, Select, Table, Tag, Tooltip } from 'antd';
+import { Article, ArticleModelState } from '@/models/article';
+import { ConnectProps, ConnectState, Dispatch } from '@/models/connect';
+import { connect } from 'dva';
+import { ColumnProps, SelectionSelectFn, TableRowSelection } from 'antd/lib/table';
+import router from 'umi/router';
 import style from './ArticleList.scss';
-import {Platform, PlatformModelState} from "@/models/platform";
-import moment from "moment";
-import {Task, TaskModelState} from "@/models/task";
-import constants from "@/constants";
+import { Platform, PlatformModelState } from '@/models/platform';
+import moment from 'moment';
+import { Task, TaskModelState } from '@/models/task';
+import constants from '@/constants';
 
 // logo images
 import imgJuejin from '@/assets/img/juejin-logo.svg';
@@ -26,12 +26,12 @@ export interface ArticleListProps extends ConnectProps {
 }
 
 const ArticleList: React.FC<ArticleListProps> = props => {
-  const {dispatch, article, platform, task} = props;
+  const { dispatch, article, platform, task } = props;
 
   const onArticleEdit: Function = (d: Article) => {
     return () => {
       router.push(`/articles/edit/${d._id}`);
-    }
+    };
   };
 
   const onArticleDelete: Function = (d: Article) => {
@@ -39,14 +39,14 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       if (dispatch) {
         dispatch({
           type: 'article/deleteArticle',
-          payload: d
+          payload: d,
         }).then(() => {
           dispatch({
             type: 'article/fetchArticleList',
-          })
+          });
         });
       }
-    }
+    };
   };
 
   const onArticleCreate = () => {
@@ -55,7 +55,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
         type: 'article/resetArticle',
       });
     }
-    router.push('/articles/new')
+    router.push('/articles/new');
   };
 
   const onArticleTasksModalOpen: Function = (a: Article) => {
@@ -63,8 +63,8 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       await dispatch({
         type: 'article/fetchArticle',
         payload: {
-          id: a._id
-        }
+          id: a._id,
+        },
       });
       await dispatch({
         type: 'article/setPubModalVisible',
@@ -74,9 +74,9 @@ const ArticleList: React.FC<ArticleListProps> = props => {
         type: 'task/fetchTaskList',
         payload: {
           id: a._id,
-        }
+        },
       });
-    }
+    };
   };
 
   const onArticleTasksModalCancel = async () => {
@@ -88,7 +88,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       await dispatch({
         type: 'task/setTaskList',
         payload: [],
-      })
+      });
     }
   };
 
@@ -99,17 +99,17 @@ const ArticleList: React.FC<ArticleListProps> = props => {
           type: 'article/publishArticle',
           payload: {
             id: article.currentArticle._id,
-          }
+          },
         });
-        message.success('已开始发布')
+        message.success('已开始发布');
       }
-    }
+    };
   };
 
   const onTaskViewArticle: Function = (t: Task) => {
     return () => {
       window.open(t.url);
-    }
+    };
   };
 
   const onTaskModalOpen: Function = (p: Platform) => {
@@ -157,6 +157,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
   };
 
   const saveTasks = async (selectedPlatforms: Object[], _article: Article) => {
+    if (!platform.platforms) return;
     let tasks: Task[] = [];
     platform.platforms.forEach((p: Platform) => {
       let t: Task = task.tasks.filter((_t: Task) => _t.platformId === p._id)[0];
@@ -170,7 +171,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
           tag: '',
           pubType: 'public',
           checked: selectedPlatforms.map((_p: any) => _p._id).includes(p._id),
-          authType: constants.authType.LOGIN,
+          authType: constants.authType.COOKIE,
           url: '',
         };
       }
@@ -186,11 +187,16 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     });
     await dispatch({
       type: 'task/fetchTaskList',
-      payload: {id: _article._id},
+      payload: { id: _article._id },
     });
   };
 
-  const onTaskSelect: SelectionSelectFn<any> = async (d: any, selected: boolean, selectedPlatforms: Object[], nativeEvent: Event) => {
+  const onTaskSelect: SelectionSelectFn<any> = async (
+    d: any,
+    selected: boolean,
+    selectedPlatforms: Object[],
+    nativeEvent: Event,
+  ) => {
     if (article.currentArticle) {
       await saveTasks(selectedPlatforms, article.currentArticle);
     }
@@ -242,13 +248,30 @@ const ArticleList: React.FC<ArticleListProps> = props => {
         type: 'task/addTasks',
         payload: tasks,
       });
-    }
+    };
+  };
+
+  const getStatsComponent = (d: any) => {
+    d.readNum = d.readNum || 0;
+    d.likeNum = d.likeNum || 0;
+    d.commentNum = d.commentNum || 0;
+    return (
+      <div>
+        <Tooltip title={'阅读数: ' + d.readNum.toString()}>
+          <Tag color="green">{d.readNum}</Tag>
+        </Tooltip>
+        <Tooltip title={'点赞数: ' + d.likeNum.toString()}>
+          <Tag color="orange">{d.likeNum}</Tag>
+        </Tooltip>
+        <Tooltip title={'评论数: ' + d.commentNum.toString()}>
+          <Tag color="blue">{d.commentNum}</Tag>
+        </Tooltip>
+      </div>
+    );
   };
 
   const taskRowSelection: TableRowSelection<any> = {
-    selectedRowKeys: task.tasks
-      .filter((d: Task) => d.checked)
-      .map((d: Task) => d.platformId),
+    selectedRowKeys: task.tasks.filter((d: Task) => d.checked).map((d: Task) => d.platformId),
     onSelect: onTaskSelect,
     onSelectAll: onTaskSelectAll,
   };
@@ -258,45 +281,66 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       title: '文章标题',
       dataIndex: 'title',
       key: 'title',
-      width: '400px',
+      width: 'auto',
     },
     {
       title: '创建时间',
       dataIndex: 'createTs',
       key: 'createTs',
       width: '180px',
-      render: (text) => moment(text).format('YYYY-MM-DD HH:mm:ss'),
+      render: text => moment(text).format('YYYY-MM-DD HH:mm:ss'),
     },
     {
       title: '更新时间',
       dataIndex: 'updateTs',
       key: 'updateTs',
       width: '180px',
-      render: (text) => moment(text).format('YYYY-MM-DD HH:mm:ss'),
+      render: text => moment(text).format('YYYY-MM-DD HH:mm:ss'),
+    },
+    {
+      title: '数据统计',
+      dataIndex: '_id',
+      key: '_id',
+      width: '200px',
+      render: (text: string, d: Article) => {
+        return getStatsComponent(d);
+      },
     },
     {
       title: '操作',
       dataIndex: 'action',
       key: 'action',
+      width: '200px',
       render: (text, d) => {
         return (
           <div>
             <Tooltip title="发布">
-              <Button type="primary" shape="circle" icon="cloud" className={style.pubBtn}
-                      onClick={onArticleTasksModalOpen(d)}/>
+              <Button
+                type="primary"
+                shape="circle"
+                icon="cloud"
+                className={style.pubBtn}
+                onClick={onArticleTasksModalOpen(d)}
+              />
             </Tooltip>
             <Tooltip title="编辑">
-              <Button type="default" shape="circle" icon="edit" className={style.editBtn} onClick={onArticleEdit(d)}/>
+              <Button
+                type="default"
+                shape="circle"
+                icon="edit"
+                className={style.editBtn}
+                onClick={onArticleEdit(d)}
+              />
             </Tooltip>
             <Popconfirm title="您确认删除该文章吗？" onConfirm={onArticleDelete(d)}>
               <Tooltip title="删除">
-                <Button type="danger" shape="circle" icon="delete" className={style.delBtn}/>
+                <Button type="danger" shape="circle" icon="delete" className={style.delBtn} />
               </Tooltip>
             </Popconfirm>
           </div>
-        )
-      }
-    }
+        );
+      },
+    },
   ];
 
   const taskColumns: ColumnProps<any>[] = [
@@ -307,15 +351,15 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       width: '80px',
       render: (text, d) => {
         if (d.name === constants.platform.JUEJIN) {
-          return <img className={style.siteLogo} alt={d.label} src={imgJuejin}/>
+          return <img className={style.siteLogo} alt={d.label} src={imgJuejin} />;
         } else if (d.name === constants.platform.SEGMENTFAULT) {
-          return <img className={style.siteLogo} alt={d.label} src={imgSegmentfault}/>
+          return <img className={style.siteLogo} alt={d.label} src={imgSegmentfault} />;
         } else if (d.name === constants.platform.JIANSHU) {
-          return <img className={style.siteLogo} alt={d.label} src={imgJianshu}/>
+          return <img className={style.siteLogo} alt={d.label} src={imgJianshu} />;
         } else if (d.name === constants.platform.CSDN) {
-          return <img className={style.siteLogo} alt={d.label} src={imgCsdn}/>
+          return <img className={style.siteLogo} alt={d.label} src={imgCsdn} />;
         } else {
-          return <div/>
+          return <div />;
         }
       },
     },
@@ -332,7 +376,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       width: '120px',
       render: (text: string, p: Platform) => {
         const t: Task = task.tasks.filter((t: Task) => t.platformId === p._id)[0];
-        if (!t) return <div/>;
+        if (!t) return <div />;
         let el;
         if (t.status === constants.status.NOT_STARTED) {
           el = <Tag color="grey">未发布</Tag>;
@@ -349,31 +393,45 @@ const ArticleList: React.FC<ArticleListProps> = props => {
         } else {
           el = <Tag color="grey">未发布</Tag>;
         }
-        return el
-      }
+        return el;
+      },
     },
     {
       title: '验证方式',
       dataIndex: '_id',
-      key: '_id',
       width: '150px',
       render: (text: string, p: Platform) => {
         const t: Task = task.tasks.filter((t: Task) => t.platformId === p._id)[0];
-        if (!t) return <div/>;
+        if (!t) return <div />;
         return (
           <Button.Group>
-            <Button type={t.authType === constants.authType.LOGIN ? 'primary' : 'default'}
-                    size="small"
-                    onClick={onSelectAuthType(t, constants.authType.LOGIN)}>
+            <Button
+              type={t.authType === constants.authType.LOGIN ? 'primary' : 'default'}
+              size="small"
+              onClick={onSelectAuthType(t, constants.authType.LOGIN)}
+            >
               登陆
             </Button>
-            <Button type={t.authType === constants.authType.COOKIE ? 'primary' : 'default'}
-                    size="small"
-                    onClick={onSelectAuthType(t, constants.authType.COOKIE)}>
+            <Button
+              type={t.authType === constants.authType.COOKIE ? 'primary' : 'default'}
+              size="small"
+              onClick={onSelectAuthType(t, constants.authType.COOKIE)}
+            >
               Cookie
             </Button>
           </Button.Group>
-        )
+        );
+      },
+    },
+    {
+      title: '数据统计',
+      dataIndex: 'key',
+      key: 'key',
+      width: '200px',
+      render: (text: string, p: Platform) => {
+        const t: Task = task.tasks.filter((t: Task) => t.platformId === p._id)[0];
+        if (!t) return <div />;
+        return getStatsComponent(t);
       },
     },
     {
@@ -383,21 +441,33 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       width: '120px',
       render: (text: string, p: Platform) => {
         const t: Task = task.tasks.filter((t: Task) => t.platformId === p._id)[0];
-        if (!t) return <div/>;
+        if (!t) return <div />;
         return (
           <div>
             <Tooltip title="查看文章">
-              <Button disabled={!t.url} type="default" shape="circle" icon="search"
-                      className={style.viewBtn} onClick={onTaskViewArticle(t)}/>
+              <Button
+                disabled={!t.url}
+                type="default"
+                shape="circle"
+                icon="search"
+                className={style.viewBtn}
+                onClick={onTaskViewArticle(t)}
+              />
             </Tooltip>
             <Tooltip title="配置">
-              <Button disabled={t && !t.checked} type="primary" shape="circle" icon="tool"
-                      className={style.configBtn} onClick={onTaskModalOpen(p)}/>
+              <Button
+                disabled={t && !t.checked}
+                type="primary"
+                shape="circle"
+                icon="tool"
+                className={style.configBtn}
+                onClick={onTaskModalOpen(p)}
+              />
             </Tooltip>
           </div>
-        )
-      }
-    }
+        );
+      },
+    },
   ];
 
   useEffect(() => {
@@ -413,7 +483,11 @@ const ArticleList: React.FC<ArticleListProps> = props => {
 
   // 平台配置
   let platformContent = <div></div>;
-  const currentPlatform = platform.platforms.filter((p: Platform) => !!task.currentTask && p._id === task.currentTask.platformId)[0];
+  const currentPlatform = platform.platforms
+    ? platform.platforms.filter(
+        (p: Platform) => !!task.currentTask && p._id === task.currentTask.platformId,
+      )[0]
+    : undefined;
   if (currentPlatform && currentPlatform.name === constants.platform.JUEJIN) {
     const categories = [
       '前端',
@@ -426,56 +500,74 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       '阅读',
     ];
     platformContent = (
-      <Form labelCol={{sm: {span: 4}}} wrapperCol={{sm: {span: 20}}}>
+      <Form labelCol={{ sm: { span: 4 } }} wrapperCol={{ sm: { span: 20 } }}>
         <Form.Item label="类别">
-          <Select placeholder="点击选择类别" value={task.currentTask ? task.currentTask.category : undefined}
-                  onChange={onTaskChange('select', 'category')}>
-            {categories.map(category => (<Select.Option key={category}>{category}</Select.Option>))}
+          <Select
+            placeholder="点击选择类别"
+            value={task.currentTask ? task.currentTask.category : undefined}
+            onChange={onTaskChange('select', 'category')}
+          >
+            {categories.map(category => (
+              <Select.Option key={category}>{category}</Select.Option>
+            ))}
           </Select>
         </Form.Item>
         <Form.Item label="标签">
-          <Input placeholder="输入标签" value={task.currentTask ? task.currentTask.tag : undefined}
-                 onChange={onTaskChange('input', 'tag')}/>
+          <Input
+            placeholder="输入标签"
+            value={task.currentTask ? task.currentTask.tag : undefined}
+            onChange={onTaskChange('input', 'tag')}
+          />
         </Form.Item>
       </Form>
     );
   } else if (currentPlatform && currentPlatform.name === constants.platform.SEGMENTFAULT) {
     platformContent = (
-      <Form labelCol={{sm: {span: 4}}} wrapperCol={{sm: {span: 20}}}>
+      <Form labelCol={{ sm: { span: 4 } }} wrapperCol={{ sm: { span: 20 } }}>
         <Form.Item label="标签">
-          <Input placeholder="输入标签（用逗号分割）"
-                 value={task.currentTask ? task.currentTask.tag : undefined}
-                 onChange={onTaskChange('input', 'tag')}/>
+          <Input
+            placeholder="输入标签（用逗号分割）"
+            value={task.currentTask ? task.currentTask.tag : undefined}
+            onChange={onTaskChange('input', 'tag')}
+          />
         </Form.Item>
       </Form>
     );
   } else if (currentPlatform && currentPlatform.name === constants.platform.JIANSHU) {
   } else if (currentPlatform && currentPlatform.name === constants.platform.CSDN) {
     const categories = [
-      {value: '1', label: '原创'},
-      {value: '2', label: '转载'},
-      {value: '4', label: '翻译'},
+      { value: '1', label: '原创' },
+      { value: '2', label: '转载' },
+      { value: '4', label: '翻译' },
     ];
     const pubTypes = [
-      {value: 'public', label: '公开'},
-      {value: 'private', label: '私密'},
-      {value: 'needfans', label: '粉丝可见'},
-      {value: 'needvip', label: 'VIP可见'},
+      { value: 'public', label: '公开' },
+      { value: 'private', label: '私密' },
+      { value: 'needfans', label: '粉丝可见' },
+      { value: 'needvip', label: 'VIP可见' },
     ];
     platformContent = (
-      <Form labelCol={{sm: {span: 4}}} wrapperCol={{sm: {span: 20}}}>
+      <Form labelCol={{ sm: { span: 4 } }} wrapperCol={{ sm: { span: 20 } }}>
         <Form.Item label="文章类型">
-          <Select placeholder="选择文章类型"
-                  value={task.currentTask ? task.currentTask.category : undefined}
-                  onChange={onTaskChange('select', 'category')}>
-            {categories.map(c => <Select.Option key={c.value}>{c.label}</Select.Option>)}
+          <Select
+            placeholder="选择文章类型"
+            value={task.currentTask ? task.currentTask.category : undefined}
+            onChange={onTaskChange('select', 'category')}
+          >
+            {categories.map(c => (
+              <Select.Option key={c.value}>{c.label}</Select.Option>
+            ))}
           </Select>
         </Form.Item>
         <Form.Item label="发布形式">
-          <Select placeholder="选择发布形式"
-                  value={task.currentTask ? task.currentTask.pubType : undefined}
-                  onChange={onTaskChange('select', 'pubType')}>
-            {pubTypes.map(pt => <Select.Option key={pt.value}>{pt.label}</Select.Option>)}
+          <Select
+            placeholder="选择发布形式"
+            value={task.currentTask ? task.currentTask.pubType : undefined}
+            onChange={onTaskChange('select', 'pubType')}
+          >
+            {pubTypes.map(pt => (
+              <Select.Option key={pt.value}>{pt.label}</Select.Option>
+            ))}
           </Select>
         </Form.Item>
       </Form>
@@ -484,35 +576,51 @@ const ArticleList: React.FC<ArticleListProps> = props => {
 
   return (
     <PageHeaderWrapper>
-      <Modal title="发布文章" visible={article.pubModalVisible} onCancel={onArticleTasksModalCancel} width="800px"
-             okText="发布"
-             onOk={onArticleTasksPublish()}>
-        <Table dataSource={platform.platforms ? platform.platforms.map((d: Platform) => {
-          return {
-            key: d._id,
-            ...d
+      <Modal
+        title="发布文章"
+        visible={article.pubModalVisible}
+        onCancel={onArticleTasksModalCancel}
+        width="1000px"
+        okText="发布"
+        onOk={onArticleTasksPublish()}
+      >
+        <Table
+          dataSource={
+            platform.platforms
+              ? platform.platforms.map((d: Platform) => {
+                  return {
+                    key: d._id,
+                    ...d,
+                  };
+                })
+              : []
           }
-        }) : []}
-               rowSelection={taskRowSelection}
-               columns={taskColumns}
-               pagination={false}/>
+          rowSelection={taskRowSelection}
+          columns={taskColumns}
+          pagination={false}
+        />
       </Modal>
-      <Modal title={currentPlatform ? '配置-' + currentPlatform.label : '配置'}
-             visible={article.platformModalVisible}
-             onOk={onTaskModalConfirm}
-             onCancel={onTaskModalCancel}>
+      <Modal
+        title={currentPlatform ? '配置-' + currentPlatform.label : '配置'}
+        visible={article.platformModalVisible}
+        onOk={onTaskModalConfirm}
+        onCancel={onTaskModalCancel}
+      >
         {platformContent}
       </Modal>
       <div className={style.actions}>
-        <Button className={style.addBtn} type="primary" onClick={onArticleCreate}>创建文章</Button>
+        <Button className={style.addBtn} type="primary" onClick={onArticleCreate}>
+          创建文章
+        </Button>
       </div>
-      <Table dataSource={article.articles} columns={articleColumns}/>
+      <Table dataSource={article.articles} columns={articleColumns} />
+      <textarea id="paste-area" style={{ display: 'none' }} />
     </PageHeaderWrapper>
   );
 };
 
-export default connect(({article, platform, task}: ConnectState) => ({
+export default connect(({ article, platform, task }: ConnectState) => ({
   article,
   platform,
-  task
+  task,
 }))(ArticleList);

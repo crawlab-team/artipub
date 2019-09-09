@@ -13,10 +13,14 @@ export default {
   },
   inputType: {
     SELECT: 'select',
-    INPUT: 'input'
+    INPUT: 'input',
   },
   authType: {
     LOGIN: 'login',
     COOKIE: 'cookie',
-  }
-}
+  },
+  editorType: {
+    MARKDOWN: 'markdown',
+    RICH_TEXT: 'rich-text',
+  },
+};

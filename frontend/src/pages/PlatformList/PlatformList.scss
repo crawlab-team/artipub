@@ -17,6 +17,12 @@
   background: orange;
 }
 
+.editBtn:hover {
+  color: orange;
+  background: white;
+  border-color: orange;
+}
+
 .delBtn {
   margin-left: 10px;
 }
@@ -32,4 +38,8 @@
 .siteLogo {
   max-width: 40px;
   max-height: 40px;
+}
+
+.description {
+  width: 100%;
 }
