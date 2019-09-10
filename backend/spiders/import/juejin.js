@@ -1,5 +1,6 @@
 const ObjectId = require('bson').ObjectId
 const os = require('os')
+const clipboardy = require('clipboardy')
 const BaseImportSpider = require('./base')
 const models = require('../../models')
 const constants = require('../../constants')
@@ -67,27 +68,10 @@ class JuejinImportSpider extends BaseImportSpider {
         await this.page.keyboard.press('KeyC')
         await this.page.keyboard.up(ctrlKey)
         await this.page.waitFor(500)
+        await this.page.screenshot({path: 'C:\\Users\\marvzhang\\artipub\\backend\\screenshot1.png'})
 
-        // 导航至本地粘贴页面
-        await this.page.goto('http://localhost:8000/paste')
-        await this.page.click('#paste')
-        await this.page.waitFor(500)
-
-        // 粘贴文章内容
-        await this.page.keyboard.down(ctrlKey)
-        await this.page.keyboard.press('KeyV')
-        await this.page.keyboard.up(ctrlKey)
-        await this.page.waitFor(500)
-
-        // await this.page.screenshot({path: 'C:\\Users\\marvzhang\\artipub\\backend\\screenshot.png', type: 'png'})
-
-        // 获取文章内容
-        const content = await this.page.evaluate(() => {
-            const el = document.querySelector('#paste')
-            return el.value
-        })
-
-        console.log(content)
+        // 读取剪切板内容
+        const content = clipboardy.readSync()
 
         if (siteArticle.exists) {
             // 保存文章

@@ -25,7 +25,7 @@ class BaseImportSpider extends BaseSpider {
 
         // PCR
         this.pcr = await PCR({
-            revision: '',
+            revision: '674921',
             detectionPath: '',
             folderName: '.chromium-browser-snapshots',
             hosts: ['https://storage.googleapis.com', 'https://npm.taobao.org/mirrors'],
@@ -39,10 +39,12 @@ class BaseImportSpider extends BaseSpider {
             timeout: 60000,
             //如果是访问https页面 此属性会忽略https错误
             ignoreHTTPSErrors: true,
-            // 打开开发者工具, 当此值为true时, headless总为false
             devtools: false,
-            // 关闭headless模式, 不会打开浏览器
-            headless: globalConfig.HEADLESS
+            headless: globalConfig.HEADLESS,
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox'
+            ]
         })
 
         // 页面
