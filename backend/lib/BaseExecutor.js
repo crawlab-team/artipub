@@ -25,6 +25,8 @@ class BaseExecutor {
             spider = new spiders.JianshuSpider(task._id)
         } else if (spiderName === constants.platform.CSDN) {
             spider = new spiders.CsdnSpider(task._id)
+        } else if (spiderName === constants.platform.ZHIHU) {
+            spider = new spiders.ZhihuSpider(task._id)
         }
         this.spider = spider
     }

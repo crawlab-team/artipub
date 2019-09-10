@@ -32,6 +32,14 @@ module.exports = {
             url: 'https://jianshu.com',
             description: '简书是一个优质的创作社区，在这里，你可以任性地创作，一篇短文、一张照片、一首诗、一幅画……我们相信，每个人都是生活中的艺术家，有着无穷的创造力。',
             enableImport: false,
+        },
+        {
+            name: constants.platform.ZHIHU,
+            label: '知乎',
+            editorType: constants.editorType.MARKDOWN,
+            url: 'https://zhihu.com',
+            description: '有问题，上知乎。知乎，可信赖的问答社区，以让每个人高效获得可信赖的解答为使命。知乎凭借认真、专业和友善的社区氛围，结构化、易获得的优质内容，基于问答的内容生产方式和独特的社区机制，吸引、聚集了各行各业中大量的亲历者、内行人、领域专家、领域爱好者，将高质量的内容透过人的节点来成规模地生产和分享。用户通过问答等交流方式建立信任和连接，打造和提升个人影响力，并发现、获得新机会。',
+            enableImport: false,
         }
     ]
 }

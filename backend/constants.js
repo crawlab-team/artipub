@@ -3,7 +3,8 @@ module.exports = {
         JUEJIN: 'juejin',
         SEGMENTFAULT: 'segmentfault',
         JIANSHU: 'jianshu',
-        CSDN: 'csdn'
+        CSDN: 'csdn',
+        ZHIHU: 'zhihu'
     },
     status: {
         NOT_STARTED: 'not-started',

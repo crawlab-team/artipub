@@ -1,6 +1,7 @@
 const path = require("path")
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 
 module.exports = {
   entry: {
@@ -36,6 +37,14 @@ module.exports = {
   },
   resolve: {
     extensions: [".ts", ".tsx", ".js"]
+  },
+  optimization: {
+    minimizer: [new UglifyJsPlugin({
+      include: [
+        'src',
+        'node_modules',
+      ],
+    })]
   },
   plugins: [
     new HtmlWebpackPlugin({

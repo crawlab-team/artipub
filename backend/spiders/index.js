@@ -3,4 +3,5 @@ module.exports = {
     SegmentfaultSpider: require('./segmentfault'),
     JianshuSpider: require('./jianshu'),
     CsdnSpider: require('./csdn'),
+    ZhihuSpider: require('./zhihu'),
 }
