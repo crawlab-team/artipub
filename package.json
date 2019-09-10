@@ -1,0 +1,28 @@
+{
+  "name": "artipub",
+  "version": "0.1.0",
+  "description": "Article publishing platform that automatically distributes your articles to various media channels",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crawlab-team/artipub.git"
+  },
+  "keywords": [
+    "nodejs",
+    "publish",
+    "article",
+    "media",
+    "write",
+    "post",
+    "puppeteer"
+  ],
+  "author": "Marvin Zhang",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/crawlab-team/artipub/issues"
+  },
+  "homepage": "https://github.com/crawlab-team/artipub#readme"
+}
