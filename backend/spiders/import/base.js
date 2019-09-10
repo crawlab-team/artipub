@@ -25,7 +25,7 @@ class BaseImportSpider extends BaseSpider {
 
         // PCR
         this.pcr = await PCR({
-            revision: '674921',
+            revision: '',
             detectionPath: '',
             folderName: '.chromium-browser-snapshots',
             hosts: ['https://storage.googleapis.com', 'https://npm.taobao.org/mirrors'],
