@@ -77,7 +77,7 @@ module.exports = {
         },
         editorSel: {
             title: '.WriteIndex-titleInput > .Input',
-            content: '.RichText--editable',
+            content: '.public-DraftEditor-content',
             publish: '.PublishPanel-stepTwoButton'
         }
     }

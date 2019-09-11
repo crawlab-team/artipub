@@ -3,7 +3,9 @@ import history from './history';
 import '../../global.tsx';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import findRoute from 'C:/Users/marvzhang/artipub/frontend/node_modules/umi-build-dev/lib/findRoute.js';
+import findRoute, {
+  getUrlQuery,
+} from 'C:/Users/marvzhang/artipub/node_modules/umi-build-dev/lib/findRoute.js';
 
 // runtime plugins
 const plugins = require('umi/_runtimePlugin');
@@ -51,6 +53,7 @@ let clientRender = async () => {
         ? await activeRoute.component.getInitialProps({
             route: activeRoute,
             isServer: false,
+            location,
             ...initialProps,
           })
         : {};
@@ -87,7 +90,8 @@ if (!__IS_BROWSER) {
   serverRender = async (ctx = {}) => {
     // ctx.req.url may be `/bar?locale=en-US`
     const [pathname] = (ctx.req.url || '').split('?');
-    require('@tmp/history').default.push(ctx.req.url);
+    const history = require('@tmp/history').default;
+    history.push(ctx.req.url);
     let props = {};
     const activeRoute =
       findRoute(require('./router').routes, pathname) || false;
@@ -99,9 +103,14 @@ if (!__IS_BROWSER) {
       const initialProps = plugins.apply('modifyInitialProps', {
         initialValue: {},
       });
+      // patch query object
+      const location = history.location
+        ? { ...history.location, query: getUrlQuery(history.location.search) }
+        : {};
       props = await activeRoute.component.getInitialProps({
         route: activeRoute,
         isServer: true,
+        location,
         // only exist in server
         req: ctx.req || {},
         res: ctx.res || {},

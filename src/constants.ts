@@ -4,6 +4,7 @@ export default {
     SEGMENTFAULT: 'segmentfault',
     JIANSHU: 'jianshu',
     CSDN: 'csdn',
+    ZHIHU: 'zhihu',
   },
   status: {
     NOT_STARTED: 'not-started',

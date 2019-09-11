@@ -572,6 +572,18 @@ const ArticleList: React.FC<ArticleListProps> = props => {
         </Form.Item>
       </Form>
     );
+  } else if (currentPlatform && currentPlatform.name === constants.platform.ZHIHU) {
+    platformContent = (
+      <Form labelCol={{ sm: { span: 4 } }} wrapperCol={{ sm: { span: 20 } }}>
+        <Form.Item label="话题">
+          <Input
+            placeholder="输入话题（用逗号分割）"
+            value={task.currentTask ? task.currentTask.tag : undefined}
+            onChange={onTaskChange('input', 'tag')}
+          />
+        </Form.Item>
+      </Form>
+    );
   }
 
   return (

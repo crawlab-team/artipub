@@ -3,7 +3,7 @@ import { Router as DefaultRouter, Route, Switch } from 'react-router-dom';
 import dynamic from 'umi/dynamic';
 import renderRoutes from 'umi/lib/renderRoutes';
 import history from '@tmp/history';
-import RendererWrapper0 from 'C:/Users/marvzhang/artipub/frontend/src/pages/.umi/LocaleWrapper.jsx';
+import RendererWrapper0 from 'C:/Users/marvzhang/artipub/src/pages/.umi/LocaleWrapper.jsx';
 import _dvaDynamic from 'dva/dynamic';
 
 const Router = require('dva/router').routerRedux.ConnectedRouter;
@@ -19,7 +19,7 @@ const routes = [
       ? _dvaDynamic({
           component: () =>
             import(/* webpackChunkName: "p__ArticleEdit__ArticleEdit" */ '../ArticleEdit/ArticleEdit'),
-          LoadingComponent: require('C:/Users/marvzhang/artipub/frontend/src/components/PageLoading/index')
+          LoadingComponent: require('C:/Users/marvzhang/artipub/src/components/PageLoading/index')
             .default,
         })
       : require('../ArticleEdit/ArticleEdit').default,
@@ -35,7 +35,7 @@ const routes = [
       ? _dvaDynamic({
           component: () =>
             import(/* webpackChunkName: "p__ArticleEdit__ArticleEdit" */ '../ArticleEdit/ArticleEdit'),
-          LoadingComponent: require('C:/Users/marvzhang/artipub/frontend/src/components/PageLoading/index')
+          LoadingComponent: require('C:/Users/marvzhang/artipub/src/components/PageLoading/index')
             .default,
         })
       : require('../ArticleEdit/ArticleEdit').default,
@@ -51,7 +51,7 @@ const routes = [
       ? _dvaDynamic({
           component: () =>
             import(/* webpackChunkName: "p__Paste__Paste" */ '../Paste/Paste'),
-          LoadingComponent: require('C:/Users/marvzhang/artipub/frontend/src/components/PageLoading/index')
+          LoadingComponent: require('C:/Users/marvzhang/artipub/src/components/PageLoading/index')
             .default,
         })
       : require('../Paste/Paste').default,
@@ -67,7 +67,7 @@ const routes = [
       ? _dvaDynamic({
           component: () =>
             import(/* webpackChunkName: "p__Demo__Demo" */ '../Demo/Demo'),
-          LoadingComponent: require('C:/Users/marvzhang/artipub/frontend/src/components/PageLoading/index')
+          LoadingComponent: require('C:/Users/marvzhang/artipub/src/components/PageLoading/index')
             .default,
         })
       : require('../Demo/Demo').default,
@@ -79,7 +79,7 @@ const routes = [
       ? _dvaDynamic({
           component: () =>
             import(/* webpackChunkName: "layouts__BasicLayout" */ '../../layouts/BasicLayout'),
-          LoadingComponent: require('C:/Users/marvzhang/artipub/frontend/src/components/PageLoading/index')
+          LoadingComponent: require('C:/Users/marvzhang/artipub/src/components/PageLoading/index')
             .default,
         })
       : require('../../layouts/BasicLayout').default,
@@ -99,7 +99,7 @@ const routes = [
           ? _dvaDynamic({
               component: () =>
                 import(/* webpackChunkName: "p__PlatformList__PlatformList" */ '../PlatformList/PlatformList'),
-              LoadingComponent: require('C:/Users/marvzhang/artipub/frontend/src/components/PageLoading/index')
+              LoadingComponent: require('C:/Users/marvzhang/artipub/src/components/PageLoading/index')
                 .default,
             })
           : require('../PlatformList/PlatformList').default,
@@ -113,7 +113,7 @@ const routes = [
           ? _dvaDynamic({
               component: () =>
                 import(/* webpackChunkName: "p__ArticleList__ArticleList" */ '../ArticleList/ArticleList'),
-              LoadingComponent: require('C:/Users/marvzhang/artipub/frontend/src/components/PageLoading/index')
+              LoadingComponent: require('C:/Users/marvzhang/artipub/src/components/PageLoading/index')
                 .default,
             })
           : require('../ArticleList/ArticleList').default,
@@ -124,7 +124,7 @@ const routes = [
           ? _dvaDynamic({
               component: () =>
                 import(/* webpackChunkName: "p__404" */ '../404'),
-              LoadingComponent: require('C:/Users/marvzhang/artipub/frontend/src/components/PageLoading/index')
+              LoadingComponent: require('C:/Users/marvzhang/artipub/src/components/PageLoading/index')
                 .default,
             })
           : require('../404').default,
@@ -133,7 +133,7 @@ const routes = [
       {
         component: () =>
           React.createElement(
-            require('C:/Users/marvzhang/artipub/frontend/node_modules/umi-build-dev/lib/plugins/404/NotFound.js')
+            require('C:/Users/marvzhang/artipub/node_modules/umi-build-dev/lib/plugins/404/NotFound.js')
               .default,
             { pagesPath: 'src/pages', hasRoutesInConfig: true },
           ),
@@ -144,7 +144,7 @@ const routes = [
     component: __IS_BROWSER
       ? _dvaDynamic({
           component: () => import(/* webpackChunkName: "p__404" */ '../404'),
-          LoadingComponent: require('C:/Users/marvzhang/artipub/frontend/src/components/PageLoading/index')
+          LoadingComponent: require('C:/Users/marvzhang/artipub/src/components/PageLoading/index')
             .default,
         })
       : require('../404').default,
@@ -153,7 +153,7 @@ const routes = [
   {
     component: () =>
       React.createElement(
-        require('C:/Users/marvzhang/artipub/frontend/node_modules/umi-build-dev/lib/plugins/404/NotFound.js')
+        require('C:/Users/marvzhang/artipub/node_modules/umi-build-dev/lib/plugins/404/NotFound.js')
           .default,
         { pagesPath: 'src/pages', hasRoutesInConfig: true },
       ),

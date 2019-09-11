@@ -20,13 +20,13 @@ export function _onCreate() {
     app.use(plugin);
   });
   
-  app.model({ namespace: 'article', ...(require('C:/Users/marvzhang/artipub/frontend/src/models/article.ts').default) });
-app.model({ namespace: 'global', ...(require('C:/Users/marvzhang/artipub/frontend/src/models/global.ts').default) });
-app.model({ namespace: 'login', ...(require('C:/Users/marvzhang/artipub/frontend/src/models/login.ts').default) });
-app.model({ namespace: 'platform', ...(require('C:/Users/marvzhang/artipub/frontend/src/models/platform.ts').default) });
-app.model({ namespace: 'setting', ...(require('C:/Users/marvzhang/artipub/frontend/src/models/setting.ts').default) });
-app.model({ namespace: 'task', ...(require('C:/Users/marvzhang/artipub/frontend/src/models/task.ts').default) });
-app.model({ namespace: 'user', ...(require('C:/Users/marvzhang/artipub/frontend/src/models/user.ts').default) });
+  app.model({ namespace: 'article', ...(require('C:/Users/marvzhang/artipub/src/models/article.ts').default) });
+app.model({ namespace: 'global', ...(require('C:/Users/marvzhang/artipub/src/models/global.ts').default) });
+app.model({ namespace: 'login', ...(require('C:/Users/marvzhang/artipub/src/models/login.ts').default) });
+app.model({ namespace: 'platform', ...(require('C:/Users/marvzhang/artipub/src/models/platform.ts').default) });
+app.model({ namespace: 'setting', ...(require('C:/Users/marvzhang/artipub/src/models/setting.ts').default) });
+app.model({ namespace: 'task', ...(require('C:/Users/marvzhang/artipub/src/models/task.ts').default) });
+app.model({ namespace: 'user', ...(require('C:/Users/marvzhang/artipub/src/models/user.ts').default) });
   return app;
 }
 
