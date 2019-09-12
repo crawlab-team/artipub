@@ -78,14 +78,14 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       });
 
       // 持续请求更新状态
-      const fetchHandle = setInterval(() => {
+      const fetchHandle = await setInterval(() => {
         dispatch({
           type: 'task/fetchTaskList',
           payload: {
-            id: article.currentArticle ? article.currentArticle._id : '',
+            id: a._id,
           },
         });
-      }, 5000);
+      }, 1000);
       await dispatch({
         type: 'article/setFetchHandle',
         payload: fetchHandle,
