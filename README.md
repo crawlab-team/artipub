@@ -19,7 +19,7 @@ ArtiPub提供3种安装方式如下。
 
 通过Docker，可以免去
 
-**安装Docker Compose
+**安装Docker Compose**
 
 ```bash
 docker-compose
