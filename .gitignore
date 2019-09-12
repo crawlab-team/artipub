@@ -4,3 +4,5 @@ logs/
 .idea/
 tmp/
 yarn.lock
+.DS_Store
+package-lock.json
