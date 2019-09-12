@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 const os = require('os')
 const exec = require('child_process').exec
 const path = require('path')

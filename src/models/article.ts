@@ -26,6 +26,7 @@ export interface ArticleModelState {
   currentArticle?: Article;
   pubModalVisible?: boolean;
   platformModalVisible?: boolean;
+  fetchHandle?: number;
 }
 
 export interface ArticleModelType {
@@ -45,6 +46,7 @@ export interface ArticleModelType {
     setPubModalVisible: Effect;
     publishArticle: Effect;
     setPlatformModalVisible: Effect;
+    setFetchHandle: Effect;
   };
   reducers: {
     saveArticle: Reducer<ArticleModelState>;
@@ -55,6 +57,7 @@ export interface ArticleModelType {
     saveArticlePlatformIds: Reducer<ArticleModelState>;
     savePubModalVisible: Reducer<ArticleModelState>;
     savePlatformModalVisible: Reducer<ArticleModelState>;
+    saveFetchHandle: Reducer<ArticleModelState>;
   };
 }
 
@@ -67,6 +70,7 @@ const ArticleModel: ArticleModelType = {
     currentArticle: { title: '', content: '', contentHtml: '', platformIds: [] },
     pubModalVisible: false,
     platformModalVisible: false,
+    fetchHandle: undefined,
   },
 
   effects: {
@@ -162,6 +166,13 @@ const ArticleModel: ArticleModelType = {
         payload: action.payload,
       });
     },
+
+    *setFetchHandle(action, { put }) {
+      yield put({
+        type: 'saveFetchHandle',
+        payload: action.payload,
+      });
+    },
   },
 
   reducers: {
@@ -223,6 +234,12 @@ const ArticleModel: ArticleModelType = {
       return {
         ...state,
         platformModalVisible: action.payload,
+      };
+    },
+    saveFetchHandle(state, action) {
+      return {
+        ...state,
+        fetchHandle: action.payload,
       };
     },
   },
