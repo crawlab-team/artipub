@@ -7,7 +7,47 @@
 - MongoDB 3.6+
 - NodeJS 8.12+
 
-## 安装步骤
+## 安装方式
+
+ArtiPub提供3种安装方式如下。
+
+- [Docker](#通过Docker安装) (大约5分钟): 适合对Docker有一定基础的开发者
+- [npm](#通过npm包安装) (大约3分钟): 适合熟悉Node.js或npm的开发者
+- [源码](#通过源码安装) (大约5-10分钟): 适合希望了解内核原理的开发者
+
+### 通过Docker安装
+
+通过Docker，可以免去
+
+**安装Docker Compose
+
+```bash
+docker-compose
+```
+
+### 通过npm包安装
+
+**安装npm包**
+
+```bash
+npm install -g artipub
+```
+
+安装npm包时，为了加速下载速度，可以加入`--registry`参数来设置镜像源（后面源码安装时也可以这样操作）
+
+```bash
+npm install -g artipub --registry=https://registry.npm.taobao.org
+```
+
+**运行ArtiPub**
+
+```bash
+artipub start
+```
+
+然后在浏览器中输入`http://localhost:8000`可以看到界面。
+
+### 通过源码安装
 
 **克隆Github Repo**
 
@@ -15,34 +55,23 @@
 git clone https://github.com/crawlab-team/artipub
 ```
 
-**安装前端**
+**安装npm包**
 
 ```bash
-cd frontend
+cd artipub
 npm install
 ```
 
-**安装后端**
+**启动前端**
 
 ```bash
-cd ../backend
-npm install
+npm run start:frontend
 ```
 
-## 运行步骤
-
-**运行前端**
+**启动后端**
 
 ```bash
-cd ../frontend
-npm run start
-```
-
-**运行后端**
-
-```bash
-cd ../backend
-npm run start
+npm run start:backend
 ```
 
 ## 为什么创建这个工具
