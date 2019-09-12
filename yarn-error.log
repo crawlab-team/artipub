@@ -1,0 +1,142 @@
+Arguments: 
+  C:\Program Files\nodejs\node.exe C:\Users\marvzhang\AppData\Roaming\npm\node_modules\yarn\bin\yarn.js install --registry=https://registry.npm.taobao.org
+
+PATH: 
+  C:\Users\marvzhang\AppData\Local\Continuum\anaconda3;C:\Users\marvzhang\AppData\Local\Continuum\anaconda3\Library\mingw-w64\bin;C:\Users\marvzhang\AppData\Local\Continuum\anaconda3\Library\usr\bin;C:\Users\marvzhang\AppData\Local\Continuum\anaconda3\Library\bin;C:\Users\marvzhang\AppData\Local\Continuum\anaconda3\Scripts;C:\Users\marvzhang\AppData\Local\Continuum\anaconda3\bin;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files (x86)\Skype\Phone\;C:\Program Files\TortoiseSVN\bin;C:\Program Files (x86)\Microsoft SQL Server\Client SDK\ODBC\130\Tools\Binn\;C:\Program Files (x86)\Microsoft SQL Server\140\Tools\Binn\;C:\Program Files (x86)\Microsoft SQL Server\140\DTS\Binn\;C:\Program Files (x86)\Microsoft SQL Server\140\Tools\Binn\ManagementStudio\;C:\Program Files\Microsoft SQL Server\130\Tools\Binn\;C:\nginx-1.15.0;C:\Users\marvzhang\AppData\Roaming\nvm;C:\Program Files\nodejs;C:\nvm;C:\Program Files\nodejs\;C:\Program Files\Git\cmd;C:\Program Files\Redis;C:\Program Files\MongoDB\Server\4.0\bin;C:\Users\marvzhang\AppData\Local\Continuum\anaconda3;C:\Program Files\dotnet\;C:\Users\marvzhang\AppData\Local\Microsoft\WindowsApps;C:\Users\marvzhang\AppData\Roaming\nvm;C:\Program Files\nodejs;C:\Users\marvzhang\AppData\Roaming\npm;C:\Users\marvzhang\.dotnet\tools
+
+Yarn version: 
+  1.13.0
+
+Node version: 
+  8.12.0
+
+Platform: 
+  win32 x64
+
+Trace: 
+  Error: https://registry.npm.taobao.org/antd/download/antd-3.23.2.tgz?cache=0&sync_timestamp=1567770307698&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fantd%2Fdownload%2Fantd-3.23.2.tgz: unexpected end of file
+      at Gunzip.zlibOnError (zlib.js:153:15)
+
+npm manifest: 
+  {
+    "name": "artipub",
+    "version": "0.1.0",
+    "description": "Article publishing platform that automatically distributes your articles to various media channels",
+    "main": "index.js",
+    "scripts": {
+      "start:frontend": "umi dev",
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "bin": {
+      "artipub": "./cli.js"
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/crawlab-team/artipub.git"
+    },
+    "keywords": [
+      "nodejs",
+      "publish",
+      "article",
+      "media",
+      "write",
+      "post",
+      "puppeteer"
+    ],
+    "author": "Marvin Zhang",
+    "license": "BSD-3-Clause",
+    "bugs": {
+      "url": "https://github.com/crawlab-team/artipub/issues"
+    },
+    "homepage": "https://github.com/crawlab-team/artipub#readme",
+    "dependencies": {
+      "async-lock": "^1.2.2",
+      "body-parser": "^1.19.0",
+      "clipboardy": "^2.1.0",
+      "cors": "^2.8.5",
+      "cron": "^1.7.1",
+      "express": "^4.17.1",
+      "log4js": "^5.1.0",
+      "mongoose": "^5.6.12",
+      "morgan": "^1.9.1",
+      "puppeteer-chromium-resolver": "^2.0.1",
+      "showdown": "^1.9.0",
+      "@ant-design/pro-layout": "^4.5.9",
+      "@antv/data-set": "^0.10.2",
+      "@types/codemirror": "0.0.76",
+      "@types/showdown": "^1.9.3",
+      "antd": "^3.20.0",
+      "classnames": "^2.2.6",
+      "codemirror": "^5.48.2",
+      "dva": "^2.4.1",
+      "github-markdown-css": "^3.0.1",
+      "hash.js": "^1.1.7",
+      "lodash": "^4.17.11",
+      "moment": "^2.24.0",
+      "numeral": "^2.0.6",
+      "nzh": "^1.0.4",
+      "omit.js": "^1.0.2",
+      "path-to-regexp": "^3.0.0",
+      "qs": "^6.7.0",
+      "react": "^16.8.6",
+      "react-ace": "^7.0.2",
+      "react-codemirror2": "^6.0.0",
+      "react-copy-to-clipboard": "^5.0.1",
+      "react-document-title": "^2.0.3",
+      "react-dom": "^16.8.6",
+      "react-showdown": "^1.6.0",
+      "redux": "^4.0.1",
+      "showdown": "^1.9.0",
+      "umi": "^2.8.7",
+      "umi-plugin-pro-block": "^1.3.2",
+      "umi-plugin-react": "^1.9.5",
+      "umi-request": "^1.0.8"
+    },
+    "devDependencies": {
+      "@ant-design/colors": "^3.1.0",
+      "@ant-design/pro-cli": "^1.0.0",
+      "@types/classnames": "^2.2.7",
+      "@types/express": "^4.17.0",
+      "@types/history": "^4.7.2",
+      "@types/jest": "^24.0.13",
+      "@types/lodash": "^4.14.133",
+      "@types/qs": "^6.5.3",
+      "@types/react": "^16.8.19",
+      "@types/react-document-title": "^2.0.3",
+      "@types/react-dom": "^16.8.4",
+      "@umijs/fabric": "^1.1.0",
+      "chalk": "^2.4.2",
+      "check-prettier": "^1.0.3",
+      "cross-env": "^5.2.0",
+      "cross-port-killer": "^1.1.1",
+      "enzyme": "^3.9.0",
+      "eslint": "^5.16.0",
+      "express": "^4.17.1",
+      "gh-pages": "^2.0.1",
+      "husky": "^3.0.0",
+      "import-sort-cli": "^6.0.0",
+      "import-sort-parser-babylon": "^6.0.0",
+      "import-sort-parser-typescript": "^6.0.0",
+      "import-sort-style-module": "^6.0.0",
+      "jest-puppeteer": "^4.2.0",
+      "lint-staged": "^9.0.0",
+      "mockjs": "^1.0.1-beta3",
+      "netlify-lambda": "^1.4.13",
+      "node-fetch": "^2.6.0",
+      "prettier": "^1.17.1",
+      "pro-download": "1.0.1",
+      "serverless-http": "^2.0.2",
+      "slash2": "^2.0.0",
+      "stylelint": "^10.1.0",
+      "umi-plugin-ga": "^1.1.3",
+      "umi-plugin-pro": "^1.0.2",
+      "umi-types": "^0.3.8",
+      "webpack-theme-color-replacer": "^1.2.15"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
