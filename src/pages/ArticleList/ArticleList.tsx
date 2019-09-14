@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import {PageHeaderWrapper} from '@ant-design/pro-layout';
-import {Button, Form, Input, message, Modal, Popconfirm, Select, Table, Tag, Tooltip} from 'antd';
+import {Badge, Button, Form, Input, message, Modal, Popconfirm, Select, Table, Tag, Tooltip} from 'antd';
 import {Article, ArticleModelState} from '@/models/article';
 import {ConnectProps, ConnectState, Dispatch} from '@/models/connect';
 import {connect} from 'dva';
@@ -241,6 +241,17 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     };
   };
 
+  const getBadgeCount = (p: Platform) => {
+    const t = task.tasks.filter((d: Task) => d.platformId === p._id)[0];
+    if (!t || !t.checked) return 0;
+    if (p.name === constants.platform.JUEJIN) {
+      return t.tag === "" ? 1 : 0;
+    } else if (p.name === constants.platform.SEGMENTFAULT) {
+        return t.tag === "" ? 1 : 0;
+    }
+    return 0
+  };
+
   /**
    * 选择验证方式
    * 假设已经获取task.tasks
@@ -471,6 +482,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
               />
             </Tooltip>
             <Tooltip title="配置">
+              <Badge count={getBadgeCount(p)}>
               <Button
                 disabled={t && !t.checked}
                 type="primary"
@@ -479,6 +491,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
                 className={style.configBtn}
                 onClick={onTaskModalOpen(p)}
               />
+            </Badge>
             </Tooltip>
           </div>
         );
@@ -517,7 +530,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     ];
     platformContent = (
       <Form labelCol={{sm: {span: 4}}} wrapperCol={{sm: {span: 20}}}>
-        <Form.Item label="类别">
+        <Form.Item label="类别" required={true}>
           <Select
             placeholder="点击选择类别"
             value={task.currentTask ? task.currentTask.category : undefined}
@@ -528,7 +541,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
             ))}
           </Select>
         </Form.Item>
-        <Form.Item label="标签">
+        <Form.Item label="标签" required={true}>
           <Input
             placeholder="输入标签"
             value={task.currentTask ? task.currentTask.tag : undefined}
@@ -540,7 +553,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
   } else if (currentPlatform && currentPlatform.name === constants.platform.SEGMENTFAULT) {
     platformContent = (
       <Form labelCol={{sm: {span: 4}}} wrapperCol={{sm: {span: 20}}}>
-        <Form.Item label="标签">
+        <Form.Item label="标签" required={true}>
           <Input
             placeholder="输入标签（用逗号分割）"
             value={task.currentTask ? task.currentTask.tag : undefined}
@@ -564,7 +577,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     ];
     platformContent = (
       <Form labelCol={{sm: {span: 4}}} wrapperCol={{sm: {span: 20}}}>
-        <Form.Item label="文章类型">
+        <Form.Item label="文章类型" required={true}>
           <Select
             placeholder="选择文章类型"
             value={task.currentTask ? task.currentTask.category : undefined}
@@ -575,7 +588,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
             ))}
           </Select>
         </Form.Item>
-        <Form.Item label="发布形式">
+        <Form.Item label="发布形式" required={true}>
           <Select
             placeholder="选择发布形式"
             value={task.currentTask ? task.currentTask.pubType : undefined}

@@ -13,7 +13,7 @@ const init = async () => {
     } else {
       for (let key in platform) {
         if (platform.hasOwnProperty(key)) {
-          if (platform[key]) {
+          if (platform[key] !== undefined) {
             platformDb[key] = platform[key]
           }
         }
@@ -27,16 +27,18 @@ const init = async () => {
     const environment = data.environments[i]
     let environmentDb = await models.Environment.findOne({ _id: environment._id })
     if (!environmentDb) {
-      // do nothing
-    } else {
-      for (let key in environment) {
-        if (environment.hasOwnProperty(key)) {
-          if (environment[key]) {
-            environmentDb[key] = environment[key]
-          }
-        }
-      }
+      environmentDb = new models.Platform(platform)
       await environmentDb.save()
+    } else {
+      // do nothing
+      // for (let key in environment) {
+      //   if (environment.hasOwnProperty(key)) {
+      //     if (environment[key]) {
+      //       environmentDb[key] = environment[key]
+      //     }
+      //   }
+      // }
+      // await environmentDb.save()
     }
   }
 }
