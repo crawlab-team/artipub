@@ -17,6 +17,9 @@ export interface Platform {
   editorType: string;
   description: string;
   enableImport: boolean;
+  enableLogin: boolean;
+  username: string;
+  password: string;
 }
 
 export interface SiteArticle {
@@ -36,6 +39,7 @@ export interface PlatformModelState {
   fetchModalVisible?: boolean;
   fetchLoading?: boolean;
   importLoading?: boolean;
+  accountModalVisible?: boolean;
 }
 
 export interface PlatformModelType {
@@ -52,6 +56,7 @@ export interface PlatformModelType {
     fetchSiteArticles: Effect;
     saveSiteArticles: Effect;
     importArticles: Effect;
+    saveAccountModalVisible: Effect;
   };
   reducers: {
     setPlatformList: Reducer<PlatformModelState>;
@@ -61,6 +66,7 @@ export interface PlatformModelType {
     setSiteArticles: Reducer<PlatformModelState>;
     setFetchLoading: Reducer<PlatformModelState>;
     setImportLoading: Reducer<PlatformModelState>;
+    setAccountModalVisible: Reducer<PlatformModelState>;
   };
 }
 
@@ -73,6 +79,7 @@ const PlatformModel: PlatformModelType = {
     fetchModalVisible: false,
     fetchLoading: false,
     importLoading: false,
+    accountModalVisible: false,
   },
 
   effects: {
@@ -107,6 +114,12 @@ const PlatformModel: PlatformModelType = {
     *saveFetchModalVisible(action, { put }) {
       yield put({
         type: 'setFetchModalVisible',
+        payload: action.payload,
+      });
+    },
+    *saveAccountModalVisible(action, { put }) {
+      yield put({
+        type: 'setAccountModalVisible',
         payload: action.payload,
       });
     },
@@ -177,6 +190,12 @@ const PlatformModel: PlatformModelType = {
       return {
         ...state,
         fetchModalVisible: action.payload,
+      };
+    },
+    setAccountModalVisible(state, action) {
+      return {
+        ...state,
+        accountModalVisible: action.payload,
       };
     },
     setCurrentPlatform(state, action) {

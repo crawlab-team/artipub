@@ -85,7 +85,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
             id: a._id,
           },
         });
-      }, 1000);
+      }, 5000);
       await dispatch({
         type: 'article/setFetchHandle',
         payload: fetchHandle,

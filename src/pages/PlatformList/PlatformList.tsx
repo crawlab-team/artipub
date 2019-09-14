@@ -153,6 +153,37 @@ const PlatformList: React.FC<PlatformListProps> = props => {
     });
   };
 
+  const onAccount: Function = (d: Platform) => {
+    return async () => {
+      await dispatch({
+        type: 'platform/saveAccountModalVisible',
+        payload: true,
+      });
+      await dispatch({
+        type: 'platform/saveCurrentPlatform',
+        payload: d,
+      });
+    };
+  };
+
+  const onAccountModalCancel = async () => {
+    await dispatch({
+      type: 'platform/saveAccountModalVisible',
+      payload: false,
+    });
+  };
+
+  const onAccountSave = async () => {
+    await dispatch({
+      type: 'platform/savePlatform',
+      payload: platform.currentPlatform,
+    });
+    await dispatch({
+      type: 'platform/saveAccountModalVisible',
+      payload: false,
+    });
+  };
+
   const getStatsComponent = (d: any) => {
     d.readNum = d.readNum || 0;
     d.likeNum = d.likeNum || 0;
@@ -237,6 +268,16 @@ const PlatformList: React.FC<PlatformListProps> = props => {
                 icon="import"
                 className={style.fetchBtn}
                 onClick={onFetch(d)}
+              />
+            </Tooltip>
+            <Tooltip title="设置登陆用户名密码">
+              <Button
+                disabled={!d.enableLogin}
+                type="default"
+                shape="circle"
+                icon="key"
+                className={style.loginBtn}
+                onClick={onAccount(d)}
               />
             </Tooltip>
             {/*<Popconfirm title="您确认删除该平台吗？" onConfirm={onDelete(d)}>*/}
@@ -428,6 +469,29 @@ const PlatformList: React.FC<PlatformListProps> = props => {
             columns={siteArticlesColumns}
           />
         </Spin>
+      </Modal>
+      <Modal
+        visible={platform.accountModalVisible}
+        onCancel={onAccountModalCancel}
+        onOk={onAccountSave}
+      >
+        <Form>
+          <Form.Item label="登陆用户名">
+            <Input
+              value={platform.currentPlatform ? platform.currentPlatform.username : ''}
+              placeholder="请输入登陆用户名"
+              onChange={onFieldChange(constants.inputType.INPUT, 'username')}
+            />
+          </Form.Item>
+          <Form.Item label="登陆密码">
+            <Input
+              value={platform.currentPlatform ? platform.currentPlatform.password : ''}
+              type="password"
+              placeholder="请输入登陆密码"
+              onChange={onFieldChange(constants.inputType.INPUT, 'password')}
+            />
+          </Form.Item>
+        </Form>
       </Modal>
       {/*<div className={style.actions}>*/}
       {/*  <Button className={style.addBtn} type="primary" onClick={onAdd}>添加平台</Button>*/}
