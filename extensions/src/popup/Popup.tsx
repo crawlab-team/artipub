@@ -24,13 +24,7 @@ export default class Popup extends React.Component<AppProps, AppState> {
     chrome.runtime.sendMessage({popupMounted: true});
 
     this.setState({
-      allowedDomains: [
-        'juejin',
-        'segmentfault',
-        'jianshu',
-        'csdn',
-        'zhihu',
-      ],
+      allowedDomains: [],
       configVisible: false,
       url: 'http://localhost:3000',
       fetched: false,
@@ -38,10 +32,17 @@ export default class Popup extends React.Component<AppProps, AppState> {
     });
   }
 
-  onGetLoginInfo() {
+  async onGetLoginInfo() {
     this.setState({
       loading: true
     });
+
+    const response = await axios.get(this.state.url + '/platforms');
+    const platforms = response.data.data;
+    this.setState({
+      allowedDomains: platforms.map((d: any) => d.name)
+    });
+
     chrome.cookies.getAllCookieStores(cookieStores => {
       // console.log(cookieStores);
       cookieStores.forEach(store => {
