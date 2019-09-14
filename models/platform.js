@@ -12,6 +12,9 @@ const platformSchema = new mongoose.Schema({
   password: String,
   createTs: Date,
   updateTs: Date,
+
+  // 前端字段
+  cookieStatus: String,
 })
 
 const Platform = mongoose.model('platforms', platformSchema)

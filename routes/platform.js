@@ -1,9 +1,19 @@
-const models = require('../models')
 const ObjectId = require('bson').ObjectId
+const constants = require('../constants')
+const models = require('../models')
+
+const getCookieStatus = async (platform) => {
+  const cookies = await models.Cookie.find({ domain: { $regex: platform.name } })
+  if (!cookies) return constants.cookieStatus.NO_COOKIE
+  return constants.cookieStatus.EXISTS
+}
 
 module.exports = {
   getPlatformList: async (req, res) => {
     const platforms = await models.Platform.find()
+    for (let i = 0; i < platforms.length; i++) {
+      platforms[i].cookieStatus = await getCookieStatus(platforms[i])
+    }
     await res.json({
       status: 'ok',
       data: platforms
@@ -11,6 +21,7 @@ module.exports = {
   },
   getPlatform: async (req, res) => {
     const platform = await models.Platform.findOne({ _id: ObjectId(req.params.id) })
+    platform.cookieStatus = await getCookieStatus(d)
     await res.json({
       status: 'ok',
       data: platform

@@ -20,6 +20,7 @@ export interface Platform {
   enableLogin: boolean;
   username: string;
   password: string;
+  cookieStatus: string;
 }
 
 export interface SiteArticle {

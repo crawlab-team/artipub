@@ -424,6 +424,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
               type={t.authType === constants.authType.LOGIN ? 'primary' : 'default'}
               size="small"
               onClick={onSelectAuthType(t, constants.authType.LOGIN)}
+              disabled={t.platform ? !t.platform.enableLogin : false}
             >
               登陆
             </Button>

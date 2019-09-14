@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react';
-import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { Button, Form, Input, Modal, Select, Spin, Table, Tag, Tooltip } from 'antd';
-import { Platform, PlatformModelState, SiteArticle } from '@/models/platform';
-import { ConnectProps, ConnectState, Dispatch } from '@/models/connect';
-import { connect } from 'dva';
-import { ColumnProps, SelectionSelectFn, TableRowSelection } from 'antd/lib/table';
+import React, {useEffect} from 'react';
+import {PageHeaderWrapper} from '@ant-design/pro-layout';
+import {Button, Form, Input, Modal, Select, Spin, Table, Tag, Tooltip} from 'antd';
+import {Platform, PlatformModelState, SiteArticle} from '@/models/platform';
+import {ConnectProps, ConnectState, Dispatch} from '@/models/connect';
+import {connect} from 'dva';
+import {ColumnProps, SelectionSelectFn, TableRowSelection} from 'antd/lib/table';
 import style from './PlatformList.scss';
 import constants from '@/constants';
 
@@ -20,7 +20,7 @@ export interface PlatformListProps extends ConnectProps {
 }
 
 const PlatformList: React.FC<PlatformListProps> = props => {
-  const { dispatch, platform } = props;
+  const {dispatch, platform} = props;
 
   // const onEdit: Function = (d: Platform) => {
   //   return () => {
@@ -211,13 +211,13 @@ const PlatformList: React.FC<PlatformListProps> = props => {
       key: '_id',
       render: (text: string, d: Platform) => {
         if (d.name === constants.platform.JUEJIN) {
-          return <img className={style.siteLogo} src={imgJuejin} />;
+          return <img className={style.siteLogo} src={imgJuejin}/>;
         } else if (d.name === constants.platform.SEGMENTFAULT) {
-          return <img className={style.siteLogo} src={imgSegmentfault} />;
+          return <img className={style.siteLogo} src={imgSegmentfault}/>;
         } else if (d.name === constants.platform.JIANSHU) {
-          return <img className={style.siteLogo} src={imgJianshu} />;
+          return <img className={style.siteLogo} src={imgJianshu}/>;
         } else if (d.name === constants.platform.CSDN) {
-          return <img className={style.siteLogo} src={imgCsdn} />;
+          return <img className={style.siteLogo} src={imgCsdn}/>;
         } else {
           return <span>Logo</span>;
         }
@@ -251,6 +251,35 @@ const PlatformList: React.FC<PlatformListProps> = props => {
           </div>
         );
       },
+    },
+    {
+      title: 'Cookie状态',
+      dataIndex: 'cookieStatus',
+      key: 'cookieStatus',
+      width: '120px',
+      render: (text: string, d: Platform) => {
+        if (d.cookieStatus === constants.cookieStatus.EXISTS) {
+          return (
+            <Tooltip title="可以发布文章到该平台">
+              <Tag color="green">已导入</Tag>
+            </Tooltip>
+          )
+        } else if (d.cookieStatus === constants.cookieStatus.EXPIRED) {
+          return (
+            <Tooltip title="请用登陆助手更新Cookie">
+              <Tag color="orange">已过期</Tag>
+            </Tooltip>
+          );
+        } else if (d.cookieStatus === constants.cookieStatus.NO_COOKIE) {
+          return (
+            <Tooltip title="请用登陆助手导入Cookie">
+              <Tag color="red">未导入</Tag>
+            </Tooltip>
+          );
+        } else {
+          return text
+        }
+      }
     },
     {
       title: '操作',
@@ -406,7 +435,7 @@ const PlatformList: React.FC<PlatformListProps> = props => {
         onOk={onSave}
         onCancel={onModalCancel}
       >
-        <Form labelCol={{ sm: { span: 4 } }} wrapperCol={{ sm: { span: 20 } }}>
+        <Form labelCol={{sm: {span: 4}}} wrapperCol={{sm: {span: 20}}}>
           <Form.Item label="代号">
             <Input
               value={platform.currentPlatform ? platform.currentPlatform.name : ''}
@@ -459,11 +488,11 @@ const PlatformList: React.FC<PlatformListProps> = props => {
             dataSource={
               platform.siteArticles
                 ? platform.siteArticles.map((d: SiteArticle) => {
-                    return {
-                      key: d.url,
-                      ...d,
-                    };
-                  })
+                  return {
+                    key: d.url,
+                    ...d,
+                  };
+                })
                 : []
             }
             columns={siteArticlesColumns}
@@ -496,11 +525,11 @@ const PlatformList: React.FC<PlatformListProps> = props => {
       {/*<div className={style.actions}>*/}
       {/*  <Button className={style.addBtn} type="primary" onClick={onAdd}>添加平台</Button>*/}
       {/*</div>*/}
-      <Table dataSource={platform.platforms} columns={columns} />
+      <Table dataSource={platform.platforms} columns={columns}/>
     </PageHeaderWrapper>
   );
 };
 
-export default connect(({ platform }: ConnectState) => ({
+export default connect(({platform}: ConnectState) => ({
   platform,
 }))(PlatformList);

@@ -1,6 +1,7 @@
 import { Effect } from 'dva';
 import { addTask, addTasks, queryTaskList, saveTask } from '@/services/task';
 import { Reducer } from 'redux';
+import {Platform} from "@/models/platform";
 
 export interface Task {
   _id?: string;
@@ -18,6 +19,7 @@ export interface Task {
   readNum?: number;
   likeNum?: number;
   commentNum?: number;
+  platform?: Platform;
 }
 
 export interface TaskModelState {

@@ -23,5 +23,10 @@ module.exports = {
   },
   environment: {
     updateStatsCron: 'update_stats_cron',
-  }
+  },
+  cookieStatus: {
+    NO_COOKIE: 'no_cookie',
+    EXPIRED: 'expired',
+    EXISTS: 'exists',
+  },
 }
