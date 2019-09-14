@@ -27,8 +27,7 @@ const init = async () => {
     const environment = data.environments[i]
     let environmentDb = await models.Environment.findOne({ _id: environment._id })
     if (!environmentDb) {
-      environmentDb = new models.Environment(environment)
-      await environmentDb.save()
+      // do nothing
     } else {
       for (let key in environment) {
         if (environment.hasOwnProperty(key)) {
