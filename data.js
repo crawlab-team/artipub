@@ -1,5 +1,6 @@
 const constants = require('./constants')
 module.exports = {
+  // 平台
   platforms: [
     {
       name: constants.platform.JUEJIN,
@@ -54,6 +55,15 @@ module.exports = {
       description: 'OSCHINA.NET 是目前领先的中文开源技术社区。我们传播开源的理念，推广开源项目，为 IT 开发者提供了一个发现、使用、并交流开源技术的平台',
       enableImport: false,
       enableLogin: false,
+    }
+  ],
+
+  // 环境变量
+  environments: [
+    {
+      _id: constants.environment.updateStatsCron,
+      label: '更新文章统计数据频率',
+      value: '0 0/30 * * * *'
     }
   ]
 }

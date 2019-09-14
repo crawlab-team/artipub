@@ -146,6 +146,12 @@ export default {
           component: './ArticleList/ArticleList',
         },
         {
+          path: '/environments',
+          name: 'environments',
+          icon: 'setting',
+          component: './Environment/EnvironmentList',
+        },
+        {
           component: './404',
         },
       ],

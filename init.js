@@ -3,6 +3,7 @@ const data = require('./data')
 
 // 数据库初始化
 const init = async () => {
+  // 初始化平台数据
   for (let i = 0; i < data.platforms.length; i++) {
     const platform = data.platforms[i]
     let platformDb = await models.Platform.findOne({ name: platform.name })
@@ -18,6 +19,25 @@ const init = async () => {
         }
       }
       await platformDb.save()
+    }
+  }
+
+  // 初始化环境变量数据
+  for (let i = 0; i < data.environments.length; i++) {
+    const environment = data.environments[i]
+    let environmentDb = await models.Environment.findOne({ _id: environment._id })
+    if (!environmentDb) {
+      environmentDb = new models.Environment(environment)
+      await environmentDb.save()
+    } else {
+      for (let key in environment) {
+        if (environment.hasOwnProperty(key)) {
+          if (environment[key]) {
+            environmentDb[key] = environment[key]
+          }
+        }
+      }
+      await environmentDb.save()
     }
   }
 }

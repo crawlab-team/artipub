@@ -1,0 +1,59 @@
+.actions {
+  height: 50px;
+  text-align: right;
+}
+
+.addBtn {
+  position: relative;
+}
+
+.pubBtn {
+  margin-left: 10px;
+}
+
+.editBtn {
+  margin-left: 10px;
+  color: white;
+  background: orange;
+}
+
+.editBtn:hover {
+  color: orange;
+  background: white;
+  border-color: orange;
+}
+
+.delBtn {
+  margin-left: 10px;
+}
+
+.viewBtn {
+  margin-left: 0;
+}
+
+.configBtn {
+  margin-left: 10px;
+}
+
+.loginBtn {
+  color: white;
+  background: orange;
+  border-color: orange;
+  border-radius: 50%;
+  margin-left: 10px;
+}
+
+.loginBtn:hover {
+  color: orange;
+  background: white;
+  border-color: orange;
+}
+
+.siteLogo {
+  max-width: 40px;
+  max-height: 40px;
+}
+
+.description {
+  width: 100%;
+}

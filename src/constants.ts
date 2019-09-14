@@ -24,4 +24,7 @@ export default {
     MARKDOWN: 'markdown',
     RICH_TEXT: 'rich-text',
   },
+  environment: {
+    updateStatsCron: 'update_stats_cron',
+  }
 };
