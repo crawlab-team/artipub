@@ -65,6 +65,8 @@ const TaskModel: TaskModelType = {
           const newTask = newTasks.filter((t: Task) => t._id === task._id)[0];
           if (!newTask) continue;
           tasks[i].status = newTask.status;
+          tasks[i].error = newTask.error;
+          tasks[i].url = newTask.url;
         }
         yield put({
           type: 'setTaskList',

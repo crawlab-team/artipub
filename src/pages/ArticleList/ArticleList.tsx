@@ -17,6 +17,7 @@ import imgJuejin from '@/assets/img/juejin-logo.svg';
 import imgSegmentfault from '@/assets/img/segmentfault-logo.jpg';
 import imgJianshu from '@/assets/img/jianshu-logo.png';
 import imgCsdn from '@/assets/img/csdn-logo.jpg';
+import imgOschina from '@/assets/img/oschina-logo.jpg';
 
 export interface ArticleListProps extends ConnectProps {
   task: TaskModelState;
@@ -253,6 +254,8 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       return t.tag === "" ? 1 : 0;
     } else if (p.name === constants.platform.SEGMENTFAULT) {
       return t.tag === "" ? 1 : 0;
+    } else if (p.name === constants.platform.OSCHINA) {
+      return t.category === "" ? 1 : 0;
     }
     return 0
   };
@@ -389,6 +392,8 @@ const ArticleList: React.FC<ArticleListProps> = props => {
           return <img className={style.siteLogo} alt={d.label} src={imgJianshu}/>;
         } else if (d.name === constants.platform.CSDN) {
           return <img className={style.siteLogo} alt={d.label} src={imgCsdn}/>;
+        } else if (d.name === constants.platform.OSCHINA) {
+          return <img className={style.siteLogo} alt={d.label} src={imgOschina}/>;
         } else {
           return <div/>;
         }
@@ -615,6 +620,41 @@ const ArticleList: React.FC<ArticleListProps> = props => {
             value={task.currentTask ? task.currentTask.tag : undefined}
             onChange={onTaskChange('input', 'tag')}
           />
+        </Form.Item>
+      </Form>
+    );
+  } else if (currentPlatform && currentPlatform.name === constants.platform.OSCHINA) {
+    const categories = [
+      '移动开发',
+      '前端开发',
+      '人工智能',
+      '服务端开发/管理',
+      '游戏开发',
+      '编程语言',
+      '数据库',
+      '企业开发',
+      '图像/多媒体',
+      '系统运维',
+      '软件工程',
+      '大数据',
+      '云计算',
+      '开源硬件',
+      '区块链',
+      '其他类型',
+      '物联网',
+    ];
+    platformContent = (
+      <Form labelCol={{sm: {span: 4}}} wrapperCol={{sm: {span: 20}}}>
+        <Form.Item label="系统分类" required={true}>
+          <Select
+            placeholder="点击选择系统分类"
+            value={task.currentTask ? task.currentTask.category : undefined}
+            onChange={onTaskChange('select', 'category')}
+          >
+            {categories.map(category => (
+              <Select.Option key={category}>{category}</Select.Option>
+            ))}
+          </Select>
         </Form.Item>
       </Form>
     );

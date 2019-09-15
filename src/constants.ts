@@ -5,6 +5,7 @@ export default {
     JIANSHU: 'jianshu',
     CSDN: 'csdn',
     ZHIHU: 'zhihu',
+    OSCHINA: 'oschina',
   },
   status: {
     NOT_STARTED: 'not-started',

@@ -46,7 +46,8 @@ class BaseSpider {
     })
 
     // 是否开启chrome浏览器调试
-    const enableChromeDebug = await models.Environment.findOne({_id: constants.environment.ENABLE_CHROME_DEBUG}).value
+    const enableChromeDebugEnv = await models.Environment.findOne({_id: constants.environment.ENABLE_CHROME_DEBUG})
+    const enableChromeDebug = enableChromeDebugEnv.value
 
     // 浏览器
     this.browser = await this.pcr.puppeteer.launch({
