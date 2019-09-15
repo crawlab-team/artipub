@@ -5,6 +5,7 @@ export default {
   'menu.article-edit': '文章编辑',
   'menu.platforms': '平台管理',
   'menu.environments': '系统设置',
+  'menu.helper': '登陆助手',
   'menu.more-blocks': '更多区块',
   'menu.home': '首页',
   'menu.login': '登录',

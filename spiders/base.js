@@ -45,6 +45,9 @@ class BaseSpider {
       silent: false
     })
 
+    // 是否开启chrome浏览器调试
+    const enableChromeDebug = await models.Environment.findOne({_id: constants.environment.ENABLE_CHROME_DEBUG}).value
+
     // 浏览器
     this.browser = await this.pcr.puppeteer.launch({
       executablePath: this.pcr.executablePath,
@@ -55,7 +58,7 @@ class BaseSpider {
       // 打开开发者工具, 当此值为true时, headless总为false
       devtools: false,
       // 关闭headless模式, 不会打开浏览器
-      headless: globalConfig.HEADLESS
+      headless: enableChromeDebug !== 'Y'
     })
 
     // 页面

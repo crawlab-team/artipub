@@ -6,7 +6,4 @@ module.exports = {
     MONGO_DB: 'artipub',
     MONGO_USERNAME: '',
     MONGO_PASSWORD: '',
-
-    // HEADLESS: true
-    HEADLESS: false
 }

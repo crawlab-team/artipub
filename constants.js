@@ -22,7 +22,8 @@ module.exports = {
     RICH_TEXT: 'rich-text'
   },
   environment: {
-    updateStatsCron: 'update_stats_cron',
+    UPDATE_STATS_CRON: 'update_stats_cron',
+    ENABLE_CHROME_DEBUG: 'enable_chrome_debug',
   },
   cookieStatus: {
     NO_COOKIE: 'no_cookie',

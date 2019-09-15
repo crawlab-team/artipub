@@ -146,6 +146,11 @@ export default {
           component: './ArticleList/ArticleList',
         },
         {
+          path: '/helper',
+          name: 'helper',
+          icon: 'key',
+        },
+        {
           path: '/environments',
           name: 'environments',
           icon: 'setting',
