@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import {PageHeaderWrapper} from '@ant-design/pro-layout';
-import {Badge, Button, Form, Input, message, Modal, Popconfirm, Select, Table, Tag, Tooltip} from 'antd';
+import {Badge, Button, Card, Form, Input, message, Modal, Popconfirm, Select, Table, Tag, Tooltip} from 'antd';
 import {Article, ArticleModelState} from '@/models/article';
 import {ConnectProps, ConnectState, Dispatch} from '@/models/connect';
 import {connect} from 'dva';
@@ -252,7 +252,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     if (p.name === constants.platform.JUEJIN) {
       return t.tag === "" ? 1 : 0;
     } else if (p.name === constants.platform.SEGMENTFAULT) {
-        return t.tag === "" ? 1 : 0;
+      return t.tag === "" ? 1 : 0;
     }
     return 0
   };
@@ -488,15 +488,15 @@ const ArticleList: React.FC<ArticleListProps> = props => {
             </Tooltip>
             <Tooltip title="配置">
               <Badge count={getBadgeCount(p)}>
-              <Button
-                disabled={t && !t.checked}
-                type="primary"
-                shape="circle"
-                icon="tool"
-                className={style.configBtn}
-                onClick={onTaskModalOpen(p)}
-              />
-            </Badge>
+                <Button
+                  disabled={t && !t.checked}
+                  type="primary"
+                  shape="circle"
+                  icon="tool"
+                  className={style.configBtn}
+                  onClick={onTaskModalOpen(p)}
+                />
+              </Badge>
             </Tooltip>
           </div>
         );
@@ -659,8 +659,9 @@ const ArticleList: React.FC<ArticleListProps> = props => {
           创建文章
         </Button>
       </div>
-      <Table dataSource={article.articles} columns={articleColumns}/>
-      <textarea id="paste-area" style={{display: 'none'}}/>
+      <Card>
+        <Table dataSource={article.articles} columns={articleColumns}/>
+      </Card>
     </PageHeaderWrapper>
   );
 };

@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import {PageHeaderWrapper} from '@ant-design/pro-layout';
-import {Button, Form, Input, Modal, Select, Spin, Table, Tag, Tooltip} from 'antd';
+import {Button, Card, Form, Input, Modal, Select, Spin, Table, Tag, Tooltip} from 'antd';
 import {Platform, PlatformModelState, SiteArticle} from '@/models/platform';
 import {ConnectProps, ConnectState, Dispatch} from '@/models/connect';
 import {connect} from 'dva';
@@ -525,7 +525,9 @@ const PlatformList: React.FC<PlatformListProps> = props => {
       {/*<div className={style.actions}>*/}
       {/*  <Button className={style.addBtn} type="primary" onClick={onAdd}>添加平台</Button>*/}
       {/*</div>*/}
-      <Table dataSource={platform.platforms} columns={columns}/>
+      <Card>
+        <Table dataSource={platform.platforms} columns={columns}/>
+      </Card>
     </PageHeaderWrapper>
   );
 };

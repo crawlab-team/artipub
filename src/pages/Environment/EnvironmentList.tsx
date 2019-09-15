@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import {PageHeaderWrapper} from '@ant-design/pro-layout';
-import {message, Select, Table} from 'antd';
+import {Card, message, Select, Table} from 'antd';
 import {ConnectProps, ConnectState, Dispatch} from '@/models/connect';
 import {connect} from 'dva';
 import {ColumnProps} from 'antd/lib/table';
@@ -95,7 +95,9 @@ const EnvironmentList: React.FC<EnvironmentListProps> = props => {
 
   return (
     <PageHeaderWrapper>
-      <Table dataSource={environment.environments} columns={columns}/>
+      <Card>
+        <Table dataSource={environment.environments} columns={columns}/>
+      </Card>
     </PageHeaderWrapper>
   );
 };

@@ -149,6 +149,7 @@ export default {
           path: '/helper',
           name: 'helper',
           icon: 'key',
+          component: './Helper/Helper',
         },
         {
           path: '/environments',
