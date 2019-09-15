@@ -2,6 +2,7 @@ import { Effect } from 'dva';
 import { addTask, addTasks, queryTaskList, saveTask } from '@/services/task';
 import { Reducer } from 'redux';
 import {Platform} from "@/models/platform";
+import {ConnectState} from "@/models/connect";
 
 export interface Task {
   _id?: string;
@@ -53,12 +54,29 @@ const TaskModel: TaskModelType = {
   },
 
   effects: {
-    *fetchTaskList(action, { call, put }) {
-      const response = yield call(queryTaskList, action.payload);
-      yield put({
-        type: 'setTaskList',
-        payload: response.data,
-      });
+    *fetchTaskList(action, { select, call, put }) {
+      const response = yield call(queryTaskList, { id: action.payload.id });
+      const newTasks: Task[] = response.data;
+      const tasks: Task[] = yield select((state: ConnectState) => state.task.tasks);
+      if (action.payload.updateStatus) {
+        // 只更新状态
+        for (let i = 0; i < tasks.length; i++) {
+          const task = tasks[i];
+          const newTask = newTasks.filter((t: Task) => t._id === task._id)[0];
+          if (!newTask) continue;
+          tasks[i].status = newTask.status;
+        }
+        yield put({
+          type: 'setTaskList',
+          payload: tasks,
+        });
+      } else {
+        // 更新全部
+        yield put({
+          type: 'setTaskList',
+          payload: response.data,
+        });
+      }
     },
     *addTasks(action, { call }) {
       yield call(addTasks, action.payload);

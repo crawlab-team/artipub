@@ -83,6 +83,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
           type: 'task/fetchTaskList',
           payload: {
             id: a._id,
+            updateStatus: true,
           },
         });
       }, 5000);
@@ -147,6 +148,10 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     dispatch({
       type: 'article/setPlatformModalVisible',
       payload: false,
+    });
+    dispatch({
+      type: 'task/saveCurrentTask',
+      payload: undefined,
     });
   };
 
