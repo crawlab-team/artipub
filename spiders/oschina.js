@@ -24,19 +24,18 @@ class OschinaSpider extends BaseSpider {
   }
 
   async inputContent(article, editorSel) {
+    const footerContent = `<br><b>本篇文章由一文多发平台<a href="https://github.com/crawlab-team/artipub" target="_blank">ArtiPub</a>自动发布</b>`
+    const content = article.contentHtml + footerContent;
     const iframeWindow = document.querySelector('.cke_wysiwyg_frame').contentWindow
     const el = iframeWindow.document.querySelector(editorSel.content)
     el.focus()
     iframeWindow.document.execCommand('delete', false)
-    iframeWindow.document.execCommand('insertHTML', false, article.contentHtml)
+    iframeWindow.document.execCommand('insertHTML', false, content)
+    document.querySelector('textarea[name="body"]').value = content
   }
 
   async inputFooter(article, editorSel) {
-    const footerContent = `<br><b>本篇文章由一文多发平台<a href="https://github.com/crawlab-team/artipub" target="_blank">ArtiPub</a>自动发布</b>`
-    const iframeWindow = document.querySelector('.cke_wysiwyg_frame').contentWindow
-    const el = iframeWindow.document.querySelector(editorSel.content)
-    el.focus()
-    iframeWindow.document.execCommand('insertHTML', false, footerContent)
+    // do nothing
   }
 
   async afterInputEditor() {
@@ -85,7 +84,7 @@ class OschinaSpider extends BaseSpider {
       const el = document.querySelector(editorSel.publish)
       el.click()
     }, this.editorSel)
-    await this.page.waitFor(5000)
+    await this.page.waitFor(10000)
 
     // 后续处理
     await this.afterPublish()
@@ -93,7 +92,7 @@ class OschinaSpider extends BaseSpider {
 
   async afterPublish() {
     const url = this.page.url()
-    if (!url.match(/\/blog\//)) {
+    if (!url.match(/\/blog\/\d+/)) {
       return
     }
     this.task.url = url
