@@ -14,6 +14,7 @@ import imgSegmentfault from '@/assets/img/segmentfault-logo.jpg';
 import imgJianshu from '@/assets/img/jianshu-logo.png';
 import imgCsdn from '@/assets/img/csdn-logo.jpg';
 import imgOschina from '@/assets/img/oschina-logo.jpg';
+import imgToutiao from '@/assets/img/toutiao-logo.png';
 
 export interface PlatformListProps extends ConnectProps {
   platform: PlatformModelState;
@@ -221,6 +222,8 @@ const PlatformList: React.FC<PlatformListProps> = props => {
           return <img className={style.siteLogo} src={imgCsdn}/>;
         } else if (d.name === constants.platform.OSCHINA) {
           return <img className={style.siteLogo} src={imgOschina}/>;
+        } else if (d.name === constants.platform.TOUTIAO) {
+          return <img className={style.siteLogo} src={imgToutiao}/>;
         } else {
           return <span>Logo</span>;
         }

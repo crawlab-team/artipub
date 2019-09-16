@@ -6,6 +6,7 @@ module.exports = {
     CSDN: 'csdn',
     ZHIHU: 'zhihu',
     OSCHINA: 'oschina',
+    TOUTIAO: 'toutiao',
   },
   status: {
     NOT_STARTED: 'not-started',

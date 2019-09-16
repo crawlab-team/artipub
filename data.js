@@ -50,9 +50,18 @@ module.exports = {
     {
       name: constants.platform.OSCHINA,
       label: '开源中国',
-      editorType: constants.editorType.MARKDOWN,
+      editorType: constants.editorType.RICH_TEXT,
       url: 'https://www.oschina.net',
       description: 'OSCHINA.NET 是目前领先的中文开源技术社区。我们传播开源的理念，推广开源项目，为 IT 开发者提供了一个发现、使用、并交流开源技术的平台',
+      enableImport: false,
+      enableLogin: false,
+    },
+    {
+      name: constants.platform.TOUTIAO,
+      label: '今日头条',
+      editorType: constants.editorType.MARKDOWN,
+      url: 'https://www.toutiao.com',
+      description: '《今日头条》(www.toutiao.com)是一款基于数据挖掘的推荐引擎产品，它为用户推荐有价值的、个性化的信息，提供连接人与信息的新型服务，是国内移动互联网领域成长最快的产品服务之一。',
       enableImport: false,
       enableLogin: false,
     }

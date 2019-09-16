@@ -96,5 +96,21 @@ module.exports = {
       content: '.cke_editable',
       publish: '.submit'
     }
+  },
+
+  toutiao: {
+    urls: {
+      login: '',
+      editor: 'https://mp.toutiao.com/profile_v3/graphic/publish'
+    },
+    loginSel: {
+      username: '',
+      password: ''
+    },
+    editorSel: {
+      title: '#title',
+      content: '.ql-editor',
+      publish: '#publish'
+    }
   }
 }

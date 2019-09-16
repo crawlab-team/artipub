@@ -18,6 +18,7 @@ import imgSegmentfault from '@/assets/img/segmentfault-logo.jpg';
 import imgJianshu from '@/assets/img/jianshu-logo.png';
 import imgCsdn from '@/assets/img/csdn-logo.jpg';
 import imgOschina from '@/assets/img/oschina-logo.jpg';
+import imgToutiao from '@/assets/img/toutiao-logo.png';
 
 export interface ArticleListProps extends ConnectProps {
   task: TaskModelState;
@@ -394,6 +395,8 @@ const ArticleList: React.FC<ArticleListProps> = props => {
           return <img className={style.siteLogo} alt={d.label} src={imgCsdn}/>;
         } else if (d.name === constants.platform.OSCHINA) {
           return <img className={style.siteLogo} alt={d.label} src={imgOschina}/>;
+        } else if (d.name === constants.platform.TOUTIAO) {
+          return <img className={style.siteLogo} alt={d.label} src={imgToutiao}/>;
         } else {
           return <div/>;
         }

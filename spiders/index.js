@@ -5,4 +5,5 @@ module.exports = {
   CsdnSpider: require('./csdn'),
   ZhihuSpider: require('./zhihu'),
   OschinaSpider: require('./oschina'),
+  ToutiaoSpider: require('./toutiao'),
 }
