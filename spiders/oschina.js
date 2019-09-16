@@ -65,7 +65,9 @@ class OschinaSpider extends BaseSpider {
       ]
       const index = categories.indexOf(task.category)
 
-      const items = document.querySelector('.inline.fields > .field:nth-child(1) > .dropdown .item')
+      console.log(index)
+
+      const items = document.querySelectorAll('.inline.fields > .field:nth-child(1) > .dropdown .item')
       for (let i = 0; i < items.length; i++) {
         const item = items[i]
         if (index === i) {
@@ -82,7 +84,7 @@ class OschinaSpider extends BaseSpider {
     await this.page.evaluate(editorSel => {
       const el = document.querySelector(editorSel.publish)
       el.click()
-    })
+    }, this.editorSel)
     await this.page.waitFor(5000)
 
     // 后续处理
@@ -90,7 +92,11 @@ class OschinaSpider extends BaseSpider {
   }
 
   async afterPublish() {
-    this.task.url = this.page.url()
+    const url = this.page.url()
+    if (!url.match(/\/blog\//)) {
+      return
+    }
+    this.task.url = url
     this.task.updateTs = new Date()
     await this.task.save()
   }
