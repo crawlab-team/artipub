@@ -1,8 +1,8 @@
 const BaseSpider = require('./base')
 
-class OschinaSpider extends BaseSpider {
+class ToutiaoSpider extends BaseSpider {
   async inputContent(article, editorSel) {
-    const footerContent = `<br><b>本篇文章由一文多发平台<a href="https://github.com/crawlab-team/artipub" target="_blank">ArtiPub</a>自动发布</b>`
+    const footerContent = `<br><b>本篇文章由一文多发平台ArtiPub自动发布</b>. https://github.com/crawlab-team/artipub`
     const content = article.contentHtml + footerContent
     const el = document.querySelector(editorSel.content)
     el.focus()
@@ -13,12 +13,26 @@ class OschinaSpider extends BaseSpider {
     // do nothing
   }
 
+  async publish() {
+    // 发布文章
+    const elPub = await this.page.$(this.editorSel.publish)
+    await elPub.click()
+    await this.page.waitFor(10000)
+
+    // 后续处理
+    await this.afterPublish()
+  }
+
   async afterInputEditor() {
   }
 
   async afterPublish() {
-    const url = this.page.url()
-    this.task.url = url
+    const id = await this.page.evaluate(() => {
+      const url = document.querySelector('.master-title > a').getAttribute('href')
+      return url.match(/pgc_id=(\d+)$/)[1]
+    })
+    if (!id) return
+    this.task.url = `https://toutiao.com/i${id}`
     this.task.updateTs = new Date()
     await this.task.save()
   }
@@ -27,4 +41,4 @@ class OschinaSpider extends BaseSpider {
   }
 }
 
-module.exports = OschinaSpider
+module.exports = ToutiaoSpider
