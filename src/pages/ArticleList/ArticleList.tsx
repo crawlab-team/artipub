@@ -17,6 +17,7 @@ import imgJuejin from '@/assets/img/juejin-logo.svg';
 import imgSegmentfault from '@/assets/img/segmentfault-logo.jpg';
 import imgJianshu from '@/assets/img/jianshu-logo.png';
 import imgCsdn from '@/assets/img/csdn-logo.jpg';
+import imgZhihu from '@/assets/img/zhihu-logo.jpg';
 import imgOschina from '@/assets/img/oschina-logo.jpg';
 import imgToutiao from '@/assets/img/toutiao-logo.png';
 
@@ -393,6 +394,8 @@ const ArticleList: React.FC<ArticleListProps> = props => {
           return <img className={style.siteLogo} alt={d.label} src={imgJianshu}/>;
         } else if (d.name === constants.platform.CSDN) {
           return <img className={style.siteLogo} alt={d.label} src={imgCsdn}/>;
+        } else if (d.name === constants.platform.ZHIHU) {
+          return <img className={style.siteLogo} alt={d.label} src={imgZhihu}/>;
         } else if (d.name === constants.platform.OSCHINA) {
           return <img className={style.siteLogo} alt={d.label} src={imgOschina}/>;
         } else if (d.name === constants.platform.TOUTIAO) {
