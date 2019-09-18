@@ -126,6 +126,20 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
 
   // 点击保存
   const onSave = async () => {
+    if (article.currentArticle) {
+      // 文章标题校验
+      if (article.currentArticle.title.length < 5) {
+        message.error('标题字数不得小于5');
+        return;
+      }
+
+      // 文章内容校验
+      if (article.currentArticle.content.length < 10) {
+        message.error('内容字数不得小于9');
+        return;
+      }
+    }
+
     if (isEdit()) {
       // 如果为编辑文章
       await dispatch({
