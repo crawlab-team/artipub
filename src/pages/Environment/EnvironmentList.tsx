@@ -81,7 +81,9 @@ const EnvironmentList: React.FC<EnvironmentListProps> = props => {
         type: 'environment/saveEnvironmentList',
         payload: environments,
       });
-      message.success('保存成功, 请重启服务器使系统设置生效')
+      message.success('保存成功, 请重启服务器使系统设置生效');
+
+      TDAPP.onEvent('系统设置-更新设置');
     }
   };
 
@@ -92,6 +94,8 @@ const EnvironmentList: React.FC<EnvironmentListProps> = props => {
       })
     }
   }, []);
+
+  TDAPP.onEvent('系统设置-访问页面');
 
   return (
     <PageHeaderWrapper>

@@ -141,12 +141,18 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
       });
       message.success('文章保存成功');
     }
+
+    TDAPP.onEvent('文章编辑-保存文章');
   };
 
   // 点击返回
   const onBack = () => {
     router.push('/articles');
+
+    TDAPP.onEvent('文章编辑-返回');
   };
+
+  TDAPP.onEvent('文章编辑-访问页面');
 
   return (
     <BlankLayout>

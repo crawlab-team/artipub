@@ -5,8 +5,11 @@ import style from './Helper.scss'
 
 const Helper: React.FC<any> = () => {
   const onDownload = () => {
-    window.location.pathname = '/artipub-helper.zip'
+    window.location.pathname = '/artipub-helper.zip';
+    TDAPP.onEvent('登陆助手-下载登陆助手');
   };
+
+  TDAPP.onEvent('登陆助手-访问页面');
 
   return (
     <PageHeaderWrapper>
