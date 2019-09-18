@@ -75,8 +75,9 @@ export const apiEndpoint = 'http://localhost:3000';
 
 export default {
   plugins,
+  history: 'hash',
   block: {
-    defaultGitUrl: 'https://github.com/ant-design/pro-blocks',
+    defaultGitUrl: 'https://github.com/crawlab-team/artipub',
   },
   hash: true,
   targets: {

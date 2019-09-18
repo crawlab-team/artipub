@@ -666,6 +666,8 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     );
   }
 
+  TDAPP.onEvent('文章管理-访问页面');
+
   return (
     <PageHeaderWrapper>
       <Modal
