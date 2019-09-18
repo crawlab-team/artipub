@@ -9,16 +9,18 @@ import ProLayout, {
   BasicLayoutProps as ProLayoutProps,
   Settings,
 } from '@ant-design/pro-layout';
-import React, { useEffect } from 'react';
+import React, {useEffect} from 'react';
 import Link from 'umi/link';
-import { connect } from 'dva';
-import { setLocale, formatMessage } from 'umi-plugin-react/locale';
+import {connect} from 'dva';
+import {setLocale, formatMessage} from 'umi-plugin-react/locale';
 
 import Authorized from '@/utils/Authorized';
 import RightContent from '@/components/GlobalHeader/RightContent';
-import { ConnectState, Dispatch } from '@/models/connect';
-import { isAntDesignPro } from '@/utils/utils';
+import {ConnectState, Dispatch} from '@/models/connect';
+import {isAntDesignPro} from '@/utils/utils';
 import logo from '../assets/logo.svg';
+import style from './BasicLayout.scss';
+import {Row} from "antd";
 
 export interface BasicLayoutProps extends ProLayoutProps {
   breadcrumbNameMap: {
@@ -27,6 +29,7 @@ export interface BasicLayoutProps extends ProLayoutProps {
   settings: Settings;
   dispatch: Dispatch;
 }
+
 export type BasicLayoutContext = { [K in 'location']: BasicLayoutProps[K] } & {
   breadcrumbNameMap: {
     [path: string]: MenuDataItem;
@@ -45,9 +48,24 @@ const menuDataRender = (menuList: MenuDataItem[]): MenuDataItem[] =>
     return Authorized.check(item.authority, localItem, null) as MenuDataItem;
   });
 
+const footer = (
+  <div className={style.footer}>
+    <Row className={style.info}>
+      <span className={style.name}>ArtiPub</span>
+      <span className={style.slogan}>让你的文章随处可阅</span>
+      <a className={style.github} href="https://github.com/crawlab-team/artipub" target="_blank">
+        <img src="https://img.shields.io/github/stars/crawlab-team/artipub?logo=github"/>
+      </a>
+    </Row>
+    <Row className={style.copyright}>
+      Copyright (c) 2019, Crawlab Team All rights reserved.
+    </Row>
+  </div>
+);
+
 const footerRender: BasicLayoutProps['footerRender'] = (_, defaultDom) => {
   if (!isAntDesignPro()) {
-    return defaultDom;
+    return footer;
   }
   return (
     <>
@@ -71,7 +89,7 @@ const footerRender: BasicLayoutProps['footerRender'] = (_, defaultDom) => {
 };
 
 const BasicLayout: React.FC<BasicLayoutProps> = props => {
-  const { dispatch, children, settings } = props;
+  const {dispatch, children, settings} = props;
   /**
    * constructor
    */
@@ -140,7 +158,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
   );
 };
 
-export default connect(({ global, settings }: ConnectState) => ({
+export default connect(({global, settings}: ConnectState) => ({
   collapsed: global.collapsed,
   settings,
 }))(BasicLayout);
