@@ -1,15 +1,7 @@
 version: '3.3'
 services:
-  master: 
+  master:
     image: "tikazyq/artipub:latest"
-    environment:
-      CRAWLAB_API_ADDRESS: "192.168.99.100:8000"
-      CRAWLAB_SERVER_MASTER: "Y"
-      CRAWLAB_MONGO_HOST: "192.168.99.1"
-      CRAWLAB_REDIS_ADDRESS: "192.168.99.1"
-      CRAWLAB_LOG_PATH: "/var/logs/crawlab"
-    ports:    
+    ports:
       - "8080:8080" # frontend
-      - "8000:8000" # backend
-    volumes:
-      - "/Users/yeqing/projects/artipub/spiders:/app/spiders"
+      - "3000:3000" # backend
