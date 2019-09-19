@@ -1,7 +1,7 @@
 {
-  "name": "chrome-extension-react-typescript-boilerplate",
-  "version": "1.0.0",
-  "description": "A boilerplate project to quickly build a Chrome extension using TypeScript and React (built using webpack).",
+  "name": "artipub-chrome-extension",
+  "version": "0.1.2",
+  "description": "Chrome extension login helper for ArtiPub",
   "scripts": {
     "dev": "webpack-dev-server --config webpack.dev.js --content-base ./dist",
     "build:dev": "webpack --config webpack.dev.js",
@@ -9,8 +9,8 @@
     "watch": "webpack -w --config webpack.dev.js",
     "lint": "tslint 'src/**/*.{ts, tsx}'"
   },
-  "author": "Joe Martella",
-  "license": "MIT",
+  "author": "Marvin Zhang",
+  "license": "BSD-3-Clause",
   "devDependencies": {
     "@types/chrome": "0.0.60",
     "@types/react": "^16.9.1",
@@ -37,8 +37,6 @@
     "html-webpack-plugin": "^3.2.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
-    "react-markdown": "^4.1.0",
-    "react-markdown-editor-lite": "^0.4.2",
     "ts-import-plugin": "^1.6.1",
     "webpack-dev-server": "^3.8.0"
   }
