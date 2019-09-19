@@ -7,6 +7,7 @@
     "start": "node cli.js start",
     "start:frontend": "umi dev",
     "start:backend": "node server.js",
+    "build": "umi build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {

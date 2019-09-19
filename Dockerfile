@@ -3,6 +3,7 @@ FROM jelastic/nodejs:8.16.1-npm AS frontend
 WORKDIR /app
 ADD . /app
 RUN npm install --registry=https://registry.npm.taobao.org
+RUN npm run build
 
 FROM jelastic/nodejs:8.16.1-npm
 
