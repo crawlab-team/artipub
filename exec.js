@@ -20,7 +20,7 @@ class Runner {
   constructor() {
   }
 
-  run() {
+  async run() {
     // 任务执行器
     const taskLock = new AsyncLock()
     const taskCronJob = new CronJob('* * * * * *', () => {
@@ -42,15 +42,18 @@ class Runner {
     })
     taskCronJob.start()
 
+    // 获取环境变量
+    const updateStatsCron = await models.Environment.findOne({ _id: constants.environment.UPDATE_STATS_CRON })
+
     // 数据统计执行器
     const statsLock = new AsyncLock()
-    const statsCronJob = new CronJob('0 0/30 * * * *', () => {
+    const statsCronJob = new CronJob(updateStatsCron.value, () => {
       if (!statsLock.isBusy()) {
         statsLock.acquire('key', async () => {
           const tasks = await models.Task.find({
             url: {
               $ne: '',
-              $exists:true
+              $exists: true
             }
           })
           for (let i = 0; i < tasks.length; i++) {

@@ -5,6 +5,8 @@ export default {
     JIANSHU: 'jianshu',
     CSDN: 'csdn',
     ZHIHU: 'zhihu',
+    OSCHINA: 'oschina',
+    TOUTIAO: 'toutiao',
   },
   status: {
     NOT_STARTED: 'not-started',
@@ -24,4 +26,13 @@ export default {
     MARKDOWN: 'markdown',
     RICH_TEXT: 'rich-text',
   },
+  environment: {
+    UPDATE_STATS_CRON: 'update_stats_cron',
+    ENABLE_CHROME_DEBUG: 'enable_chrome_debug',
+  },
+  cookieStatus: {
+    NO_COOKIE: 'no_cookie',
+    EXPIRED: 'expired',
+    EXISTS: 'exists',
+  }
 };

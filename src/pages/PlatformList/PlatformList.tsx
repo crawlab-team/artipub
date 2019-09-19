@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react';
-import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { Button, Form, Input, Modal, Select, Spin, Table, Tag, Tooltip } from 'antd';
-import { Platform, PlatformModelState, SiteArticle } from '@/models/platform';
-import { ConnectProps, ConnectState, Dispatch } from '@/models/connect';
-import { connect } from 'dva';
-import { ColumnProps, SelectionSelectFn, TableRowSelection } from 'antd/lib/table';
+import React, {useEffect} from 'react';
+import {PageHeaderWrapper} from '@ant-design/pro-layout';
+import {Button, Card, Form, Input, Modal, Select, Spin, Table, Tag, Tooltip} from 'antd';
+import {Platform, PlatformModelState, SiteArticle} from '@/models/platform';
+import {ConnectProps, ConnectState, Dispatch} from '@/models/connect';
+import {connect} from 'dva';
+import {ColumnProps, SelectionSelectFn, TableRowSelection} from 'antd/lib/table';
 import style from './PlatformList.scss';
 import constants from '@/constants';
 
@@ -13,6 +13,9 @@ import imgJuejin from '@/assets/img/juejin-logo.svg';
 import imgSegmentfault from '@/assets/img/segmentfault-logo.jpg';
 import imgJianshu from '@/assets/img/jianshu-logo.png';
 import imgCsdn from '@/assets/img/csdn-logo.jpg';
+import imgZhihu from '@/assets/img/zhihu-logo.jpg';
+import imgOschina from '@/assets/img/oschina-logo.jpg';
+import imgToutiao from '@/assets/img/toutiao-logo.png';
 
 export interface PlatformListProps extends ConnectProps {
   platform: PlatformModelState;
@@ -20,7 +23,7 @@ export interface PlatformListProps extends ConnectProps {
 }
 
 const PlatformList: React.FC<PlatformListProps> = props => {
-  const { dispatch, platform } = props;
+  const {dispatch, platform} = props;
 
   // const onEdit: Function = (d: Platform) => {
   //   return () => {
@@ -153,6 +156,40 @@ const PlatformList: React.FC<PlatformListProps> = props => {
     });
   };
 
+  const onAccount: Function = (d: Platform) => {
+    return async () => {
+      await dispatch({
+        type: 'platform/saveAccountModalVisible',
+        payload: true,
+      });
+      await dispatch({
+        type: 'platform/saveCurrentPlatform',
+        payload: d,
+      });
+      TDAPP.onEvent('平台管理-打开账户设置')
+    };
+  };
+
+  const onAccountModalCancel = async () => {
+    await dispatch({
+      type: 'platform/saveAccountModalVisible',
+      payload: false,
+    });
+    TDAPP.onEvent('平台管理-取消账户设置')
+  };
+
+  const onAccountSave = async () => {
+    await dispatch({
+      type: 'platform/savePlatform',
+      payload: platform.currentPlatform,
+    });
+    await dispatch({
+      type: 'platform/saveAccountModalVisible',
+      payload: false,
+    });
+    TDAPP.onEvent('平台管理-保存账户设置')
+  };
+
   const getStatsComponent = (d: any) => {
     d.readNum = d.readNum || 0;
     d.likeNum = d.likeNum || 0;
@@ -180,13 +217,19 @@ const PlatformList: React.FC<PlatformListProps> = props => {
       key: '_id',
       render: (text: string, d: Platform) => {
         if (d.name === constants.platform.JUEJIN) {
-          return <img className={style.siteLogo} src={imgJuejin} />;
+          return <img className={style.siteLogo} src={imgJuejin}/>;
         } else if (d.name === constants.platform.SEGMENTFAULT) {
-          return <img className={style.siteLogo} src={imgSegmentfault} />;
+          return <img className={style.siteLogo} src={imgSegmentfault}/>;
         } else if (d.name === constants.platform.JIANSHU) {
-          return <img className={style.siteLogo} src={imgJianshu} />;
+          return <img className={style.siteLogo} src={imgJianshu}/>;
         } else if (d.name === constants.platform.CSDN) {
-          return <img className={style.siteLogo} src={imgCsdn} />;
+          return <img className={style.siteLogo} src={imgCsdn}/>;
+        } else if (d.name === constants.platform.ZHIHU) {
+          return <img className={style.siteLogo} src={imgZhihu}/>;
+        } else if (d.name === constants.platform.OSCHINA) {
+          return <img className={style.siteLogo} src={imgOschina}/>;
+        } else if (d.name === constants.platform.TOUTIAO) {
+          return <img className={style.siteLogo} src={imgToutiao}/>;
         } else {
           return <span>Logo</span>;
         }
@@ -222,6 +265,35 @@ const PlatformList: React.FC<PlatformListProps> = props => {
       },
     },
     {
+      title: 'Cookie状态',
+      dataIndex: 'cookieStatus',
+      key: 'cookieStatus',
+      width: '120px',
+      render: (text: string, d: Platform) => {
+        if (d.cookieStatus === constants.cookieStatus.EXISTS) {
+          return (
+            <Tooltip title="可以发布文章到该平台">
+              <Tag color="green">已导入</Tag>
+            </Tooltip>
+          )
+        } else if (d.cookieStatus === constants.cookieStatus.EXPIRED) {
+          return (
+            <Tooltip title="请用登陆助手更新Cookie">
+              <Tag color="orange">已过期</Tag>
+            </Tooltip>
+          );
+        } else if (d.cookieStatus === constants.cookieStatus.NO_COOKIE) {
+          return (
+            <Tooltip title="请用登陆助手导入Cookie">
+              <Tag color="red">未导入</Tag>
+            </Tooltip>
+          );
+        } else {
+          return text
+        }
+      }
+    },
+    {
       title: '操作',
       dataIndex: 'action',
       key: 'action',
@@ -237,6 +309,16 @@ const PlatformList: React.FC<PlatformListProps> = props => {
                 icon="import"
                 className={style.fetchBtn}
                 onClick={onFetch(d)}
+              />
+            </Tooltip>
+            <Tooltip title="设置登陆用户名密码">
+              <Button
+                disabled={!d.enableLogin}
+                type="default"
+                shape="circle"
+                icon="key"
+                className={style.loginBtn}
+                onClick={onAccount(d)}
               />
             </Tooltip>
             {/*<Popconfirm title="您确认删除该平台吗？" onConfirm={onDelete(d)}>*/}
@@ -357,6 +439,8 @@ const PlatformList: React.FC<PlatformListProps> = props => {
     }
   }, []);
 
+  TDAPP.onEvent('平台管理-访问页面');
+
   return (
     <PageHeaderWrapper>
       <Modal
@@ -365,7 +449,7 @@ const PlatformList: React.FC<PlatformListProps> = props => {
         onOk={onSave}
         onCancel={onModalCancel}
       >
-        <Form labelCol={{ sm: { span: 4 } }} wrapperCol={{ sm: { span: 20 } }}>
+        <Form labelCol={{sm: {span: 4}}} wrapperCol={{sm: {span: 20}}}>
           <Form.Item label="代号">
             <Input
               value={platform.currentPlatform ? platform.currentPlatform.name : ''}
@@ -418,25 +502,50 @@ const PlatformList: React.FC<PlatformListProps> = props => {
             dataSource={
               platform.siteArticles
                 ? platform.siteArticles.map((d: SiteArticle) => {
-                    return {
-                      key: d.url,
-                      ...d,
-                    };
-                  })
+                  return {
+                    key: d.url,
+                    ...d,
+                  };
+                })
                 : []
             }
             columns={siteArticlesColumns}
           />
         </Spin>
       </Modal>
+      <Modal
+        visible={platform.accountModalVisible}
+        onCancel={onAccountModalCancel}
+        onOk={onAccountSave}
+      >
+        <Form>
+          <Form.Item label="登陆用户名">
+            <Input
+              value={platform.currentPlatform ? platform.currentPlatform.username : ''}
+              placeholder="请输入登陆用户名"
+              onChange={onFieldChange(constants.inputType.INPUT, 'username')}
+            />
+          </Form.Item>
+          <Form.Item label="登陆密码">
+            <Input
+              value={platform.currentPlatform ? platform.currentPlatform.password : ''}
+              type="password"
+              placeholder="请输入登陆密码"
+              onChange={onFieldChange(constants.inputType.INPUT, 'password')}
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
       {/*<div className={style.actions}>*/}
       {/*  <Button className={style.addBtn} type="primary" onClick={onAdd}>添加平台</Button>*/}
       {/*</div>*/}
-      <Table dataSource={platform.platforms} columns={columns} />
+      <Card>
+        <Table dataSource={platform.platforms} columns={columns}/>
+      </Card>
     </PageHeaderWrapper>
   );
 };
 
-export default connect(({ platform }: ConnectState) => ({
+export default connect(({platform}: ConnectState) => ({
   platform,
 }))(PlatformList);

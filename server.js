@@ -12,12 +12,19 @@ const logger = require('./logger')
 // express实例
 const app = express()
 
+// 环境变量覆盖
+if (process.env.MONGO_HOST) config.MONGO_HOST = process.env.MONGO_HOST
+if (process.env.MONGO_PORT) config.MONGO_PORT = process.env.MONGO_PORT
+if (process.env.MONGO_DB) config.MONGO_DB = process.env.MONGO_DB
+if (process.env.MONGO_USERNAME) config.MONGO_USERNAME = process.env.MONGO_USERNAME
+if (process.env.MONGO_PASSWORD) config.MONGO_PASSWORD = process.env.MONGO_PASSWORD
+
 // mongodb连接
 mongoose.Promise = global.Promise
 if (config.MONGO_USERNAME) {
-    mongoose.connect(`mongodb://${ config.MONGO_USERNAME }:${ config.MONGO_PASSWORD }@${ config.MONGO_HOST }:${ config.MONGO_PORT }/${ config.MONGO_DB }`, { useNewUrlParser: true })
+  mongoose.connect(`mongodb://${config.MONGO_USERNAME}:${config.MONGO_PASSWORD}@${config.MONGO_HOST}:${config.MONGO_PORT}/${config.MONGO_DB}`, { useNewUrlParser: true })
 } else {
-    mongoose.connect(`mongodb://${ config.MONGO_HOST }:${ config.MONGO_PORT }/${ config.MONGO_DB }`, { useNewUrlParser: true })
+  mongoose.connect(`mongodb://${config.MONGO_HOST}:${config.MONGO_PORT}/${config.MONGO_DB}`, { useNewUrlParser: true })
 }
 
 // bodyParser中间件
@@ -28,15 +35,15 @@ app.use(morgan('dev'))
 
 // 跨域cors
 app.use('*', function (req, res, next) {
-    res.header('Access-Control-Allow-Origin', req.headers.origin)
-    res.header('Access-Control-Allow-Credentials', true)
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With')
-    res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS')//设置方法
-    if (req.method === 'OPTIONS') {
-        res.send(200) // 意思是，在正常的请求之前，会发送一个验证，是否可以请求。
-    } else {
-        next()
-    }
+  res.header('Access-Control-Allow-Origin', req.headers.origin)
+  res.header('Access-Control-Allow-Credentials', true)
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With')
+  res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS')//设置方法
+  if (req.method === 'OPTIONS') {
+    res.send(200) // 意思是，在正常的请求之前，会发送一个验证，是否可以请求。
+  } else {
+    next()
+  }
 })
 
 // 路由
@@ -66,10 +73,13 @@ app.get('/platforms/:id/articles', routes.platform.getPlatformArticles)
 app.post('/platforms/:id/articles', routes.platform.importPlatformArticles)
 // Cookie
 app.post('/cookies', routes.cookie.addCookies)
+// Environment
+app.get('/environments', routes.environment.getEnvList)
+app.post('/environments', routes.environment.editEnv)
 
 // 启动express server
 app.listen(config.PORT, () => {
-    logger.info('listening on port ' + config.PORT)
+  logger.info('listening on port ' + config.PORT)
 })
 
 // 初始化

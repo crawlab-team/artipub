@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import {PageHeaderWrapper} from '@ant-design/pro-layout';
-import {Button, Form, Input, message, Modal, Popconfirm, Select, Table, Tag, Tooltip} from 'antd';
+import {Badge, Button, Card, Form, Input, message, Modal, Popconfirm, Select, Table, Tag, Tooltip} from 'antd';
 import {Article, ArticleModelState} from '@/models/article';
 import {ConnectProps, ConnectState, Dispatch} from '@/models/connect';
 import {connect} from 'dva';
@@ -17,6 +17,9 @@ import imgJuejin from '@/assets/img/juejin-logo.svg';
 import imgSegmentfault from '@/assets/img/segmentfault-logo.jpg';
 import imgJianshu from '@/assets/img/jianshu-logo.png';
 import imgCsdn from '@/assets/img/csdn-logo.jpg';
+import imgZhihu from '@/assets/img/zhihu-logo.jpg';
+import imgOschina from '@/assets/img/oschina-logo.jpg';
+import imgToutiao from '@/assets/img/toutiao-logo.png';
 
 export interface ArticleListProps extends ConnectProps {
   task: TaskModelState;
@@ -31,21 +34,21 @@ const ArticleList: React.FC<ArticleListProps> = props => {
   const onArticleEdit: Function = (d: Article) => {
     return () => {
       router.push(`/articles/edit/${d._id}`);
+
+      TDAPP.onEvent('文章管理-点击编辑');
     };
   };
 
   const onArticleDelete: Function = (d: Article) => {
-    return () => {
-      if (dispatch) {
-        dispatch({
-          type: 'article/deleteArticle',
-          payload: d,
-        }).then(() => {
-          dispatch({
-            type: 'article/fetchArticleList',
-          });
-        });
-      }
+    return async () => {
+      await dispatch({
+        type: 'article/deleteArticle',
+        payload: d,
+      });
+      await dispatch({
+        type: 'article/fetchArticleList',
+      });
+      TDAPP.onEvent('文章管理-确认删除');
     };
   };
 
@@ -56,6 +59,8 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       });
     }
     router.push('/articles/new');
+
+    TDAPP.onEvent('文章管理-创建文章');
   };
 
   const onArticleTasksModalOpen: Function = (a: Article) => {
@@ -78,11 +83,12 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       });
 
       // 持续请求更新状态
-      const fetchHandle = setInterval(() => {
+      const fetchHandle = await setInterval(() => {
         dispatch({
           type: 'task/fetchTaskList',
           payload: {
-            id: article.currentArticle ? article.currentArticle._id : '',
+            id: a._id,
+            updateStatus: true,
           },
         });
       }, 5000);
@@ -90,6 +96,8 @@ const ArticleList: React.FC<ArticleListProps> = props => {
         type: 'article/setFetchHandle',
         payload: fetchHandle,
       });
+
+      TDAPP.onEvent('文章管理-打开发布');
     };
   };
 
@@ -105,6 +113,8 @@ const ArticleList: React.FC<ArticleListProps> = props => {
 
     // 取消更新任务状态handle
     await clearInterval(article.fetchHandle);
+
+    TDAPP.onEvent('文章管理-关闭发布');
   };
 
   const onArticleTasksPublish: Function = () => {
@@ -118,12 +128,16 @@ const ArticleList: React.FC<ArticleListProps> = props => {
         });
         message.success('已开始发布');
       }
+
+      TDAPP.onEvent('文章管理-确认发布');
     };
   };
 
   const onTaskViewArticle: Function = (t: Task) => {
     return () => {
       window.open(t.url);
+
+      TDAPP.onEvent('文章管理-查看文章原文');
     };
   };
 
@@ -139,6 +153,8 @@ const ArticleList: React.FC<ArticleListProps> = props => {
           type: 'article/setPlatformModalVisible',
           payload: true,
         });
+
+        TDAPP.onEvent('文章管理-打开平台设置');
       }
     };
   };
@@ -148,6 +164,11 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       type: 'article/setPlatformModalVisible',
       payload: false,
     });
+    dispatch({
+      type: 'task/saveCurrentTask',
+      payload: undefined,
+    });
+    TDAPP.onEvent('文章管理-关闭平台设置');
   };
 
   const onTaskModalConfirm = () => {
@@ -159,6 +180,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       type: 'article/setPlatformModalVisible',
       payload: false,
     });
+    TDAPP.onEvent('文章管理-确认平台设置');
   };
 
   const getDefaultCategory = (p: Platform) => {
@@ -214,12 +236,16 @@ const ArticleList: React.FC<ArticleListProps> = props => {
   ) => {
     if (article.currentArticle) {
       await saveTasks(selectedPlatforms, article.currentArticle);
+
+      TDAPP.onEvent('文章管理-勾选平台');
     }
   };
 
   const onTaskSelectAll = async (selected: boolean, selectedPlatforms: Object[]) => {
     if (article.currentArticle) {
       await saveTasks(selectedPlatforms, article.currentArticle);
+
+      TDAPP.onEvent('文章管理-勾选平台-全选');
     }
   };
 
@@ -239,6 +265,19 @@ const ArticleList: React.FC<ArticleListProps> = props => {
         });
       }
     };
+  };
+
+  const getBadgeCount = (p: Platform) => {
+    const t = task.tasks.filter((d: Task) => d.platformId === p._id)[0];
+    if (!t || !t.checked) return 0;
+    if (p.name === constants.platform.JUEJIN) {
+      return t.tag === "" ? 1 : 0;
+    } else if (p.name === constants.platform.SEGMENTFAULT) {
+      return t.tag === "" ? 1 : 0;
+    } else if (p.name === constants.platform.OSCHINA) {
+      return t.category === "" ? 1 : 0;
+    }
+    return 0
   };
 
   /**
@@ -263,6 +302,8 @@ const ArticleList: React.FC<ArticleListProps> = props => {
         type: 'task/addTasks',
         payload: tasks,
       });
+
+      TDAPP.onEvent('文章管理-选择登陆类型');
     };
   };
 
@@ -373,6 +414,12 @@ const ArticleList: React.FC<ArticleListProps> = props => {
           return <img className={style.siteLogo} alt={d.label} src={imgJianshu}/>;
         } else if (d.name === constants.platform.CSDN) {
           return <img className={style.siteLogo} alt={d.label} src={imgCsdn}/>;
+        } else if (d.name === constants.platform.ZHIHU) {
+          return <img className={style.siteLogo} alt={d.label} src={imgZhihu}/>;
+        } else if (d.name === constants.platform.OSCHINA) {
+          return <img className={style.siteLogo} alt={d.label} src={imgOschina}/>;
+        } else if (d.name === constants.platform.TOUTIAO) {
+          return <img className={style.siteLogo} alt={d.label} src={imgToutiao}/>;
         } else {
           return <div/>;
         }
@@ -424,6 +471,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
               type={t.authType === constants.authType.LOGIN ? 'primary' : 'default'}
               size="small"
               onClick={onSelectAuthType(t, constants.authType.LOGIN)}
+              disabled={t.platform ? !t.platform.enableLogin : false}
             >
               登陆
             </Button>
@@ -470,14 +518,16 @@ const ArticleList: React.FC<ArticleListProps> = props => {
               />
             </Tooltip>
             <Tooltip title="配置">
-              <Button
-                disabled={t && !t.checked}
-                type="primary"
-                shape="circle"
-                icon="tool"
-                className={style.configBtn}
-                onClick={onTaskModalOpen(p)}
-              />
+              <Badge count={getBadgeCount(p)}>
+                <Button
+                  disabled={t && !t.checked}
+                  type="primary"
+                  shape="circle"
+                  icon="tool"
+                  className={style.configBtn}
+                  onClick={onTaskModalOpen(p)}
+                />
+              </Badge>
             </Tooltip>
           </div>
         );
@@ -516,7 +566,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     ];
     platformContent = (
       <Form labelCol={{sm: {span: 4}}} wrapperCol={{sm: {span: 20}}}>
-        <Form.Item label="类别">
+        <Form.Item label="类别" required={true}>
           <Select
             placeholder="点击选择类别"
             value={task.currentTask ? task.currentTask.category : undefined}
@@ -527,7 +577,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
             ))}
           </Select>
         </Form.Item>
-        <Form.Item label="标签">
+        <Form.Item label="标签" required={true}>
           <Input
             placeholder="输入标签"
             value={task.currentTask ? task.currentTask.tag : undefined}
@@ -539,7 +589,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
   } else if (currentPlatform && currentPlatform.name === constants.platform.SEGMENTFAULT) {
     platformContent = (
       <Form labelCol={{sm: {span: 4}}} wrapperCol={{sm: {span: 20}}}>
-        <Form.Item label="标签">
+        <Form.Item label="标签" required={true}>
           <Input
             placeholder="输入标签（用逗号分割）"
             value={task.currentTask ? task.currentTask.tag : undefined}
@@ -563,7 +613,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     ];
     platformContent = (
       <Form labelCol={{sm: {span: 4}}} wrapperCol={{sm: {span: 20}}}>
-        <Form.Item label="文章类型">
+        <Form.Item label="文章类型" required={true}>
           <Select
             placeholder="选择文章类型"
             value={task.currentTask ? task.currentTask.category : undefined}
@@ -574,7 +624,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
             ))}
           </Select>
         </Form.Item>
-        <Form.Item label="发布形式">
+        <Form.Item label="发布形式" required={true}>
           <Select
             placeholder="选择发布形式"
             value={task.currentTask ? task.currentTask.pubType : undefined}
@@ -599,7 +649,44 @@ const ArticleList: React.FC<ArticleListProps> = props => {
         </Form.Item>
       </Form>
     );
+  } else if (currentPlatform && currentPlatform.name === constants.platform.OSCHINA) {
+    const categories = [
+      '移动开发',
+      '前端开发',
+      '人工智能',
+      '服务端开发/管理',
+      '游戏开发',
+      '编程语言',
+      '数据库',
+      '企业开发',
+      '图像/多媒体',
+      '系统运维',
+      '软件工程',
+      '大数据',
+      '云计算',
+      '开源硬件',
+      '区块链',
+      '其他类型',
+      '物联网',
+    ];
+    platformContent = (
+      <Form labelCol={{sm: {span: 4}}} wrapperCol={{sm: {span: 20}}}>
+        <Form.Item label="系统分类" required={true}>
+          <Select
+            placeholder="点击选择系统分类"
+            value={task.currentTask ? task.currentTask.category : undefined}
+            onChange={onTaskChange('select', 'category')}
+          >
+            {categories.map(category => (
+              <Select.Option key={category}>{category}</Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+      </Form>
+    );
   }
+
+  TDAPP.onEvent('文章管理-访问页面');
 
   return (
     <PageHeaderWrapper>
@@ -640,8 +727,9 @@ const ArticleList: React.FC<ArticleListProps> = props => {
           创建文章
         </Button>
       </div>
-      <Table dataSource={article.articles} columns={articleColumns}/>
-      <textarea id="paste-area" style={{display: 'none'}}/>
+      <Card>
+        <Table dataSource={article.articles} columns={articleColumns}/>
+      </Card>
     </PageHeaderWrapper>
   );
 };

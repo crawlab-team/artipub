@@ -8,6 +8,7 @@ import {UserModelState} from './user';
 import {ArticleModelState} from "@/models/article";
 import {PlatformModelState} from "@/models/platform";
 import {TaskModelState} from "@/models/task";
+import {EnvironmentModelState} from "@/models/environment";
 
 export {GlobalModelState, SettingModelState, UserModelState};
 
@@ -31,6 +32,7 @@ export interface ConnectState {
   article: ArticleModelState;
   platform: PlatformModelState;
   task: TaskModelState;
+  environment: EnvironmentModelState;
 }
 
 export type Effect = (
