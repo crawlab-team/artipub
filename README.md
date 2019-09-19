@@ -17,15 +17,19 @@ ArtiPub提供3种安装方式如下。
 
 ### 通过Docker安装
 
-通过Docker，可以免去
+通过Docker，可以免去安装MongoDB的步骤，也是我们最推荐的安装方式。
 
 **安装Docker Compose**
 
 ```bash
-docker-compose
+docker-compose up
 ```
 
+就这一行命令，然后在浏览器中输入`http://localhost:8000`可以看到界面。
+
 ### 通过npm包安装
+
+如果您对npm熟悉，且已经有MongoDB的环境，这是最为快捷的方式。
 
 **安装npm包**
 

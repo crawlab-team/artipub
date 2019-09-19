@@ -13,6 +13,7 @@ const logger = require('./logger')
 const app = express()
 
 // 环境变量覆盖
+console.log(process.env)
 if (process.env.MONGO_HOST) config.MONGO_HOST = process.env.MONGO_HOST
 if (process.env.MONGO_PORT) config.MONGO_PORT = process.env.MONGO_PORT
 if (process.env.MONGO_DB) config.MONGO_DB = process.env.MONGO_DB

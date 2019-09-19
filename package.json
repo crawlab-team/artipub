@@ -1,12 +1,13 @@
 {
   "name": "artipub",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Article publishing platform that automatically distributes your articles to various media channels",
   "main": "index.js",
   "scripts": {
     "start": "node cli.js start",
     "start:frontend": "umi dev",
     "start:backend": "node server.js",
+    "build": "umi build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {

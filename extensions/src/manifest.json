@@ -1,8 +1,8 @@
 {
   "name": "ArtiPub",
-  "version": "0.0.1",
+  "version": "0.1.2",
   "manifest_version": 2,
-  "description": "ArtiPub登陆助手",
+  "description": "ArtiPub登陆助手，帮助登陆掘金、SegmentFault、CSDN、知乎等技术平台",
   "icons": {
     "16": "icon.png",
     "48": "icon.png",
@@ -31,7 +31,6 @@
   ],
   "permissions": [
     "cookies",
-    "tabs",
     "http://*/*",
     "https://*/*",
     "storage"
