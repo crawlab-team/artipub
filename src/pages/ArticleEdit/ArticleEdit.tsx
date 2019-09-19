@@ -29,7 +29,7 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
 
   const isEdit = (): Boolean => {
     return (
-      !!location.pathname.match(/edit/) ||
+      !!location.hash.match(/edit/) ||
       (!!article.currentArticle && !!article.currentArticle._id)
     );
   };
@@ -38,7 +38,7 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
     if (dispatch) {
       if (isEdit()) {
         // 如果为编辑文章
-        const arr = location.pathname.split('/');
+        const arr = location.hash.split('/');
         dispatch({
           type: 'article/fetchArticle',
           payload: {
@@ -49,6 +49,8 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
         // 如果为新增文章
       }
     }
+
+    TDAPP.onEvent('文章编辑-访问页面');
   }, []);
 
   // 更新标题
@@ -166,7 +168,6 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
     TDAPP.onEvent('文章编辑-返回');
   };
 
-  TDAPP.onEvent('文章编辑-访问页面');
 
   return (
     <BlankLayout>

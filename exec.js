@@ -43,7 +43,16 @@ class Runner {
     taskCronJob.start()
 
     // 获取环境变量
-    const updateStatsCron = await models.Environment.findOne({ _id: constants.environment.UPDATE_STATS_CRON })
+    let errNum = 0
+    let updateStatsCron
+    while (errNum < 10) {
+      updateStatsCron = await models.Environment.findOne({ _id: constants.environment.UPDATE_STATS_CRON })
+      if (!updateStatsCron) {
+        await setTimeout(() => {}, 5000);
+      } else {
+        break;
+      }
+    }
 
     // 数据统计执行器
     const statsLock = new AsyncLock()

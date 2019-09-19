@@ -437,9 +437,9 @@ const PlatformList: React.FC<PlatformListProps> = props => {
         type: 'platform/fetchPlatformList',
       });
     }
-  }, []);
 
-  TDAPP.onEvent('平台管理-访问页面');
+    TDAPP.onEvent('平台管理-访问页面');
+  }, []);
 
   return (
     <PageHeaderWrapper>
