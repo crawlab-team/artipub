@@ -544,6 +544,8 @@ const ArticleList: React.FC<ArticleListProps> = props => {
         type: 'platform/fetchPlatformList',
       });
     }
+
+    TDAPP.onEvent('文章管理-访问页面');
   }, []);
 
   // 平台配置
@@ -685,8 +687,6 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       </Form>
     );
   }
-
-  TDAPP.onEvent('文章管理-访问页面');
 
   return (
     <PageHeaderWrapper>
