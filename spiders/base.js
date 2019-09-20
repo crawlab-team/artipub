@@ -93,6 +93,11 @@ class BaseSpider {
         get: () => false
       })
     })
+
+    // 脚注内容
+    this.footerContent = {
+      richText: `<br><b>本篇文章由一文多发平台<a href="https://github.com/crawlab-team/artipub" target="_blank">ArtiPub</a>自动发布</b>`,
+    }
   }
 
   /**
@@ -173,7 +178,7 @@ class BaseSpider {
   }
 
   async inputFooter(article, editorSel) {
-    const footerContent = `\n\n> 本篇文章由[ArtiPub](https://github.com/crawlab-team/artipub)自动发布, ArtiPub让您的文章随处可阅`
+    const footerContent = `\n\n> 本篇文章由一文多发平台[ArtiPub](https://github.com/crawlab-team/artipub)自动发布`
     const el = document.querySelector(editorSel.content)
     el.focus()
     document.execCommand('insertText', false, footerContent)

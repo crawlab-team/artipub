@@ -7,6 +7,7 @@ module.exports = {
     ZHIHU: 'zhihu',
     OSCHINA: 'oschina',
     TOUTIAO: 'toutiao',
+    CNBLOGS: 'cnblogs',
   },
   status: {
     NOT_STARTED: 'not-started',
