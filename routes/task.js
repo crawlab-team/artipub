@@ -30,6 +30,7 @@ module.exports = {
         task.updateTs = new Date()
         task.checked = _task.checked
         task.authType = _task.authType
+        task.title = _task.title
       } else {
         task = new models.Task({
           articleId: ObjectId(_task.articleId),
@@ -44,6 +45,7 @@ module.exports = {
           category: _task.category,
           tag: _task.tag,
           pubType: _task.pubType,
+          title: _task.title,
         })
       }
       task = await task.save()

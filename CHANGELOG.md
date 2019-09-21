@@ -1,3 +1,11 @@
+## v0.1.3 (Unreleased)
+
+#### Features / Enhancement
+
+- Multi-Title Publish
+- Better Editor (react-markdown-editor-lite)
+- Better Documentation
+
 ## v0.1.2 (2019-09-20)
 
 #### Features / Enhancement

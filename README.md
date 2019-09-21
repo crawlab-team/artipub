@@ -3,7 +3,8 @@
 ![](https://img.shields.io/github/release/crawlab-team/artipub)
 ![](https://img.shields.io/github/last-commit/crawlab-team/artipub)
 ![](https://img.shields.io/github/issues/crawlab-team/artipub)
-![](https://img.shields.io/npm/dw/artipub)
+![](https://img.shields.io/docker/pulls/tikazyq/artipub?logo=docker)
+![](https://img.shields.io/npm/dw/artipub?logo=npm)
 ![](https://img.shields.io/github/license/crawlab-team/artipub)
 
 ArtiPub (Article Publisher的简称，意为"文章发布者")是一款开源的一文多发平台，可以帮助文章作者将编写好的文章自动发布到掘金、SegmentFault、CSDN、知乎、开源中国等技术媒体平台，传播优质知识，获取最大的曝光度。ArtiPub安装简单，提供了多种安装方式，可以一键安装使用，安装一般只要5分钟。
@@ -65,6 +66,7 @@ services:
     image: "tikazyq/artipub:latest"
     environment:
       MONGO_HOST: "mongo"
+      ARTIPUB_API_ADDRESS: "localhost:3000" # 后端API地址，如果安装地址不在本机，请修改为服务器IP地址+端口号（默认为3000）
     ports:
       - "8000:8000" # frontend
       - "3000:3000" # backend
@@ -84,6 +86,8 @@ docker-compose up
 ```
 
 然后在浏览器中输入`http://localhost:8000`可以看到界面。
+
+注意⚠️，如果您的Docker宿主机不是本机，例如您用了Docker Machine或者Docker服务在其他机器上，您需要将环境变量`ARTIPUB_API_ADDRESS`改为宿主机IP+端口号（默认3000）。然后，在浏览器输入`http://<宿主机IP>:3000`即可看到界面。
 
 ### 通过npm包安装
 

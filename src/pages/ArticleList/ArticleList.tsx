@@ -207,6 +207,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
           articleId: _article._id || '',
           category: getDefaultCategory(p),
           tag: '',
+          title: article.currentArticle ? article.currentArticle.title : '',
           pubType: 'public',
           checked: selectedPlatforms.map((_p: any) => _p._id).includes(p._id),
           authType: constants.authType.COOKIE,
@@ -558,6 +559,18 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       (p: Platform) => !!task.currentTask && p._id === task.currentTask.platformId,
     )[0]
     : undefined;
+  const currentTask = task.tasks.filter((t: Task) => t.platformId === (currentPlatform ? currentPlatform._id : ''))[0];
+  let platformCommonContent = (
+    <Form labelCol={{sm: {span: 4}}} wrapperCol={{sm: {span: 20}}}>
+      <Form.Item label="标题">
+        <Input
+          value={currentTask ? currentTask.title : ''}
+          placeholder="请输入标题（留空则用文章标题）"
+          onChange={onTaskChange('input', 'title')}
+        />
+      </Form.Item>
+    </Form>
+  );
   if (currentPlatform && currentPlatform.name === constants.platform.JUEJIN) {
     const categories = [
       '前端',
@@ -723,6 +736,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
         onOk={onTaskModalConfirm}
         onCancel={onTaskModalCancel}
       >
+        {platformCommonContent}
         {platformContent}
       </Modal>
       <div className={style.actions}>
