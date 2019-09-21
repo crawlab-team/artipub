@@ -163,7 +163,9 @@ npm run start:backend
 - [x] [知乎](https://zhihu.com)
 - [x] [开源中国](https://oschina.net)
 - [x] [今日头条](https://toutiao.com)
-- [ ] [博客园](https://cnblogs.com)
+- [x] [博客园](https://cnblogs.com)
+- [ ] [微博](https://weibo.com)
+- [ ] [百度百家号](https://baijiahao.baidu.com)
 - [ ] [51CTO](https://51cto.com)
 - [ ] [开发者头条](https://toutiao.io)
 - [ ] 微信公众号
