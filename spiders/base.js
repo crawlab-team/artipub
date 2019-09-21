@@ -59,7 +59,10 @@ class BaseSpider {
       // 打开开发者工具, 当此值为true时, headless总为false
       devtools: false,
       // 关闭headless模式, 不会打开浏览器
-      headless: enableChromeDebug !== 'Y'
+      headless: enableChromeDebug !== 'Y',
+      args: [
+        '--no-sandbox',
+      ]
     })
 
     // 页面

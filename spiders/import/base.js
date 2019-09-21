@@ -45,6 +45,9 @@ class BaseImportSpider extends BaseSpider {
       ignoreHTTPSErrors: true,
       devtools: false,
       headless: enableChromeDebug !== 'Y',
+      args: [
+        '--no-sandbox',
+      ]
     })
 
     // 页面
