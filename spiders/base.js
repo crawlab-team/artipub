@@ -7,13 +7,12 @@ const globalConfig = require('../config')
 const logger = require('../logger')
 
 class BaseSpider {
-  constructor(taskId) {
-    if (!taskId) {
-      throw new Error('taskId must not be empty')
-    }
-
+  constructor(taskId, platformId) {
     // 任务ID
     this.taskId = taskId
+
+    // 平台ID
+    this.platformId = platformId
   }
 
   async init() {
@@ -46,7 +45,7 @@ class BaseSpider {
     })
 
     // 是否开启chrome浏览器调试
-    const enableChromeDebugEnv = await models.Environment.findOne({_id: constants.environment.ENABLE_CHROME_DEBUG})
+    const enableChromeDebugEnv = await models.Environment.findOne({ _id: constants.environment.ENABLE_CHROME_DEBUG })
     const enableChromeDebug = enableChromeDebugEnv.value
 
     // 浏览器
@@ -101,6 +100,50 @@ class BaseSpider {
     this.footerContent = {
       richText: `<br><b>本篇文章由一文多发平台<a href="https://github.com/crawlab-team/artipub" target="_blank">ArtiPub</a>自动发布</b>`,
     }
+  }
+
+  async initForCookieStatus() {
+    // platform
+    this.platform = await models.Platform.findOne({ _id: ObjectId(this.platformId) })
+
+    // PCR
+    this.pcr = await PCR({
+      revision: '',
+      detectionPath: '',
+      folderName: '.chromium-browser-snapshots',
+      hosts: ['https://storage.googleapis.com', 'https://npm.taobao.org/mirrors'],
+      retry: 3,
+      silent: false
+    })
+
+    // 是否开启chrome浏览器调试
+    const enableChromeDebugEnv = await models.Environment.findOne({ _id: constants.environment.ENABLE_CHROME_DEBUG })
+    const enableChromeDebug = enableChromeDebugEnv.value
+
+    // 浏览器
+    this.browser = await this.pcr.puppeteer.launch({
+      executablePath: this.pcr.executablePath,
+      //设置超时时间
+      timeout: 120000,
+      //如果是访问https页面 此属性会忽略https错误
+      ignoreHTTPSErrors: true,
+      // 打开开发者工具, 当此值为true时, headless总为false
+      devtools: false,
+      // 关闭headless模式, 不会打开浏览器
+      headless: enableChromeDebug !== 'Y',
+      args: [
+        '--no-sandbox',
+      ]
+    })
+
+    // 页面
+    this.page = await this.browser.newPage()
+
+    // 设置屏幕大小
+    await this.page.setViewport({
+      width: 1200,
+      height: 800,
+    })
   }
 
   /**
@@ -287,6 +330,31 @@ class BaseSpider {
 
     // 后续操作
     await this.afterFetchStats()
+
+    // 关闭浏览器
+    await this.browser.close()
+  }
+
+  /**
+   * 检查Cookie是否能正常登陆
+   */
+  async checkCookieStatus() {
+    // 初始化
+    await this.initForCookieStatus()
+
+    // 设置Cookie
+    await this.setCookies()
+
+    // 导航至首页
+    await this.page.goto(this.platform.url)
+    await this.page.waitFor(5000)
+
+    // 检查登陆状态
+    const text = await this.page.evaluate(() => {
+      return document.querySelector('body').innerText
+    })
+    this.platform.loggedIn = !text.match('登录')
+    await this.platform.save()
 
     // 关闭浏览器
     await this.browser.close()

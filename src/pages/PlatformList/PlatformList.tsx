@@ -217,25 +217,29 @@ const PlatformList: React.FC<PlatformListProps> = props => {
       dataIndex: '_id',
       key: '_id',
       render: (text: string, d: Platform) => {
+        let img = <span>Logo</span>;
         if (d.name === constants.platform.JUEJIN) {
-          return <img className={style.siteLogo} src={imgJuejin}/>;
+          img = <img className={style.siteLogo} src={imgJuejin}/>;
         } else if (d.name === constants.platform.SEGMENTFAULT) {
-          return <img className={style.siteLogo} src={imgSegmentfault}/>;
+          img = <img className={style.siteLogo} src={imgSegmentfault}/>;
         } else if (d.name === constants.platform.JIANSHU) {
-          return <img className={style.siteLogo} src={imgJianshu}/>;
+          img = <img className={style.siteLogo} src={imgJianshu}/>;
         } else if (d.name === constants.platform.CSDN) {
-          return <img className={style.siteLogo} src={imgCsdn}/>;
+          img = <img className={style.siteLogo} src={imgCsdn}/>;
         } else if (d.name === constants.platform.ZHIHU) {
-          return <img className={style.siteLogo} src={imgZhihu}/>;
+          img = <img className={style.siteLogo} src={imgZhihu}/>;
         } else if (d.name === constants.platform.OSCHINA) {
-          return <img className={style.siteLogo} src={imgOschina}/>;
+          img = <img className={style.siteLogo} src={imgOschina}/>;
         } else if (d.name === constants.platform.TOUTIAO) {
-          return <img className={style.siteLogo} src={imgToutiao}/>;
+          img = <img className={style.siteLogo} src={imgToutiao}/>;
         } else if (d.name === constants.platform.CNBLOGS) {
-          return <img className={style.siteLogo} alt={d.label} src={imgCnblogs}/>;
-        } else {
-          return <span>Logo</span>;
+          img = <img className={style.siteLogo} alt={d.label} src={imgCnblogs}/>;
         }
+        return (
+          <a href={d.url} target="_blank">
+            {img}
+          </a>
+        )
       },
     },
     {
@@ -273,26 +277,18 @@ const PlatformList: React.FC<PlatformListProps> = props => {
       key: 'cookieStatus',
       width: '120px',
       render: (text: string, d: Platform) => {
-        if (d.cookieStatus === constants.cookieStatus.EXISTS) {
+        if (d.loggedIn) {
           return (
             <Tooltip title="可以发布文章到该平台">
               <Tag color="green">已导入</Tag>
             </Tooltip>
           )
-        } else if (d.cookieStatus === constants.cookieStatus.EXPIRED) {
-          return (
-            <Tooltip title="请用登陆助手更新Cookie">
-              <Tag color="orange">已过期</Tag>
-            </Tooltip>
-          );
-        } else if (d.cookieStatus === constants.cookieStatus.NO_COOKIE) {
+        } else {
           return (
             <Tooltip title="请用登陆助手导入Cookie">
               <Tag color="red">未导入</Tag>
             </Tooltip>
           );
-        } else {
-          return text
         }
       }
     },
@@ -434,6 +430,12 @@ const PlatformList: React.FC<PlatformListProps> = props => {
     }
   };
 
+  const onUpdateCookieStatus = () => {
+    dispatch({
+      type: 'platform/updateCookieStatus',
+    });
+  };
+
   useEffect(() => {
     if (dispatch) {
       dispatch({
@@ -542,6 +544,16 @@ const PlatformList: React.FC<PlatformListProps> = props => {
       {/*<div className={style.actions}>*/}
       {/*  <Button className={style.addBtn} type="primary" onClick={onAdd}>添加平台</Button>*/}
       {/*</div>*/}
+      <div style={{textAlign: 'right', marginBottom: '20px'}}>
+        <Button
+          type="primary"
+          loading={platform.updateCookieStatusLoading}
+          onClick={onUpdateCookieStatus}
+          icon="sync"
+        >
+          更新Cookie状态
+        </Button>
+      </div>
       <Card>
         <Table dataSource={platform.platforms} columns={columns}/>
       </Card>

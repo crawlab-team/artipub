@@ -5,7 +5,7 @@ import {
   fetchPlatformArticles,
   importPlatformArticles,
   queryPlatformList,
-  savePlatform,
+  savePlatform, updateCookieStatus,
 } from '@/services/platform';
 import { Reducer } from 'redux';
 import { message } from 'antd';
@@ -20,7 +20,9 @@ export interface Platform {
   enableLogin: boolean;
   username: string;
   password: string;
+  loggedIn: boolean;
   cookieStatus: string;
+  url: string;
 }
 
 export interface SiteArticle {
@@ -41,6 +43,7 @@ export interface PlatformModelState {
   fetchLoading?: boolean;
   importLoading?: boolean;
   accountModalVisible?: boolean;
+  updateCookieStatusLoading?: boolean;
 }
 
 export interface PlatformModelType {
@@ -58,6 +61,7 @@ export interface PlatformModelType {
     saveSiteArticles: Effect;
     importArticles: Effect;
     saveAccountModalVisible: Effect;
+    updateCookieStatus: Effect;
   };
   reducers: {
     setPlatformList: Reducer<PlatformModelState>;
@@ -68,6 +72,7 @@ export interface PlatformModelType {
     setFetchLoading: Reducer<PlatformModelState>;
     setImportLoading: Reducer<PlatformModelState>;
     setAccountModalVisible: Reducer<PlatformModelState>;
+    setUpdateCookieStatusLoading: Reducer<PlatformModelState>;
   };
 }
 
@@ -172,6 +177,22 @@ const PlatformModel: PlatformModelType = {
         payload: false,
       });
     },
+    *updateCookieStatus(_, {call, put}) {
+      yield put({
+        type: 'setUpdateCookieStatusLoading',
+        payload: true,
+      });
+      yield call(updateCookieStatus);
+      yield put({
+        type: 'setUpdateCookieStatusLoading',
+        payload: false,
+      });
+      const response = yield call(queryPlatformList);
+      yield put({
+        type: 'setPlatformList',
+        payload: response.data,
+      });
+    }
   },
 
   reducers: {
@@ -221,6 +242,12 @@ const PlatformModel: PlatformModelType = {
       return {
         ...state,
         importLoading: action.payload,
+      };
+    },
+    setUpdateCookieStatusLoading(state, action) {
+      return {
+        ...state,
+        updateCookieStatusLoading: action.payload,
       };
     },
   },

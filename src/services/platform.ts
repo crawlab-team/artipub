@@ -23,3 +23,7 @@ export async function fetchPlatformArticles(payload: any): Promise<any> {
 export async function importPlatformArticles(payload: any): Promise<any> {
   return request.post(`/platforms/${payload.platformId}/articles`, { data: payload.siteArticles });
 }
+
+export async function updateCookieStatus(): Promise<any> {
+  return request.post(`/platforms/checkCookies`);
+}

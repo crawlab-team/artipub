@@ -160,5 +160,17 @@ module.exports = {
     await res.json({
       status: 'ok'
     })
+  },
+  checkPlatformCookieStatus: async (req, res) => {
+    const platforms = await models.Platform.find()
+    for (let i = 0; i < platforms.length; i++) {
+      const platform = platforms[i]
+      const Spider = require(`../spiders/${platform.name}`)
+      const spider = new Spider(null, platform._id.toString())
+      await spider.checkCookieStatus()
+    }
+    await res.json({
+      status: 'ok'
+    })
   }
 }

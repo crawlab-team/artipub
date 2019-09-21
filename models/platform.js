@@ -12,6 +12,7 @@ const platformSchema = new mongoose.Schema({
   password: String,
   createTs: Date,
   updateTs: Date,
+  loggedIn: Boolean,
 
   // 前端字段
   cookieStatus: String,
