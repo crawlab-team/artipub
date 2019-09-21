@@ -353,7 +353,15 @@ class BaseSpider {
     const text = await this.page.evaluate(() => {
       return document.querySelector('body').innerText
     })
-    this.platform.loggedIn = !text.match('登录')
+    if (this.platform.name === constants.platform.TOUTIAO) {
+      this.platform.loggedIn = !!text.match('退出登录')
+    } else if (this.platform.name === constants.platform.CSDN) {
+        this.platform.loggedIn = !!text.match('写博客')
+    } else if (this.platform.name === constants.platform.CNBLOGS) {
+      this.platform.loggedIn = !!text.match('我的博客')
+    } else {
+      this.platform.loggedIn = !text.match('登录')
+    }
     await this.platform.save()
 
     // 关闭浏览器
