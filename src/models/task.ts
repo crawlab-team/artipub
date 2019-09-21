@@ -11,6 +11,7 @@ export interface Task {
   status?: string;
   category: string;
   tag: string;
+  title: string;
   pubType: string;
   checked: boolean;
   url: string;

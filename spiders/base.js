@@ -164,12 +164,12 @@ class BaseSpider {
     // 掘金等网站会先弹出Markdown页面，需要特殊处理
   }
 
-  async inputTitle(article, editorSel) {
+  async inputTitle(article, editorSel, task) {
     const el = document.querySelector(editorSel.title)
     el.focus()
     el.select()
     document.execCommand('delete', false)
-    document.execCommand('insertText', false, article.title)
+    document.execCommand('insertText', false, task.title || article.title)
   }
 
   async inputContent(article, editorSel) {
@@ -190,7 +190,7 @@ class BaseSpider {
   async inputEditor() {
     logger.info(`input editor title and content`)
     // 输入标题
-    await this.page.evaluate(this.inputTitle, this.article, this.editorSel)
+    await this.page.evaluate(this.inputTitle, this.article, this.editorSel, this.task)
     await this.page.waitFor(3000)
 
     // 输入内容

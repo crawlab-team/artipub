@@ -20,6 +20,7 @@ const taskSchema = new mongoose.Schema({
   category: String, // 类别: juejin
   tag: String, // 标签: juejin (单选), segmentfault (逗号分割)
   pubType: String, // 发布形式: csdn (单选)
+  title: String, // 标题
 
   // 前端数据（不用设置）
   platform: Object,
