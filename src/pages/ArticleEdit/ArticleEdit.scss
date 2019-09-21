@@ -51,23 +51,12 @@
 }
 
 .editor {
-  display: flex;
-  flex-basis: 50%;
-  flex-direction: column;
-  width: 50%;
-  height: 100%;
+  width: 100vw;
+  height: call(100vh - 500px);
   min-height: calc(100vh - 50px);
   overflow-y: auto;
   background-color: #f8f9fa;
   border-right: 1px solid #eee;
-}
-
-.preview {
-  display: flex;
-  flex-basis: 50%;
-  flex-direction: column;
-  width: 50%;
-  height: calc(100vh - 50px);
 }
 
 .footer {
