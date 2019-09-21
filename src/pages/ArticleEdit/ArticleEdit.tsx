@@ -160,7 +160,7 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
         {/*主要内容*/}
         <div className={style.main}>
           <MdEditor
-            style={{height: 'calc(100vh - 100px)'}}
+            style={{height: 'calc(100vh - 50px)'}}
             value={article.currentArticle ? article.currentArticle.content : ''}
             renderHTML={(text) => {
               return mdParser.render(text);
