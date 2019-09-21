@@ -4,6 +4,7 @@
 
 - Multi-Title Publish
 - Better Editor (react-markdown-editor-lite)
+- Cookie Login Status Validation
 - Better Documentation
 
 ## v0.1.2 (2019-09-20)
