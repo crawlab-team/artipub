@@ -87,7 +87,7 @@ docker-compose up
 
 然后在浏览器中输入`http://localhost:8000`可以看到界面。
 
-注意⚠️，如果您的Docker宿主机不是本机，例如您用了Docker Machine或者Docker服务在其他机器上，您需要将环境变量`ARTIPUB_API_ADDRESS`改为宿主机IP+端口号（默认3000）。然后，在浏览器输入`http://<宿主机IP>:3000`即可看到界面。
+注意⚠️，如果您的Docker宿主机不是本机，例如您用了Docker Machine或者Docker服务在其他机器上，您需要将环境变量`ARTIPUB_API_ADDRESS`改为宿主机IP+端口号（默认3000）。然后，在浏览器输入`http://<宿主机IP>:8000`即可看到界面。
 
 ### 通过npm包安装
 
