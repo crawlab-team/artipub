@@ -1,23 +1,19 @@
-import React, { ChangeEventHandler, useEffect } from 'react';
+import React, {ChangeEventHandler, useEffect} from 'react';
 // import {PageHeaderWrapper} from '@ant-design/pro-layout';
 import BlankLayout from '@/layouts/BlankLayout';
 // import UserLayout from '@/layouts/UserLayout';
-import { ArticleModelState } from '@/models/article';
-import { ConnectProps, ConnectState, Dispatch } from '@/models/connect';
-import { connect } from 'dva';
-import { Button, Input, message } from 'antd';
-import { Controlled as CodeMirror } from 'react-codemirror2';
-import { Editor, EditorChange, ScrollInfo } from 'codemirror';
-import showdown from 'showdown';
+import {ArticleModelState} from '@/models/article';
+import {ConnectProps, ConnectState, Dispatch} from '@/models/connect';
+import {connect} from 'dva';
+import {Button, Input, message} from 'antd';
+// @ts-ignore
+import MarkdownIt from 'markdown-it';
+import MdEditor from "react-markdown-editor-lite";
 
 // 引入codemirror样式
 import style from './ArticleEdit.scss';
 import 'codemirror/mode/markdown/markdown';
-import { router } from 'umi';
-
-showdown.setOption('tables', true);
-showdown.setOption('tasklists', true);
-showdown.setFlavor('github');
+import {router} from 'umi';
 
 export interface ArticleEditProps extends ConnectProps {
   article: ArticleModelState;
@@ -25,7 +21,7 @@ export interface ArticleEditProps extends ConnectProps {
 }
 
 const ArticleEdit: React.FC<ArticleEditProps> = props => {
-  const { dispatch, article } = props;
+  const {dispatch, article} = props;
 
   const isEdit = (): Boolean => {
     return (
@@ -68,37 +64,26 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
   };
 
   // 更新内容
-  const onContentChange = (editor: Editor, data: EditorChange, value: string) => {
+  const onContentChange = (data: any) => {
+    const text = data.text;
+    const html = data.html;
     if (dispatch) {
       dispatch({
         type: 'article/setArticleContent',
         payload: {
-          content: value,
+          content: text,
+          contentHtml: html,
         },
       });
-      setTimeout(() => {
-        updatePreview();
-      }, 0);
     }
   };
 
-  // markdown to html转换器
-  const converter = new showdown.Converter();
-
-  // 更新预览HTML
-  const updatePreview = () => {
-    if (!article || !article.currentArticle) return;
-    const $el = document.getElementById('content');
-    if (!$el) return;
-    const contentHtml = converter.makeHtml(article.currentArticle.content);
-    $el.innerHTML = contentHtml;
-    dispatch({
-      type: 'article/setArticleContentHtml',
-      payload: {
-        contentHtml,
-      },
-    });
+  const onImageUpload = (data: any) => {
+    console.log(data);
   };
+
+  // markdown to html转换器
+  const mdParser = new MarkdownIt();
 
   // 调整CodeMirror高度
   setTimeout(() => {
@@ -107,24 +92,6 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
       $el.setAttribute('style', 'min-height:calc(100vh - 50px - 50px);box-shadow:none');
     }
   }, 100);
-
-  // 首次渲染HTML
-  setTimeout(() => {
-    updatePreview();
-  }, 100);
-
-  // 监听左侧Markdown编辑上下滑动
-  const onEditorScroll = (editor: Editor, scrollInfo: ScrollInfo) => {
-    const $el = document.querySelector('#content') as HTMLDivElement;
-    if (!$el) return;
-    $el.scrollTo(
-      0,
-      Math.round((scrollInfo.top / scrollInfo.height) * ($el.scrollHeight + $el.clientHeight)),
-    );
-  };
-
-  // 监听预览上下滑动
-  const onPreviewScroll = (ev: any) => {};
 
   // 点击保存
   const onSave = async () => {
@@ -192,39 +159,21 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
 
         {/*主要内容*/}
         <div className={style.main}>
-          {/*左侧Markdown编辑器*/}
-          <div className={style.editor}>
-            <CodeMirror
-              className={style.codeMirror}
-              value={article.currentArticle ? article.currentArticle.content : ''}
-              options={{
-                mode: 'markdown',
-                theme: 'eclipse',
-                lineNumbers: true,
-                smartIndent: true,
-                lineWrapping: true,
-              }}
-              onBeforeChange={onContentChange}
-              onScroll={onEditorScroll}
-            />
-            <div className={style.footer}>
-              <label style={{ marginLeft: 20 }}>Markdown编辑器</label>
-            </div>
-          </div>
-
-          {/*右侧HTML预览*/}
-          <div id="preview" className={style.preview}>
-            <article id="content" className={style.content} onScroll={onPreviewScroll} />
-            <div className={style.footer}>
-              <label style={{ marginLeft: 20 }}>预览</label>
-            </div>
-          </div>
+          <MdEditor
+            style={{height: 'calc(100vh - 100px)'}}
+            value={article.currentArticle ? article.currentArticle.content : ''}
+            renderHTML={(text) => {
+              return mdParser.render(text);
+            }}
+            onChange={onContentChange}
+            onImageUpload={onImageUpload}
+          />
         </div>
       </div>
     </BlankLayout>
   );
 };
 
-export default connect(({ article }: ConnectState) => ({
+export default connect(({article}: ConnectState) => ({
   article,
 }))(ArticleEdit);
