@@ -29,7 +29,7 @@ class ZhihuSpider extends BaseSpider {
     // 上传markdown文件
     const handle = await this.page.$('input[accept=".docx,.doc,.markdown,.mdown,.mkdn,.md"]')
     await handle.uploadFile(mdPath)
-    await this.page.waitFor(1000)
+    await this.page.waitFor(5000)
 
     // 删除临时markdown文件
     await fs.unlinkSync(mdPath)
@@ -45,8 +45,10 @@ class ZhihuSpider extends BaseSpider {
 
   async afterInputEditor() {
     // 点击发布文章
-    const elPubBtn = await this.page.$('.PublishPanel-triggerButton')
-    await elPubBtn.click()
+    await this.page.evaluate(() => {
+      const el = document.querySelector('.PublishPanel-triggerButton')
+      el.click()
+    })
     await this.page.waitFor(5000)
 
     // 选择标签

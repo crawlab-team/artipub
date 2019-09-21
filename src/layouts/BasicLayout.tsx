@@ -18,7 +18,7 @@ import Authorized from '@/utils/Authorized';
 import RightContent from '@/components/GlobalHeader/RightContent';
 import {ConnectState, Dispatch} from '@/models/connect';
 import {isAntDesignPro} from '@/utils/utils';
-import logo from '../assets/logo.svg';
+import logo from '../assets/logo.png';
 import style from './BasicLayout.scss';
 import {Row} from "antd";
 

@@ -16,6 +16,7 @@ import imgCsdn from '@/assets/img/csdn-logo.jpg';
 import imgZhihu from '@/assets/img/zhihu-logo.jpg';
 import imgOschina from '@/assets/img/oschina-logo.jpg';
 import imgToutiao from '@/assets/img/toutiao-logo.png';
+import imgCnblogs from '@/assets/img/cnblogs-logo.gif';
 
 export interface PlatformListProps extends ConnectProps {
   platform: PlatformModelState;
@@ -230,6 +231,8 @@ const PlatformList: React.FC<PlatformListProps> = props => {
           return <img className={style.siteLogo} src={imgOschina}/>;
         } else if (d.name === constants.platform.TOUTIAO) {
           return <img className={style.siteLogo} src={imgToutiao}/>;
+        } else if (d.name === constants.platform.CNBLOGS) {
+          return <img className={style.siteLogo} alt={d.label} src={imgCnblogs}/>;
         } else {
           return <span>Logo</span>;
         }

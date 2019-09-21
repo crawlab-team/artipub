@@ -11,7 +11,7 @@ WORKDIR /app
 ADD . /app
 COPY --from=frontend /app/dist /frontend
 RUN cp ./backend/package.json .
-RUN npm install --registry=https://registry.npm.taobao.org
+RUN npm install
 RUN yum install -y nginx
 RUN cp /app/nginx/artipub.conf /etc/nginx/conf.d
 

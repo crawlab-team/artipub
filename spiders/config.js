@@ -112,5 +112,21 @@ module.exports = {
       content: '.ql-editor',
       publish: '#publish'
     }
+  },
+
+  cnblogs: {
+    urls: {
+      login: '',
+      editor: 'https://i.cnblogs.com/EditArticles.aspx?opt=1'
+    },
+    loginSel: {
+      username: '',
+      password: ''
+    },
+    editorSel: {
+      title: '#Editor_Edit_txbTitle',
+      content: '#tinymce',
+      publish: '#Editor_Edit_lkbPost'
+    }
   }
 }
