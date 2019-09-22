@@ -8,6 +8,7 @@ export default {
     OSCHINA: 'oschina',
     TOUTIAO: 'toutiao',
     CNBLOGS: 'cnblogs',
+    V2EX: 'v2ex',
   },
   status: {
     NOT_STARTED: 'not-started',

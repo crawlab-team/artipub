@@ -128,5 +128,21 @@ module.exports = {
       content: '#tinymce',
       publish: '#Editor_Edit_lkbPost'
     }
+  },
+
+  v2ex: {
+    urls: {
+      login: '',
+      editor: 'https://v2ex.com/new'
+    },
+    loginSel: {
+      username: '',
+      password: ''
+    },
+    editorSel: {
+      title: '#topic_title',
+      content: '#editor',
+      publish: '.super.normal.button'
+    }
   }
 }

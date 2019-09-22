@@ -21,6 +21,8 @@ import imgZhihu from '@/assets/img/zhihu-logo.jpg';
 import imgOschina from '@/assets/img/oschina-logo.jpg';
 import imgToutiao from '@/assets/img/toutiao-logo.png';
 import imgCnblogs from '@/assets/img/cnblogs-logo.gif';
+import imgV2ex from '@/assets/img/v2ex-logo.jpg';
+import v2ex from "@/data/v2ex";
 
 export interface ArticleListProps extends ConnectProps {
   task: TaskModelState;
@@ -278,6 +280,8 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       return t.tag === "" ? 1 : 0;
     } else if (p.name === constants.platform.OSCHINA) {
       return t.category === "" ? 1 : 0;
+    } else if (p.name === constants.platform.V2EX) {
+      return t.category === "" ? 1 : 0;
     }
     return 0
   };
@@ -424,6 +428,8 @@ const ArticleList: React.FC<ArticleListProps> = props => {
           return <img className={style.siteLogo} alt={d.label} src={imgToutiao}/>;
         } else if (d.name === constants.platform.CNBLOGS) {
           return <img className={style.siteLogo} alt={d.label} src={imgCnblogs}/>;
+        } else if (d.name === constants.platform.V2EX) {
+          return <img className={style.siteLogo} alt={d.label} src={imgV2ex}/>;
         } else {
           return <div/>;
         }
@@ -697,6 +703,27 @@ const ArticleList: React.FC<ArticleListProps> = props => {
           >
             {categories.map(category => (
               <Select.Option key={category}>{category}</Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+      </Form>
+    );
+  } else if (currentPlatform && currentPlatform.name === constants.platform.V2EX) {
+    const categories = v2ex.categories;
+    platformContent = (
+      <Form labelCol={{sm: {span: 4}}} wrapperCol={{sm: {span: 20}}}>
+        <Form.Item label="节点" required={true}>
+          <Select
+            placeholder="点击选择节点"
+            value={task.currentTask ? task.currentTask.category : undefined}
+            onChange={onTaskChange('select', 'category')}
+            showSearch
+            filterOption={(input: string, option: any) =>
+              option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+            }
+          >
+            {categories.map(category => (
+              <Select.Option key={category.value}>{category.label}</Select.Option>
             ))}
           </Select>
         </Form.Item>

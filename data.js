@@ -73,6 +73,15 @@ module.exports = {
       description: '博客园是一个面向开发者的知识分享社区。自创建以来，博客园一直致力并专注于为开发者打造一个纯净的技术交流社区，推动并帮助开发者通过互联网分享知识，从而让更多开发者从中受益。博客园的使命是帮助开发者用代码改变世界。',
       enableImport: false,
       enableLogin: false,
+    },
+    {
+      name: constants.platform.V2EX,
+      label: 'V2ex',
+      editorType: constants.editorType.MARKDOWN,
+      url: 'https://v2ex.com',
+      description: 'v2ex，是一个汇集各类奇妙好玩的话题和流行动向的网站。V2EX 提供了特别有用的小工具 [ ZEN ]，帮助你掌握自己的时间。V2EX 中充满了各种各样精心雕琢的细节。',
+      enableImport: false,
+      enableLogin: false,
     }
   ],
 

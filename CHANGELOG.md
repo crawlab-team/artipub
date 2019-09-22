@@ -6,6 +6,8 @@
 - Better Editor (react-markdown-editor-lite)
 - Cookie Login Status Validation
 - Better Documentation
+- Platform Integration
+    - [V2ex](https://v2ex.com)
 
 ## v0.1.2 (2019-09-20)
 
