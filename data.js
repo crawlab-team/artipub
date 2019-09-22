@@ -86,7 +86,7 @@ module.exports = {
     {
       _id: constants.environment.ENABLE_CHROME_DEBUG,
       label: 'Chrome浏览器调试模式',
-      value: 'Y'
+      value: 'N'
     }
   ]
 }
