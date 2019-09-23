@@ -19,7 +19,7 @@ module.exports = {
   segmentfault: {
     urls: {
       login: 'https://segmentfault.com/user/login',
-      editor: 'https://segmentfault.com/write'
+      editor: 'https://segmentfault.com/write?freshman=1'
     },
     loginSel: {
       username: 'input[name="username"]',
