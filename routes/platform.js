@@ -167,7 +167,11 @@ module.exports = {
       const platform = platforms[i]
       const Spider = require(`../spiders/${platform.name}`)
       const spider = new Spider(null, platform._id.toString())
-      await spider.checkCookieStatus()
+      try {
+        await spider.checkCookieStatus()
+      } catch (e) {
+        console.error(e)
+      }
     }
     await res.json({
       status: 'ok'

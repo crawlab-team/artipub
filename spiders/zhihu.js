@@ -72,10 +72,14 @@ class ZhihuSpider extends BaseSpider {
 
   async publish() {
     // 发布文章
-    await this.page.evaluate(() => {
-      const el = document.querySelector('.PublishPanel-stepTwoButton')
-      el.click()
-    })
+    try {
+      await this.page.evaluate(() => {
+        const el = document.querySelector('.PublishPanel-stepTwoButton')
+        el.click()
+      })
+    } catch (e) {
+      // do nothing
+    }
     await this.page.waitFor(5000)
 
     // 后续处理
