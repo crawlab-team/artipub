@@ -201,6 +201,7 @@ const ArticleModel: ArticleModelType = {
       if (!state || !state.currentArticle) return { ...state };
       const currentArticle = state.currentArticle;
       currentArticle.content = action.payload.content;
+      currentArticle.contentHtml = action.payload.contentHtml;
       return {
         ...state,
         currentArticle,

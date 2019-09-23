@@ -135,7 +135,6 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
     TDAPP.onEvent('文章编辑-返回');
   };
 
-
   return (
     <BlankLayout>
       <div className={style.articleEdit}>
@@ -163,7 +162,14 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
             style={{width: '100%', height: 'calc(100vh - 50px)'}}
             value={article.currentArticle ? article.currentArticle.content : ''}
             renderHTML={(text) => {
-              return mdParser.render(text);
+              const html = mdParser.render(text);
+              dispatch({
+                type: 'article/setArticleContentHtml',
+                payload: {
+                  contentHtml: html,
+                },
+              });
+              return html;
             }}
             onChange={onContentChange}
             onImageUpload={onImageUpload}
