@@ -19,11 +19,12 @@ if (process.env.MONGO_PORT) config.MONGO_PORT = process.env.MONGO_PORT
 if (process.env.MONGO_DB) config.MONGO_DB = process.env.MONGO_DB
 if (process.env.MONGO_USERNAME) config.MONGO_USERNAME = process.env.MONGO_USERNAME
 if (process.env.MONGO_PASSWORD) config.MONGO_PASSWORD = process.env.MONGO_PASSWORD
+if (process.env.MONGO_AUTH_DB) config.MONGO_AUTH_DB = process.env.MONGO_AUTH_DB
 
 // mongodb连接
 mongoose.Promise = global.Promise
 if (config.MONGO_USERNAME) {
-  mongoose.connect(`mongodb://${config.MONGO_USERNAME}:${config.MONGO_PASSWORD}@${config.MONGO_HOST}:${config.MONGO_PORT}/${config.MONGO_DB}`, { useNewUrlParser: true })
+  mongoose.connect(`mongodb://${config.MONGO_USERNAME}:${config.MONGO_PASSWORD}@${config.MONGO_HOST}:${config.MONGO_PORT}/${config.MONGO_DB}?authenticationDatabase=${config.MONGO_AUTH_DB}`, { useNewUrlParser: true })
 } else {
   mongoose.connect(`mongodb://${config.MONGO_HOST}:${config.MONGO_PORT}/${config.MONGO_DB}`, { useNewUrlParser: true })
 }
