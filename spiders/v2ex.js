@@ -1,5 +1,3 @@
-const fs = require('fs')
-const path = require('path')
 const BaseSpider = require('./base')
 const constants = require('../constants')
 
