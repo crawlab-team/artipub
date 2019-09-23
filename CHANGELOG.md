@@ -3,11 +3,17 @@
 #### Features / Enhancement
 
 - Multi-Title Publish
-- Better Editor (react-markdown-editor-lite)
+- Better Editor ([react-markdown-editor-lite](https://www.npmjs.com/package/react-markdown-editor-lite))
 - Cookie Login Status Validation
-- Better Documentation
+- Better Documentation (README)
 - Platform Integration
     - [V2ex](https://v2ex.com)
+
+#### Bug Fixes
+- Fixed missing MongoDB parameter `authenticationDatabase` issue.
+- Fixed failure to publish articles on Zhihu (actually published successfully). [#27](https://github.com/crawlab-team/artipub/issues/27)
+- Fixed missing HTML content issue. [#26](https://github.com/crawlab-team/artipub/issues/26) 
+- Close `Chrome Browser Debug Mode` by default. [#22](https://github.com/crawlab-team/artipub/issues/22)
 
 ## v0.1.2 (2019-09-20)
 
