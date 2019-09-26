@@ -1,6 +1,6 @@
 {
   "name": "artipub",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Article publishing platform that automatically distributes your articles to various media channels",
   "main": "index.js",
   "scripts": {
