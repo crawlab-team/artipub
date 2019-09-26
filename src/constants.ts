@@ -9,6 +9,7 @@ export default {
     TOUTIAO: 'toutiao',
     CNBLOGS: 'cnblogs',
     V2EX: 'v2ex',
+    WECHAT: 'wechat',
   },
   status: {
     NOT_STARTED: 'not-started',
@@ -31,6 +32,9 @@ export default {
   environment: {
     UPDATE_STATS_CRON: 'update_stats_cron',
     ENABLE_CHROME_DEBUG: 'enable_chrome_debug',
+    WECHAT_APP_ID: 'wechat_app_id',
+    WECHAT_APP_SECRET: 'wechat_app_secret',
+    WECHAT_ACCESS_TOKEN: 'wechat_access_token',
   },
   cookieStatus: {
     NO_COOKIE: 'no_cookie',

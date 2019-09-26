@@ -5,6 +5,7 @@ import {queryEnvironmentList, saveEnvironment} from "@/services/environment";
 export interface Environment {
   _id?: string;
   value?: string;
+  label?: string;
 }
 
 export interface EnvironmentModelState {

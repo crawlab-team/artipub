@@ -82,6 +82,15 @@ module.exports = {
       description: 'v2ex，是一个汇集各类奇妙好玩的话题和流行动向的网站。V2EX 提供了特别有用的小工具 [ ZEN ]，帮助你掌握自己的时间。V2EX 中充满了各种各样精心雕琢的细节。',
       enableImport: false,
       enableLogin: false,
+    },
+    {
+      name: constants.platform.WECHAT,
+      label: '微信公众号',
+      editorType: constants.editorType.RICH_TEXT,
+      url: 'https://mp.weixin.qq.com',
+      description: '微信公众平台,微信公众平台官方网站,公众号注册,微信公众号注册,微信订阅号注册,微信公众号申请,微信服务号申请,微信订阅号申请,微信企业号申请,微信服务号注册,微信企业号注册,订阅号注册,公众号申请,服务号申请,订阅号申请,企业号申请,服务号注册,企业号注册,微信',
+      enableImport: false,
+      enableLogin: false,
     }
   ],
 
@@ -96,6 +105,16 @@ module.exports = {
       _id: constants.environment.ENABLE_CHROME_DEBUG,
       label: 'Chrome浏览器调试模式',
       value: 'N'
+    },
+    {
+      _id: constants.environment.WECHAT_APP_ID,
+      label: '微信公众号APP ID',
+      value: ''
+    },
+    {
+      _id: constants.environment.WECHAT_APP_SECRET,
+      label: '微信公众号APP SECRET',
+      value: ''
     }
   ]
 }
