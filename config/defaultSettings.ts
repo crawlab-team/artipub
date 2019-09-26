@@ -54,7 +54,7 @@ export default {
   menu: {
     locale: true,
   },
-  title: 'ArtiPub v0.1.2',
+  title: 'ArtiPub v0.1.3',
   pwa: false,
   iconfontUrl: '',
 } as DefaultSettings;
