@@ -83,30 +83,56 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 // 文章
 /**
  * @swagger
- *
  * /articles:
  *   get:
+ *     summary: Read all articles
  *     tags:
  *       - articles
- *     description: Return articles
  *     produces:
  *       - application/json
  *     responses:
  *       200:
  *         description: articles
- *   put:
- *     tags:
- *       - articles
- *     description: Create article
+ *         schema:
+ *           type: object
+ *           properties:
+ *             status:
+ *               type: string
+ *               default: ok
+ *             data:
+ *               type: array
+ *               items:
+ *                 $ref: '#/definitions/Article'
  */
+app.get('/articles', routes.article.getArticleList)
 
 /**
  * @swagger
- * /articles/{id}:
- *   get:
+ * /articles:
+ *   put:
+ *     summary: Create an article
  *     tags:
  *       - articles
- *     description: Return article
+ *     parameters:
+ *       - in: body
+ *         name: article
+ *         schema:
+ *           $ref: '#/definitions/Article'
+ *     responses:
+ *       200:
+ *         description: OK
+ *         schema:
+ *           $ref: '#/definitions/Article'
+ */
+app.put('/articles', routes.article.addArticle)
+
+/**
+ * @swagger
+ * /articles/{articleId}:
+ *   get:
+ *     summary: Read an article by ID
+ *     tags:
+ *       - articles
  *     parameters:
  *       - in: path
  *         name: articleId
@@ -115,23 +141,35 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
  *     responses:
  *       200:
  *         description: OK
- *   post:
- *     tags:
- *       - articles
- *     description: Edit article
- *   delete:
- *     tags:
- *       - articles
- *     description: Delete article
+ *         schema:
+ *           $ref: '#/definitions/Article'
  */
-app.get('/articles', routes.article.getArticleList)
 app.get('/articles/:id', routes.article.getArticle)
+
+/**
+ * @swagger
+ * /articles/{articleId}:
+ *   post:
+ *     summary: Update an article
+ *     tags:
+ *       - articles
+ */
+app.post('/articles/:id', routes.article.editArticle)
+
+/**
+ * @swagger
+ * /articles/{articleId}:
+ *   delete:
+ *     summary: Delete an article
+ *     tags:
+ *       - articles
+ */
+app.delete('/articles/:id', routes.article.deleteArticle)
+
 app.get('/articles/:id/tasks', routes.article.getArticleTaskList)
 app.put('/articles/:id/tasks', routes.article.addArticleTask)
-app.put('/articles', routes.article.addArticle)
-app.post('/articles/:id', routes.article.editArticle)
-app.delete('/articles/:id', routes.article.deleteArticle)
 app.post('/articles/:id/publish', routes.article.publishArticle)
+
 // 任务
 app.get('/tasks', routes.task.getTaskList)
 app.get('/tasks/:id', routes.task.getTask)

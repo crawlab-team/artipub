@@ -2,6 +2,39 @@ const models = require('../models')
 const constants = require('../constants')
 const ObjectId = require('bson').ObjectId
 
+/**
+ * @swagger
+ * definitions:
+ *   Article:
+ *     type: object
+ *     properties:
+ *       title:
+ *         type: string
+ *       content:
+ *         type: string
+ *       contentHtml:
+ *         type: string
+ *       platformIds:
+ *         type: array
+ *         items:
+ *           type: integer
+ *       createTs:
+ *         type: string
+ *         format: date-time
+ *       updateTs:
+ *         type: string
+ *         format: date-time
+ *       readNum:
+ *         type: integer
+ *       likeNum:
+ *         type: integer
+ *       commentNum:
+ *         type: integer
+ *     required:
+ *       - title
+ *       - content
+ *       - contentHtml
+ */
 module.exports = {
   getArticleList: async (req, res) => {
     const articles = await models.Article.find().sort({ _id: -1 })
