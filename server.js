@@ -2,7 +2,10 @@ const express = require('express')
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
+const swaggerUi = require('swagger-ui-express')
+const swaggerJsdoc = require('swagger-jsdoc')
 
+const packageJson = require('./package')
 const init = require('./init')
 const config = require('./config')
 const routes = require('./routes')
@@ -48,8 +51,79 @@ app.use('*', function (req, res, next) {
   }
 })
 
+// Swagger 文档
+const swaggerSpec = swaggerJsdoc({
+  swaggerDefinition: {
+    info: {
+      title: packageJson.name,
+      version: packageJson.version,
+      description: packageJson.description,
+    },
+    host: 'localhost:3000',
+    basePath: '/',
+    consumes: [
+      'application/json',
+    ],
+    produces: [
+      'application/json',
+    ],
+  },
+  // path to the API docs
+  apis: ['server.js', './routes/*.js'],
+})
+
+app.get('/swagger.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+})
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+
 // 路由
 // 文章
+/**
+ * @swagger
+ *
+ * /articles:
+ *   get:
+ *     tags:
+ *       - articles
+ *     description: Return articles
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: articles
+ *   put:
+ *     tags:
+ *       - articles
+ *     description: Create article
+ */
+
+/**
+ * @swagger
+ * /articles/{id}:
+ *   get:
+ *     tags:
+ *       - articles
+ *     description: Return article
+ *     parameters:
+ *       - in: path
+ *         name: articleId
+ *         required: true
+ *         type: integer
+ *     responses:
+ *       200:
+ *         description: OK
+ *   post:
+ *     tags:
+ *       - articles
+ *     description: Edit article
+ *   delete:
+ *     tags:
+ *       - articles
+ *     description: Delete article
+ */
 app.get('/articles', routes.article.getArticleList)
 app.get('/articles/:id', routes.article.getArticle)
 app.get('/articles/:id/tasks', routes.article.getArticleTaskList)
