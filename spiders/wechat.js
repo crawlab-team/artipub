@@ -78,16 +78,9 @@ class WechatSpider extends BaseSpider {
   }
 
   async uploadThumbImage() {
-    const data = await request.post(`${this.config.urls.apiEndpoint}/media/uploadimg?access_token=${this.token.accessToken}`, {
-      form: {
+    const data = await request.post(`${this.config.urls.apiEndpoint}/material/add_material?access_token=${this.token.accessToken}&type=image`, {
+      formData: {
         media: fs.createReadStream('/Users/marvzhang/projects/artipub/public/favicon.png'),
-        // media: {
-        //   value: fs.createReadStream('/Users/marvzhang/projects/artipub/public/favicon.png'),
-        //   options: {
-        //     filename: 'favicon.png',
-        //     contentType: 'image/png'
-        //   }
-        // },
       },
       json: true,
     })
@@ -97,7 +90,6 @@ class WechatSpider extends BaseSpider {
   }
 
   async addMaterial() {
-    console.log(this.token.accessToken)
     const data = await request.post(`${this.config.urls.apiEndpoint}/material/add_news?access_token=${this.token.accessToken}`, {
       body: {
         articles: [{
@@ -106,8 +98,9 @@ class WechatSpider extends BaseSpider {
           author: this.task.author || 'Admin',
           show_cover_pic: this.task.showCovPic || 0,
           content: this.article.contentHtml,
-          need_open_comment: this.task.needOpenComment || 1,
-          only_fans_can_comment: this.task.onlyFansCanComment || 1
+          content_source_url: '',
+          need_open_comment: this.task.needOpenComment || 0,
+          only_fans_can_comment: this.task.onlyFansCanComment || 0
         }]
       },
       json: true,
