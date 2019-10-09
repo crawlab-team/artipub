@@ -144,5 +144,22 @@ module.exports = {
       content: '#editor',
       publish: '.super.normal.button'
     }
+  },
+
+  wechat: {
+    urls: {
+      login: '',
+      editor: 'https://mp.weixin.qq.com',
+      apiEndpoint: 'https://api.weixin.qq.com/cgi-bin'
+    },
+    loginSel: {
+      username: '',
+      password: ''
+    },
+    editorSel: {
+      title: '',
+      content: '',
+      publish: ''
+    }
   }
 }

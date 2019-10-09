@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import {PageHeaderWrapper} from '@ant-design/pro-layout';
-import {Card, message, Select, Table} from 'antd';
+import {Card, Input, message, Select, Table} from 'antd';
 import {ConnectProps, ConnectState, Dispatch} from '@/models/connect';
 import {connect} from 'dva';
 import {ColumnProps} from 'antd/lib/table';
@@ -21,7 +21,7 @@ const EnvironmentList: React.FC<EnvironmentListProps> = props => {
         <Select
           value={d.value}
           style={{width: '200px'}}
-          onChange={onFieldChange(d)}
+          onChange={onFieldChange(constants.inputType.SELECT, d)}
         >
           <Select.Option value="0 0/5 * * * *">每5分钟</Select.Option>
           <Select.Option value="0 0/10 * * * *">每10分钟</Select.Option>
@@ -37,14 +37,22 @@ const EnvironmentList: React.FC<EnvironmentListProps> = props => {
         <Select
           value={d.value}
           style={{width: '200px'}}
-          onChange={onFieldChange(d)}
+          onChange={onFieldChange(constants.inputType.SELECT, d)}
         >
           <Select.Option value="Y">开启</Select.Option>
           <Select.Option value="N">关闭</Select.Option>
         </Select>
       );
     } else {
-      return d.value
+      return (
+        <Input
+          value={d.value}
+          style={{width: '200px'}}
+          onChange={onFieldChange(constants.inputType.INPUT, d)}
+          onBlur={onSave(d)}
+          placeholder={d.label}
+        />
+      )
     }
   };
 
@@ -66,20 +74,32 @@ const EnvironmentList: React.FC<EnvironmentListProps> = props => {
     },
   ];
 
-  const onFieldChange: Function = (d: Environment) => {
+  const onFieldChange: Function = (type: string, d: Environment) => {
     return (ev: any) => {
-      d.value = ev;
-      dispatch({
-        type: 'environment/saveEnvironment',
-        payload: d,
-      });
+      if (type === constants.inputType.SELECT) {
+        d.value = ev;
+        onSave(d)();
+      } else {
+        d.value = ev.target.value;
+      }
+
       const environments = environment.environments ? environment.environments.map((_d: Environment) => {
         if (_d._id === d._id) _d.value = d.value;
         return _d;
       }) : [];
+
       dispatch({
         type: 'environment/saveEnvironmentList',
         payload: environments,
+      });
+    }
+  };
+
+  const onSave: Function = (d: Environment) => {
+    return () => {
+      dispatch({
+        type: 'environment/saveEnvironment',
+        payload: d,
       });
       message.success('保存成功, 请重启服务器使系统设置生效');
 
@@ -100,7 +120,12 @@ const EnvironmentList: React.FC<EnvironmentListProps> = props => {
   return (
     <PageHeaderWrapper>
       <Card>
-        <Table dataSource={environment.environments} columns={columns}/>
+        <Table
+          dataSource={environment.environments ? environment.environments.filter((d: Environment) => ![
+            constants.environment.WECHAT_ACCESS_TOKEN,
+          ].includes(d._id || '')) : []}
+          columns={columns}
+        />
       </Card>
     </PageHeaderWrapper>
   );

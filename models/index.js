@@ -4,4 +4,5 @@ module.exports = {
   Platform: require('./platform'),
   Cookie: require('./cookie'),
   Environment: require('./environment'),
+  Token: require('./token'),
 }

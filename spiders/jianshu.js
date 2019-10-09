@@ -18,11 +18,20 @@ class JianshuSpider extends BaseSpider {
   }
 
   async afterPublish() {
-    this.task.url = this.page.url()
-    if (!this.task.url.match(/\/p\/\w+/)) return
+    this.task.url = await this.page.evaluate(() => {
+      const aList = document.querySelectorAll('a');
+      for (let i = 0; i < aList.length; i++) {
+        const a = aList[i]
+        const href = a.getAttribute('href')
+        if (href && href.match(/\/p\/\w+/)) {
+          return href
+        }
+      }
+    })
+    if (!this.task.url) return
     this.task.updateTs = new Date()
     this.task.status = constants.status.FINISHED
-    await this.article.save()
+    await this.task.save()
   }
 
   async fetchStats() {

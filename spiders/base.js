@@ -202,11 +202,17 @@ class BaseSpider {
     await this.afterGoToEditor()
   }
 
+  /**
+   * 导航至写作页面后续操作
+   */
   async afterGoToEditor() {
     // 导航至写作页面的后续处理
     // 掘金等网站会先弹出Markdown页面，需要特殊处理
   }
 
+  /**
+   * 输入文章标题
+   */
   async inputTitle(article, editorSel, task) {
     const el = document.querySelector(editorSel.title)
     el.focus()
@@ -215,6 +221,9 @@ class BaseSpider {
     document.execCommand('insertText', false, task.title || article.title)
   }
 
+  /**
+   * 输入文章内容
+   */
   async inputContent(article, editorSel) {
     const el = document.querySelector(editorSel.content)
     el.focus()
@@ -223,6 +232,9 @@ class BaseSpider {
     document.execCommand('insertText', false, article.content)
   }
 
+  /**
+   * 输入文章脚注
+   */
   async inputFooter(article, editorSel) {
     const footerContent = `\n\n> 本篇文章由一文多发平台[ArtiPub](https://github.com/crawlab-team/artipub)自动发布`
     const el = document.querySelector(editorSel.content)
@@ -230,6 +242,9 @@ class BaseSpider {
     document.execCommand('insertText', false, footerContent)
   }
 
+  /**
+   * 输入编辑器
+   */
   async inputEditor() {
     logger.info(`input editor title and content`)
     // 输入标题
@@ -250,11 +265,17 @@ class BaseSpider {
     await this.afterInputEditor()
   }
 
+  /**
+   * 输入编辑器后续操作
+   */
   async afterInputEditor() {
     // 输入编辑器内容的后续处理
     // 标签、分类输入放在这里
   }
 
+  /**
+   * 发布文章
+   */
   async publish() {
     logger.info(`publishing article`)
     // 发布文章
@@ -266,11 +287,17 @@ class BaseSpider {
     await this.afterPublish()
   }
 
+  /**
+   * 发布文章后续操作
+   */
   async afterPublish() {
     // 提交文章的后续处理
     // 保存文章url等逻辑放在这里
   }
 
+  /**
+   * 运行爬虫
+   */
   async run() {
     // 初始化
     await this.init()
@@ -296,10 +323,16 @@ class BaseSpider {
     await this.browser.close()
   }
 
+  /**
+   * 获取文章统计数据
+   */
   async fetchStats() {
     // to be inherited
   }
 
+  /**
+   * 获取文章统计数据后续操作
+   */
   async afterFetchStats() {
     // 统计文章总阅读、点赞、评论数
     const tasks = await models.Task.find({ articleId: this.article._id })
@@ -319,7 +352,7 @@ class BaseSpider {
   }
 
   /**
-   * 获取文章数据
+   * 运行获取文章统计数据
    */
   async runFetchStats() {
     // 初始化

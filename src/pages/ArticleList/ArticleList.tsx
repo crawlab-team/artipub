@@ -22,6 +22,7 @@ import imgOschina from '@/assets/img/oschina-logo.jpg';
 import imgToutiao from '@/assets/img/toutiao-logo.png';
 import imgCnblogs from '@/assets/img/cnblogs-logo.gif';
 import imgV2ex from '@/assets/img/v2ex-logo.jpg';
+import juejin from "@/data/juejin";
 import v2ex from "@/data/v2ex";
 
 export interface ArticleListProps extends ConnectProps {
@@ -588,6 +589,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       '代码人生',
       '阅读',
     ];
+    const tags = juejin.tags.sort((a: string, b: string) => a > b ? 1 : -1);
     platformContent = (
       <Form labelCol={{sm: {span: 4}}} wrapperCol={{sm: {span: 20}}}>
         <Form.Item label="类别" required={true}>
@@ -602,11 +604,19 @@ const ArticleList: React.FC<ArticleListProps> = props => {
           </Select>
         </Form.Item>
         <Form.Item label="标签" required={true}>
-          <Input
-            placeholder="输入标签"
+          <Select
+            placeholder="点击选择标签"
             value={task.currentTask ? task.currentTask.tag : undefined}
-            onChange={onTaskChange('input', 'tag')}
-          />
+            onChange={onTaskChange('select', 'tag')}
+            showSearch
+            filterOption={(input: string, option: any) =>
+              option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+            }
+          >
+            {tags.map(tag => (
+              <Select.Option key={tag}>{tag}</Select.Option>
+            ))}
+          </Select>
         </Form.Item>
       </Form>
     );

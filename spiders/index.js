@@ -8,4 +8,5 @@ module.exports = {
   ToutiaoSpider: require('./toutiao'),
   CnblogsSpider: require('./cnblogs'),
   V2exSpider: require('./v2ex'),
+  WechatSpider: require('./wechat'),
 }
