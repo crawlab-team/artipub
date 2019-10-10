@@ -1,6 +1,7 @@
 const request = require('request-promise-native')
 const ObjectId = require('bson').ObjectId
 const fs = require('fs')
+const cheerio = require('cheerio')
 const BaseSpider = require('./base')
 const constants = require('../constants')
 const models = require('../models')
@@ -71,7 +72,7 @@ class WechatSpider extends BaseSpider {
         await token.save()
       } else {
         console.error(`[${data.errcode}] ${data.errmsg}`)
-        throw new Error('cannot get access_token');
+        throw new Error('cannot get access_token')
       }
     }
     this.token = token
@@ -90,14 +91,23 @@ class WechatSpider extends BaseSpider {
   }
 
   async addMaterial() {
+    let contentHtml = this.article.contentHtml
+    const $ = cheerio.load(contentHtml)
+    $('a').each((i, el) => {
+      $(el).after(`<span>${$(el).text()}</span>`)
+      $(el).remove()
+    })
+    contentHtml = $.html()
+
     const data = await request.post(`${this.config.urls.apiEndpoint}/material/add_news?access_token=${this.token.accessToken}`, {
       body: {
         articles: [{
           title: this.task.title || this.article.title,
           thumb_media_id: this.mediaId,
+          digest: $.text().substr(0, 50),
           author: this.task.author || 'Admin',
           show_cover_pic: this.task.showCovPic || 0,
-          content: this.article.contentHtml,
+          content: contentHtml,
           content_source_url: '',
           need_open_comment: this.task.needOpenComment || 0,
           only_fans_can_comment: this.task.onlyFansCanComment || 0
