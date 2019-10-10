@@ -99,6 +99,14 @@ class WechatSpider extends BaseSpider {
     })
     contentHtml = $.html()
 
+    // 图片处理
+    let imgSrcList = []
+    let imgUrls = []
+    $('img').each((i, el) => {
+      const src = $(el).getAttribute('src')
+      imgSrcList.push(src)
+    })
+
     const data = await request.post(`${this.config.urls.apiEndpoint}/material/add_news?access_token=${this.token.accessToken}`, {
       body: {
         articles: [{
