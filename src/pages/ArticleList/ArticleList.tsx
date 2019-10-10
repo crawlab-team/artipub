@@ -22,6 +22,7 @@ import imgOschina from '@/assets/img/oschina-logo.jpg';
 import imgToutiao from '@/assets/img/toutiao-logo.png';
 import imgCnblogs from '@/assets/img/cnblogs-logo.gif';
 import imgV2ex from '@/assets/img/v2ex-logo.jpg';
+import imgWechat from '@/assets/img/wechat-logo.jpg';
 import juejin from "@/data/juejin";
 import v2ex from "@/data/v2ex";
 
@@ -431,6 +432,8 @@ const ArticleList: React.FC<ArticleListProps> = props => {
           return <img className={style.siteLogo} alt={d.label} src={imgCnblogs}/>;
         } else if (d.name === constants.platform.V2EX) {
           return <img className={style.siteLogo} alt={d.label} src={imgV2ex}/>;
+        } else if (d.name === constants.platform.WECHAT) {
+          return <img className={style.siteLogo} alt={d.label} src={imgWechat}/>;
         } else {
           return <div/>;
         }

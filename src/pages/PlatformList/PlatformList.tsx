@@ -18,6 +18,7 @@ import imgOschina from '@/assets/img/oschina-logo.jpg';
 import imgToutiao from '@/assets/img/toutiao-logo.png';
 import imgCnblogs from '@/assets/img/cnblogs-logo.gif';
 import imgV2ex from '@/assets/img/v2ex-logo.jpg';
+import imgWechat from '@/assets/img/wechat-logo.jpg';
 
 export interface PlatformListProps extends ConnectProps {
   platform: PlatformModelState;
@@ -237,6 +238,8 @@ const PlatformList: React.FC<PlatformListProps> = props => {
           img = <img className={style.siteLogo} alt={d.label} src={imgCnblogs}/>;
         } else if (d.name === constants.platform.V2EX) {
           img = <img className={style.siteLogo} alt={d.label} src={imgV2ex}/>;
+        } else if (d.name === constants.platform.WECHAT) {
+          return <img className={style.siteLogo} alt={d.label} src={imgWechat}/>;
         }
         return (
           <a href={d.url} target="_blank">
@@ -287,11 +290,19 @@ const PlatformList: React.FC<PlatformListProps> = props => {
             </Tooltip>
           )
         } else {
-          return (
-            <Tooltip title="请用登陆助手导入Cookie">
-              <Tag color="red">未导入</Tag>
-            </Tooltip>
-          );
+          if (d.name === constants.platform.WECHAT) {
+            return (
+              <Tooltip title="可以发布文章到该平台">
+                <Tag color="green">不需导入</Tag>
+              </Tooltip>
+            )
+          } else {
+            return (
+              <Tooltip title="请用登陆助手导入Cookie">
+                <Tag color="red">未导入</Tag>
+              </Tooltip>
+            );
+          }
         }
       }
     },
