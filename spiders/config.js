@@ -45,7 +45,7 @@ module.exports = {
     },
     editorSel: {
       title: 'input:not([name="name"])',
-      content: '#arthur-editor',
+      content: '#editor',
       publish: 'a[data-action="publicize"]'
     }
   },
@@ -53,7 +53,7 @@ module.exports = {
   csdn: {
     urls: {
       login: '',
-      editor: 'https://mp.csdn.net/postedit'
+      editor: 'https://mp.csdn.net/postedit?not_checkout=1'
     },
     loginSel: {
       username: '',
