@@ -84,7 +84,7 @@ class OschinaSpider extends BaseSpider {
       const el = document.querySelector(editorSel.publish)
       el.click()
     }, this.editorSel)
-    await this.page.waitFor(10000)
+    await this.page.waitFor(20000)
 
     // 后续处理
     await this.afterPublish()
