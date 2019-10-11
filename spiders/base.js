@@ -227,7 +227,11 @@ class BaseSpider {
   async inputContent(article, editorSel) {
     const el = document.querySelector(editorSel.content)
     el.focus()
-    el.select()
+    try {
+      el.select()
+    } catch (e) {
+      // do nothing
+    }
     document.execCommand('delete', false)
     document.execCommand('insertText', false, article.content)
   }
