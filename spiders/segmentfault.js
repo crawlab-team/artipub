@@ -22,6 +22,15 @@ class SegmentfaultSpider extends BaseSpider {
     const tags = this.task.tag.split(',')
     const elTagInput = await this.page.$('#searchTag')
     for (const tag of tags) {
+      // 清除已有内容
+      await this.page.evaluate(() => {
+        const el = document.querySelector('#searchTag')
+        el.select()
+        document.execCommand('delete', false)
+      })
+      await this.page.waitFor(1000)
+
+      // 输入标签
       await elTagInput.type(tag)
       await this.page.waitFor(3000)
       await this.page.evaluate(() => {
