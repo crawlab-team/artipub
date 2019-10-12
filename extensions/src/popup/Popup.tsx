@@ -26,7 +26,7 @@ export default class Popup extends React.Component<AppProps, AppState> {
     this.setState({
       allowedDomains: [],
       configVisible: false,
-      url: 'http://localhost:3000',
+      url: localStorage.getItem('url') || 'http://localhost:3000',
       fetched: false,
       loading: false,
     });
@@ -75,6 +75,7 @@ export default class Popup extends React.Component<AppProps, AppState> {
   }
 
   onUrlChange(ev: any) {
+    localStorage.setItem('url', ev.target.value);
     this.setState({
       url: ev.target.value,
     });

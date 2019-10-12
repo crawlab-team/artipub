@@ -64,8 +64,6 @@ class OschinaSpider extends BaseSpider {
       ]
       const index = categories.indexOf(task.category)
 
-      console.log(index)
-
       const items = document.querySelectorAll('.inline.fields > .field:nth-child(1) > .dropdown .item')
       for (let i = 0; i < items.length; i++) {
         const item = items[i]
