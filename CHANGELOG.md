@@ -2,6 +2,7 @@
 
 #### Features / Enhancement
 - Integrated Wechat platform (very basic, still under development)
+- Tag selector for Juejin.
 
 #### Bug Fixes
 - Fixed failure to publish on Segmentfault issue. [#54](https://github.com/crawlab-team/artipub/issues/54)

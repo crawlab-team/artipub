@@ -45,7 +45,7 @@ module.exports = {
     },
     editorSel: {
       title: 'input:not([name="name"])',
-      content: '#editor',
+      content: '#arthur-editor',
       publish: 'a[data-action="publicize"]'
     }
   },
