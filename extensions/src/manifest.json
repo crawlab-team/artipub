@@ -1,6 +1,6 @@
 {
   "name": "ArtiPub",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "manifest_version": 2,
   "description": "ArtiPub登陆助手，帮助登陆掘金、SegmentFault、CSDN、知乎等技术平台",
   "icons": {

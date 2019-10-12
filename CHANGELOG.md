@@ -1,3 +1,14 @@
+## v0.1.4 (2019-10-12)
+
+#### Features / Enhancement
+- Integrated Wechat platform (very basic, still under development)
+
+#### Bug Fixes
+- Fixed failure to publish on Segmentfault issue. [#54](https://github.com/crawlab-team/artipub/issues/54)
+- Fixed unable to save URL in the Chrome extension. [#38](https://github.com/crawlab-team/artipub/issues/38)
+- Fixed web page style inconsistency when using the Chrome extension. [#37](https://github.com/crawlab-team/artipub/issues/37)
+- Fixed failure to publish on Jianshu issue. [#32](https://github.com/crawlab-team/artipub/issues/32)
+
 ## v0.1.3 (2019-09-25)
 
 #### Features / Enhancement
