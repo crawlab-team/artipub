@@ -81,7 +81,17 @@ services:
 
 然后在命令行中输入如下命令。
 
+
 ```bash
+//添加docker用户组
+sudo groupadd docker
+//将当前用户加入到docker用户组
+sudo gpasswd -a ${USER} docker
+//重启docker服务
+sudo service docker restart
+
+//退出当前用户重登一下
+
 docker-compose up
 ```
 
