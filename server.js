@@ -24,9 +24,19 @@ if (process.env.MONGO_AUTH_DB) config.MONGO_AUTH_DB = process.env.MONGO_AUTH_DB
 // mongodb连接
 mongoose.Promise = global.Promise
 if (config.MONGO_USERNAME) {
-  mongoose.connect(`mongodb://${config.MONGO_USERNAME}:${config.MONGO_PASSWORD}@${config.MONGO_HOST}:${config.MONGO_PORT}/${config.MONGO_DB}?authenticationDatabase=${config.MONGO_AUTH_DB}`, { useNewUrlParser: true })
+  mongoose.connect(`mongodb://${config.MONGO_USERNAME}:${config.MONGO_PASSWORD}@${config.MONGO_HOST}:${config.MONGO_PORT}/${config.MONGO_DB}?authenticationDatabase=${config.MONGO_AUTH_DB}`,  {
+            useNewUrlParser: true,
+            useCreateIndex: true,
+            useUnifiedTopology: true,
+            useFindAndModify: false
+        })
 } else {
-  mongoose.connect(`mongodb://${config.MONGO_HOST}:${config.MONGO_PORT}/${config.MONGO_DB}`, { useNewUrlParser: true })
+  mongoose.connect(`mongodb://${config.MONGO_HOST}:${config.MONGO_PORT}/${config.MONGO_DB}`, {
+            useNewUrlParser: true,
+            useCreateIndex: true,
+            useUnifiedTopology: true,
+            useFindAndModify: false
+        })
 }
 
 // bodyParser中间件
