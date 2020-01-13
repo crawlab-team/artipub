@@ -1,10 +1,10 @@
 module.exports = {
   typecho:{
     urls:{
-      xmlrpc:''
+      xmlrpc:''   //配置typecho的xmlrpc地址
     },
     info:{
-      username: '',
+      username: '', // typecho的后台密码
       password: ''
     }
 
