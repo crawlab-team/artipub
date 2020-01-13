@@ -1,4 +1,14 @@
 module.exports = {
+  typecho:{
+    urls:{
+      xmlrpc:''
+    },
+    info:{
+      username: '',
+      password: ''
+    }
+
+  },
   juejin: {
     urls: {
       login: 'https://juejin.im/login',

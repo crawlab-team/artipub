@@ -19,6 +19,7 @@ import imgToutiao from '@/assets/img/toutiao-logo.png';
 import imgCnblogs from '@/assets/img/cnblogs-logo.gif';
 import imgV2ex from '@/assets/img/v2ex-logo.jpg';
 import imgWechat from '@/assets/img/wechat-logo.jpg';
+import imgTypecho from '@/assets/img/typecho-logo.svg';
 
 export interface PlatformListProps extends ConnectProps {
   platform: PlatformModelState;
@@ -222,6 +223,8 @@ const PlatformList: React.FC<PlatformListProps> = props => {
         let img = <span>Logo</span>;
         if (d.name === constants.platform.JUEJIN) {
           img = <img className={style.siteLogo} src={imgJuejin}/>;
+        } else if (d.name === constants.platform.TYPECHO) {
+          return <img className={style.siteLogo} alt={d.label} src={imgTypecho}/>;
         } else if (d.name === constants.platform.SEGMENTFAULT) {
           img = <img className={style.siteLogo} src={imgSegmentfault}/>;
         } else if (d.name === constants.platform.JIANSHU) {
@@ -290,7 +293,7 @@ const PlatformList: React.FC<PlatformListProps> = props => {
             </Tooltip>
           )
         } else {
-          if (d.name === constants.platform.WECHAT) {
+          if (d.name === constants.platform.WECHAT || d.name === constants.platform.TYPECHO) {
             return (
               <Tooltip title="可以发布文章到该平台">
                 <Tag color="green">不需导入</Tag>

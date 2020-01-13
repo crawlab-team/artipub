@@ -3,6 +3,7 @@ const constants = require('../constants')
 const models = require('../models')
 
 const getCookieStatus = async (platform) => {
+
   const cookies = await models.Cookie.find({ domain: { $regex: platform.name } })
   if (!cookies || !cookies.length) return constants.cookieStatus.NO_COOKIE
   return constants.cookieStatus.EXISTS
