@@ -11,18 +11,6 @@ ArtiPub (Article Publisher的简称，意为"文章发布者")是一款开源的
 
 ArtiPub目前支持文章编辑、文章发布、数据统计的功能，后期我们会加入存量文章导入、数据分析的功能，让您更好的管理、优化您的技术文章。此外，我们还会接入更多媒体渠道，真正做到让文章随处可阅。
 
-# 说明：
-该项目fork于crawlab-team，感谢大佬做出这么好的作品。我再作者的基础上添加了typecho支持。
-- typecho 如果使用了AutoTags插件，则post的mt_keywords为必填字段
-- 果使用了handsome插件，则必须先去插件->搜索设置里构建索引
-
-#### 需要在typecho的设置->基本里打开XMLRPC 接口
-#### 在控制台的个人设置里，确定是否在 XMLRPC 接口中使用 Markdown 语法，选否的话就会解析为富文本
-
-使用前首先在平台设置里设置typecho的后台用户名、密码、xmlrpc链接
-目前只支持markdown，不支持富文本！
-
-
 ## 预览截图
 
 #### 平台管理
@@ -75,7 +63,7 @@ ArtiPub提供3种安装方式如下。
 version: '3.3'
 services:
   app:
-    image: "gogobody/artipush:latest"
+    image: "tikazyq/artipub:latest"
     environment:
       MONGO_HOST: "mongo"
       ARTIPUB_API_ADDRESS: "localhost:3000" # 后端API地址，如果安装地址不在本机，请修改为服务器IP地址+端口号（默认为3000）
