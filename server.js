@@ -89,7 +89,8 @@ app.post('/cookies', routes.cookie.addCookies)
 // Environment
 app.get('/environments', routes.environment.getEnvList)
 app.post('/environments', routes.environment.editEnv)
-
+// typecho category
+app.get('/typecho/categories', routes.typecho.getTypechoCategories)
 // 启动express server
 app.listen(config.PORT, () => {
   logger.info('listening on port ' + config.PORT)

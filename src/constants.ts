@@ -10,6 +10,7 @@ export default {
     CNBLOGS: 'cnblogs',
     V2EX: 'v2ex',
     WECHAT: 'wechat',
+    TYPECHO: 'typecho',
   },
   status: {
     NOT_STARTED: 'not-started',

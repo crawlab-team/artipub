@@ -1,4 +1,14 @@
 module.exports = {
+  typecho:{
+    urls:{
+      xmlrpc:''   //配置typecho的xmlrpc地址
+    },
+    info:{
+      username: '', // typecho的后台密码
+      password: ''
+    }
+
+  },
   juejin: {
     urls: {
       login: 'https://juejin.im/login',

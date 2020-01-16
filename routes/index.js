@@ -4,4 +4,5 @@ module.exports = {
   platform: require('./platform'),
   cookie: require('./cookie'),
   environment: require('./environment'),
+  typecho: require('./typecho')
 }

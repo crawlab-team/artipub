@@ -3,6 +3,7 @@ const constants = require('../constants')
 const models = require('../models')
 
 const getCookieStatus = async (platform) => {
+
   const cookies = await models.Cookie.find({ domain: { $regex: platform.name } })
   if (!cookies || !cookies.length) return constants.cookieStatus.NO_COOKIE
   return constants.cookieStatus.EXISTS
@@ -55,6 +56,9 @@ module.exports = {
       }, 404)
     }
     platform.name = req.body.name
+    if(req.body.name==='typecho'){
+      platform.url = req.body.url
+    }
     platform.label = req.body.label
     platform.editorType = req.body.editorType
     platform.description = req.body.description

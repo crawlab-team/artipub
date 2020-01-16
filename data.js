@@ -3,6 +3,15 @@ module.exports = {
   // 平台
   platforms: [
     {
+      name: constants.platform.TYPECHO,
+      label: 'typecho博客',
+      editorType: constants.editorType.MARKDOWN,
+      // url: '',
+      description: '个人博客',
+      enableImport: false,
+      enableLogin: true,
+    },
+    {
       name: constants.platform.JUEJIN,
       label: '掘金',
       editorType: constants.editorType.MARKDOWN,
@@ -92,6 +101,7 @@ module.exports = {
       enableImport: false,
       enableLogin: false,
     }
+
   ],
 
   // 环境变量

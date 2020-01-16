@@ -11,6 +11,7 @@ import {Platform, PlatformModelState} from '@/models/platform';
 import moment from 'moment';
 import {Task, TaskModelState} from '@/models/task';
 import constants from '@/constants';
+import request from '@/utils/request';
 
 // logo images
 import imgJuejin from '@/assets/img/juejin-logo.svg';
@@ -23,6 +24,7 @@ import imgToutiao from '@/assets/img/toutiao-logo.png';
 import imgCnblogs from '@/assets/img/cnblogs-logo.gif';
 import imgV2ex from '@/assets/img/v2ex-logo.jpg';
 import imgWechat from '@/assets/img/wechat-logo.jpg';
+import imgTypecho from '@/assets/img/typecho-logo.svg'
 import juejin from "@/data/juejin";
 import v2ex from "@/data/v2ex";
 
@@ -32,6 +34,27 @@ export interface ArticleListProps extends ConnectProps {
   platform: PlatformModelState;
   dispatch: Dispatch;
 }
+
+// init typecho categories
+let typechoCategories: any[] = []
+if(typechoCategories.length == 0){
+  request.get("/typecho/categories").then(function (res) {
+    if(res.status==='ok'){
+      let rdata = res.data
+      if(rdata.length>0){
+        rdata.forEach((ele: any)=>{
+          typechoCategories.push(ele)
+        })
+      }
+    }else {
+      alert(res.data)
+    }
+
+  }).then(function (err) {
+    console.log(err)
+  })
+}
+
 
 const ArticleList: React.FC<ArticleListProps> = props => {
   const {dispatch, article, platform, task} = props;
@@ -416,6 +439,8 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       render: (text, d) => {
         if (d.name === constants.platform.JUEJIN) {
           return <img className={style.siteLogo} alt={d.label} src={imgJuejin}/>;
+        }else if (d.name === constants.platform.TYPECHO) {
+          return <img className={style.siteLogo} alt={d.label} src={imgTypecho}/>;
         } else if (d.name === constants.platform.SEGMENTFAULT) {
           return <img className={style.siteLogo} alt={d.label} src={imgSegmentfault}/>;
         } else if (d.name === constants.platform.JIANSHU) {
@@ -623,7 +648,40 @@ const ArticleList: React.FC<ArticleListProps> = props => {
         </Form.Item>
       </Form>
     );
-  } else if (currentPlatform && currentPlatform.name === constants.platform.SEGMENTFAULT) {
+  }else if (currentPlatform && currentPlatform.name === constants.platform.TYPECHO) {
+    let categories: any[] = typechoCategories
+    const tags = juejin.tags.sort((a: string, b: string) => a > b ? 1 : -1)
+    platformContent = (
+      <Form labelCol={{sm: {span: 4}}} wrapperCol={{sm: {span: 20}}}>
+        <Form.Item label="类别" required={true}>
+          <Select
+            placeholder="点击选择类别"
+            value={task.currentTask ? task.currentTask.category : undefined}
+            onChange={onTaskChange('select', 'category')}
+          >
+            {categories.map(category => (
+              <Select.Option key={category.value}>{category.label}</Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+        <Form.Item label="标签" required={true}>
+          <Select
+            placeholder="点击选择标签"
+            value={task.currentTask ? task.currentTask.tag : undefined}
+            onChange={onTaskChange('select', 'tag')}
+            showSearch
+            filterOption={(input: string, option: any) =>
+              option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+            }
+          >
+            {tags.map(tag => (
+              <Select.Option key={tag}>{tag}</Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+      </Form>
+    );
+  }else if (currentPlatform && currentPlatform.name === constants.platform.SEGMENTFAULT) {
     platformContent = (
       <Form labelCol={{sm: {span: 4}}} wrapperCol={{sm: {span: 20}}}>
         <Form.Item label="标签" required={true}>

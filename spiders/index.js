@@ -9,4 +9,5 @@ module.exports = {
   CnblogsSpider: require('./cnblogs'),
   V2exSpider: require('./v2ex'),
   WechatSpider: require('./wechat'),
+  TypechoSpider: require('./typecho')
 }

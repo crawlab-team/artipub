@@ -23,6 +23,7 @@
     "cheerio": "^1.0.0-rc.3",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
+	"typecho-api": "0.0.3",
     "showdown": "^1.9.0"
   }
 }
