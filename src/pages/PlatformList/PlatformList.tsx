@@ -556,6 +556,17 @@ const PlatformList: React.FC<PlatformListProps> = props => {
               onChange={onFieldChange(constants.inputType.INPUT, 'password')}
             />
           </Form.Item>
+          <div style={{display:platform.currentPlatform?.name==='typecho'?'block':'none'}}>
+            <Form.Item label="xmlrpc">
+              <Input
+                value={platform.currentPlatform ? platform.currentPlatform.url : ''}
+                type="text"
+                placeholder="请输入xmlrpc地址"
+                onChange={onFieldChange(constants.inputType.INPUT, 'url')}
+              />
+            </Form.Item>
+          </div>
+
         </Form>
       </Modal>
       {/*<div className={style.actions}>*/}

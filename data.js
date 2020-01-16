@@ -6,7 +6,7 @@ module.exports = {
       name: constants.platform.TYPECHO,
       label: 'typecho博客',
       editorType: constants.editorType.MARKDOWN,
-      url: 'https://blog.gogobody.cn',
+      // url: '',
       description: '个人博客',
       enableImport: false,
       enableLogin: true,

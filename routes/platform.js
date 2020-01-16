@@ -56,6 +56,9 @@ module.exports = {
       }, 404)
     }
     platform.name = req.body.name
+    if(req.body.name==='typecho'){
+      platform.url = req.body.url
+    }
     platform.label = req.body.label
     platform.editorType = req.body.editorType
     platform.description = req.body.description

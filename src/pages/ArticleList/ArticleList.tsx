@@ -39,12 +39,17 @@ export interface ArticleListProps extends ConnectProps {
 let typechoCategories: any[] = []
 if(typechoCategories.length == 0){
   request.get("/typecho/categories").then(function (res) {
-    let rdata = res.data
-    if(rdata.length>0){
-      rdata.forEach((ele: any)=>{
-        typechoCategories.push(ele)
-      })
+    if(res.status==='ok'){
+      let rdata = res.data
+      if(rdata.length>0){
+        rdata.forEach((ele: any)=>{
+          typechoCategories.push(ele)
+        })
+      }
+    }else {
+      alert(res.data)
     }
+
   }).then(function (err) {
     console.log(err)
   })

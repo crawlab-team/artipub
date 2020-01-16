@@ -1,9 +1,30 @@
-const configs = require('../spiders/config')
 const Typechoblog = require('typecho-api')
+const models = require('../models')
+
 
 module.exports = {
   getTypechoCategories: async (req, res) => {
-    const metaWeblog = new Typechoblog(configs.typecho.urls.xmlrpc, configs.typecho.info.username, configs.typecho.info.password);
+    const platform = await models.Platform.findOne({name:'typecho'})
+
+    if(!platform){
+      await res.json({
+        status: 'error',
+        data:"no such platform"
+      })
+    }
+    if(!platform.url||!platform.username||!platform.password){
+      await res.json({
+        status: 'error',
+        data:"请检查type信息是否填写正确"
+      })
+    }
+    const metaWeblog = new Typechoblog(platform.url, platform.username, platform.password);
+    if(!metaWeblog){
+      await res.json({
+        status: 'error',
+        data:"检查xmlrpc的URL是否正确"
+      })
+    }
     let categories = []
     if (categories.length === 0) {
       await metaWeblog.getCategories("1")

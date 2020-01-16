@@ -3,12 +3,22 @@ const constants = require('../constants')
 const configs = require('./config')
 const datas = require('../data')
 const Typechoblog = require('typecho-api')
+const models = require('../models')
 
 // eslint-disable-next-line max-len
-const metaWeblog = new Typechoblog(configs.typecho.urls.xmlrpc, configs.typecho.info.username, configs.typecho.info.password);
+
 
 class TypechoSpider extends BaseSpider {
+
   async login() {
+    const platform = await models.Platform.findOne({name:'typecho'})
+    if(!platform){
+      logger.info('没有这个平台')
+    }
+    if(!platform.url||!platform.username||!platform.password){
+      logger.info('请完善平台信息')
+    }
+    const metaWeblog = new Typechoblog(platform.url, platform.username, platform.password);
     metaWeblog.getUsersBlogs('1').then(function (res) {
       if (res.length > 0) {
         // 查看是否登陆成功
@@ -54,6 +64,9 @@ class TypechoSpider extends BaseSpider {
       categories: [that.task.category],
     }
     let postid, postLink = ""
+    const platform = await models.Platform.findOne({name:'typecho'})
+    const metaWeblog = new Typechoblog(platform.url, platform.username, platform.password);
+
     await metaWeblog.newPost("1", arti, true).then(function (post_id) {
       console.log(post_id)
       postid = post_id
