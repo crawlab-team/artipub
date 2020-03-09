@@ -90,7 +90,7 @@ class BaseSpider {
     this.editorSel = this.config.editorSel
 
     // 隐藏navigator
-    await this.page.evaluate(() => {
+    await this.page.evaluateOnNewDocument(() => {
       Object.defineProperty(navigator, 'webdriver', {
         get: () => false
       })
