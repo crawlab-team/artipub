@@ -6,7 +6,7 @@ then
 	:
 else
 	jspath=`ls /frontend/umi.*.js`
-	sed -i "s?localhost:3000?${ARTIPUB_API_ADDRESS}?g" ${jspath}
+	sed -i "s?http://localhost:3000?${ARTIPUB_API_ADDRESS}?g" ${jspath}
 fi
 
 # start frontend
