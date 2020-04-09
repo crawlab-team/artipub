@@ -66,7 +66,7 @@ services:
     image: "tikazyq/artipub:latest"
     environment:
       MONGO_HOST: "mongo"
-      ARTIPUB_API_ADDRESS: "localhost:3000" # 后端API地址，如果安装地址不在本机，请修改为服务器IP地址+端口号（默认为3000）
+      ARTIPUB_API_ADDRESS: "http://localhost:3000" # 后端API地址，如果安装地址不在本机，请修改为协议+服务器IP地址+端口号（默认为3000）
     ports:
       - "8000:8000" # frontend
       - "3000:3000" # backend
