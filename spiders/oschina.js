@@ -65,13 +65,15 @@ class OschinaSpider extends BaseSpider {
       const index = categories.indexOf(task.category)
 
       const items = document.querySelectorAll('.inline.fields > .field:nth-child(1) > .dropdown .item')
-      for (let i = 0; i < items.length; i++) {
-        const item = items[i]
-        if (index === i) {
-          item.click()
-          return
-        }
-      }
+      // TODO 根据标签动态选择
+      items[0].click()
+      // for (let i = 0; i < items.length; i++) {
+      //   const item = items[i]
+      //   if (index === i) {
+      //     item.click()
+      //     return
+      //   }
+      // }
     }, this.task)
     await this.page.waitFor(3000)
   }

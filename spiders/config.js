@@ -11,7 +11,7 @@ module.exports = {
     },
     editorSel: {
       title: '.title-input',
-      content: '.ace_text-input',
+      content: '.CodeMirror',
       publish: '.publish-btn'
     }
   },
@@ -53,16 +53,16 @@ module.exports = {
   csdn: {
     urls: {
       login: '',
-      editor: 'https://mp.csdn.net/postedit?not_checkout=1'
+      editor: 'https://editor.csdn.net/md/'
     },
     loginSel: {
       username: '',
       password: ''
     },
     editorSel: {
-      title: '#txtTitle',
-      content: '.htmledit_views',
-      publish: '#btnPublish'
+      title: '.article-bar__title--input',
+      content: '.editor__inner',
+      publish: '.btn-b-red'
     }
   },
 
@@ -117,16 +117,16 @@ module.exports = {
   cnblogs: {
     urls: {
       login: '',
-      editor: 'https://i.cnblogs.com/EditArticles.aspx?opt=1'
+      editor: 'https://i.cnblogs.com/articles/edit'
     },
     loginSel: {
       username: '',
       password: ''
     },
     editorSel: {
-      title: '#Editor_Edit_txbTitle',
-      content: '#tinymce',
-      publish: '#Editor_Edit_lkbPost'
+      title: '#post-title',
+      content: '#md-editor',
+      publish: 'button[data-el-locator="publishBtn"]'
     }
   },
 

@@ -192,9 +192,17 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     if (p.name === constants.platform.JUEJIN) {
       return '前端';
     } else if (p.name === constants.platform.CSDN) {
-      return '1'; // 原创
+      return '原创';
     } else {
       return '';
+    }
+  };
+
+  const getDefaultTag = (p: Platform) => {
+    if (p.name === constants.platform.JUEJIN) {
+      return '前端';
+    } else {
+      return '前端';
     }
   };
 
@@ -210,7 +218,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
           platformId: p._id || '',
           articleId: _article._id || '',
           category: getDefaultCategory(p),
-          tag: '',
+          tag: getDefaultTag(p),
           title: article.currentArticle ? article.currentArticle.title : '',
           pubType: 'public',
           checked: selectedPlatforms.map((_p: any) => _p._id).includes(p._id),
@@ -241,6 +249,8 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     nativeEvent: Event,
   ) => {
     if (article.currentArticle) {
+      console.log(selectedPlatforms)
+      console.log(article.currentArticle)
       await saveTasks(selectedPlatforms, article.currentArticle);
 
       TDAPP.onEvent('文章管理-勾选平台');
@@ -398,7 +408,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
             </Tooltip>
             <Popconfirm title="您确认删除该文章吗？" onConfirm={onArticleDelete(d)}>
               <Tooltip title="删除">
-                <Button type="danger" shape="circle" icon="delete" className={style.delBtn}/>
+                <Button type="danger" shape="circle" icon="delete" className={style.delBtn} />
               </Tooltip>
             </Popconfirm>
           </div>
@@ -415,27 +425,27 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       width: '80px',
       render: (text, d) => {
         if (d.name === constants.platform.JUEJIN) {
-          return <img className={style.siteLogo} alt={d.label} src={imgJuejin}/>;
+          return <img className={style.siteLogo} alt={d.label} src={imgJuejin} />;
         } else if (d.name === constants.platform.SEGMENTFAULT) {
-          return <img className={style.siteLogo} alt={d.label} src={imgSegmentfault}/>;
+          return <img className={style.siteLogo} alt={d.label} src={imgSegmentfault} />;
         } else if (d.name === constants.platform.JIANSHU) {
-          return <img className={style.siteLogo} alt={d.label} src={imgJianshu}/>;
+          return <img className={style.siteLogo} alt={d.label} src={imgJianshu} />;
         } else if (d.name === constants.platform.CSDN) {
-          return <img className={style.siteLogo} alt={d.label} src={imgCsdn}/>;
+          return <img className={style.siteLogo} alt={d.label} src={imgCsdn} />;
         } else if (d.name === constants.platform.ZHIHU) {
-          return <img className={style.siteLogo} alt={d.label} src={imgZhihu}/>;
+          return <img className={style.siteLogo} alt={d.label} src={imgZhihu} />;
         } else if (d.name === constants.platform.OSCHINA) {
-          return <img className={style.siteLogo} alt={d.label} src={imgOschina}/>;
+          return <img className={style.siteLogo} alt={d.label} src={imgOschina} />;
         } else if (d.name === constants.platform.TOUTIAO) {
-          return <img className={style.siteLogo} alt={d.label} src={imgToutiao}/>;
+          return <img className={style.siteLogo} alt={d.label} src={imgToutiao} />;
         } else if (d.name === constants.platform.CNBLOGS) {
-          return <img className={style.siteLogo} alt={d.label} src={imgCnblogs}/>;
+          return <img className={style.siteLogo} alt={d.label} src={imgCnblogs} />;
         } else if (d.name === constants.platform.V2EX) {
-          return <img className={style.siteLogo} alt={d.label} src={imgV2ex}/>;
+          return <img className={style.siteLogo} alt={d.label} src={imgV2ex} />;
         } else if (d.name === constants.platform.WECHAT) {
-          return <img className={style.siteLogo} alt={d.label} src={imgWechat}/>;
+          return <img className={style.siteLogo} alt={d.label} src={imgWechat} />;
         } else {
-          return <div/>;
+          return <div />;
         }
       },
     },
@@ -452,7 +462,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       width: '120px',
       render: (text: string, p: Platform) => {
         const t: Task = task.tasks.filter((t: Task) => t.platformId === p._id)[0];
-        if (!t) return <div/>;
+        if (!t) return <div />;
         let el;
         if (t.status === constants.status.NOT_STARTED) {
           el = <Tag color="grey">未发布</Tag>;
@@ -478,7 +488,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       width: '150px',
       render: (text: string, p: Platform) => {
         const t: Task = task.tasks.filter((t: Task) => t.platformId === p._id)[0];
-        if (!t) return <div/>;
+        if (!t) return <div />;
         return (
           <Button.Group>
             <Button
@@ -507,7 +517,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       width: '200px',
       render: (text: string, p: Platform) => {
         const t: Task = task.tasks.filter((t: Task) => t.platformId === p._id)[0];
-        if (!t) return <div/>;
+        if (!t) return <div />;
         return getStatsComponent(t);
       },
     },
@@ -518,7 +528,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       width: '120px',
       render: (text: string, p: Platform) => {
         const t: Task = task.tasks.filter((t: Task) => t.platformId === p._id)[0];
-        if (!t) return <div/>;
+        if (!t) return <div />;
         return (
           <div>
             <Tooltip title="查看文章">
@@ -785,7 +795,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
         </Button>
       </div>
       <Card>
-        <Table dataSource={article.articles} columns={articleColumns}/>
+        <Table dataSource={article.articles} columns={articleColumns} />
       </Card>
     </PageHeaderWrapper>
   );

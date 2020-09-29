@@ -15,7 +15,7 @@ ArtiPub 目前支持文章编辑、文章发布、数据统计的功能，后期
 
 #### 平台管理
 
-![](https://raw.githubusercontent.com/tikazyq/my-static-files/master/artipub/screenshots/artipub-platform.png)
+![](http://cdn.pic.mtianyan.cn/blog_img/20200930050955.png)
 
 #### 文章管理
 
@@ -27,7 +27,7 @@ ArtiPub 目前支持文章编辑、文章发布、数据统计的功能，后期
 
 #### 文章发布
 
-![](https://raw.githubusercontent.com/tikazyq/my-static-files/master/artipub/screenshots/artipub-article-publish.png)
+![](http://cdn.pic.mtianyan.cn/blog_img/20200930051030.png)
 
 #### Chrome 插件
 
