@@ -2,6 +2,14 @@ const BaseSpider = require('./base')
 const constants = require('../constants')
 
 class JuejinSpider extends BaseSpider {
+
+  async inputContent(article, editorSel) {
+    const footerContent = `<br><b>本篇文章由一文多发平台<a href="https://github.com/crawlab-team/artipub" target="_blank">ArtiPub</a>自动发布</b>`
+    const content = article.content + footerContent
+    const el = document.querySelector('.CodeMirror')
+    el.CodeMirror.setValue(content)
+  }
+
     async afterGoToEditor() {
         await this.page.goto(this.urls.editor)
         await this.page.waitFor(5000)
@@ -24,7 +32,10 @@ class JuejinSpider extends BaseSpider {
         await this.page.waitFor(5000)
 
         // 选择标签
+        const elTagButton = await this.page.$('.add-btn-item')
+        await elTagButton.click()
         const elTagInput = await this.page.$('.tag-input > input')
+        console.log(this.task.tag)
         await elTagInput.type(this.task.tag)
         await this.page.waitFor(5000)
         await this.page.evaluate(() => {

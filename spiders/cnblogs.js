@@ -1,30 +1,31 @@
 const BaseSpider = require('./base')
+const constants = require('../constants')
 
 class CnblogsSpider extends BaseSpider {
 
-  async inputContent(article, editorSel) {
-    const footerContent = `<br><b>本篇文章由一文多发平台<a href="https://github.com/crawlab-team/artipub" target="_blank">ArtiPub</a>自动发布</b>`
-    const content = article.contentHtml + footerContent;
-    const iframeWindow = document.querySelector('#Editor_Edit_EditorBody_ifr').contentWindow
-    const el = iframeWindow.document.querySelector(editorSel.content)
-    el.focus()
-    iframeWindow.document.execCommand('delete', false)
-    iframeWindow.document.execCommand('insertHTML', false, content)
-  }
+  // async inputContent(article, editorSel) {
+  //   const footerContent = `<br><b>本篇文章由一文多发平台<a href="https://github.com/crawlab-team/artipub" target="_blank">ArtiPub</a>自动发布</b>`
+  //   const content = article.contentHtml + footerContent;
+  //   const iframeWindow = document.querySelector('#Editor_Edit_EditorBody_ifr').contentWindow
+  //   const el = iframeWindow.document.querySelector(editorSel.content)
+  //   el.focus()
+  //   iframeWindow.document.execCommand('delete', false)
+  //   iframeWindow.document.execCommand('insertHTML', false, content)
+  // }
 
   async inputFooter(article, editorSel) {
     // do nothing
   }
 
   async afterPublish() {
-    const username = await this.page.evaluate(() => {
-      return document.querySelector('#lnkBlogUrl').innerText
+    this.task.url = await this.page.evaluate(() => {
+      return document.querySelector('.link-post-title')
+        .getAttribute('href')
     })
-    const _url = this.page.url()
-    const id = _url.match(/postid=(\d+)/)[1]
-    const url = `https://www.cnblogs.com/${username}/articles/${id}.html`
-    this.task.url = url
+    console.log(this.task.url)
+    if (!this.task.url) return
     this.task.updateTs = new Date()
+    this.task.status = constants.status.FINISHED
     await this.task.save()
   }
 
