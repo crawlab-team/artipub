@@ -161,5 +161,20 @@ module.exports = {
       content: '',
       publish: ''
     }
+  },
+  aliyun: {
+    urls: {
+      login: '',
+      editor: 'https://developer.aliyun.com/article/new'
+    },
+    loginSel: {
+      username: '',
+      password: ''
+    },
+    editorSel: {
+      title: '#title',
+      content: '.textarea',
+      publish: '.next-btn-primary'
+    }
   }
 }
