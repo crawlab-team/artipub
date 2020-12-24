@@ -5,6 +5,9 @@ module.exports = {
     const cookies = req.body
     for (let i = 0; i < cookies.length; i++) {
       const c = cookies[i]
+      if (c.domain == 'aliyun' && c.domain != '.aliyun.com' && c.domain != 'developer.aliyun.com') {
+        continue
+      }
       let cookie = await models.Cookie.findOne({
         domain: c.domain,
         name: c.name

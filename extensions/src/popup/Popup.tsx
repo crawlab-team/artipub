@@ -48,6 +48,12 @@ export default class Popup extends React.Component<AppProps, AppState> {
       cookieStores.forEach(store => {
         chrome.cookies.getAll({storeId: store.id}, cookies => {
           const data = cookies.filter(c => {
+            if (c.domain.match('aliyun')) {
+              if (c.domain == '.aliyun.com' || c.domain == 'developer.aliyun.com') {
+                return true
+              }
+              return false
+            }
             for (let domain of this.state.allowedDomains) {
               if (c.domain.match(domain)) {
                 return true
@@ -84,7 +90,7 @@ export default class Popup extends React.Component<AppProps, AppState> {
   render() {
     let btn = (
       <Button type="primary"
-              onClick={this.onGetLoginInfo.bind(this)}>
+        onClick={this.onGetLoginInfo.bind(this)}>
         一键获取登陆信息
       </Button>
     );
@@ -114,7 +120,7 @@ export default class Popup extends React.Component<AppProps, AppState> {
         <h2>
           ArtiPub登陆助手
           <Button type="primary" shape="circle" icon="tool" className="config-btn"
-                  onClick={this.onConfig.bind(this)}/>
+            onClick={this.onConfig.bind(this)}/>
         </h2>
         {input}
         {btn}
