@@ -41,6 +41,8 @@ const init = async () => {
       // await environmentDb.save()
     }
   }
+  // 删除juejin.im域的cookie
+  await models.Cookie.deleteMany({ domain: { $regex: '.juejin.im' } });
 }
 
 module.exports = init
