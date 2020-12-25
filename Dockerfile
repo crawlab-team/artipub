@@ -6,13 +6,11 @@ RUN npm install
 RUN npm run build
 
 FROM jelastic/nodejs:8.17.0-npm
-
+RUN yum install -y nginx && yum clean all
+COPY --from=frontend /app/dist /frontend
 WORKDIR /app
 ADD . /app
-COPY --from=frontend /app/dist /frontend
-RUN cp ./backend/package.json .
+RUN cp ./backend/package.json . && \
+  cp /app/nginx/artipub.conf /etc/nginx/conf.d
 RUN npm install
-RUN yum install -y nginx && yum clean all
-RUN cp /app/nginx/artipub.conf /etc/nginx/conf.d
-
 CMD /app/docker_init.sh
