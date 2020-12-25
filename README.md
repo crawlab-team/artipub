@@ -180,7 +180,7 @@ npm run start:backend
 
 ## 支持平台
 
-- [x] [掘金](https://juejin.im)
+- [x] [掘金](https://juejin.cn)
 - [x] [SegmentFault](https://segmentfault.com)
 - [x] [CSDN](https://csdn.net)
 - [x] [简书](https://jianshu.com)

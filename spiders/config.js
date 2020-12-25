@@ -1,8 +1,8 @@
 module.exports = {
   juejin: {
     urls: {
-      login: 'https://juejin.im/login',
-      editor: 'https://juejin.im/editor/drafts/new'
+      login: 'https://juejin.cn/login',
+      editor: 'https://juejin.cn/editor/drafts/new'
     },
     loginSel: {
       username: '.input[name="loginPhoneOrEmail"]',

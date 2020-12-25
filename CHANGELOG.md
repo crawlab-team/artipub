@@ -40,7 +40,7 @@
 - Docker Deployment
 - NPM Package
 - Platform Integration
-    - [掘金](https://juejin.im)
+    - [掘金](https://juejin.cn)
     - [SegmentFault](https://segmentfault.com)
     - [CSDN](https://csdn.net)
     - [简书](https://jianshu.com)

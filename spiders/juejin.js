@@ -50,7 +50,7 @@ class JuejinSpider extends BaseSpider {
   async afterPublish() {
     this.task.url = await this.page.evaluate(() => {
       const el = document.querySelector('a.title')
-      return 'https://juejin.im' + el.getAttribute('href')
+      return 'https://juejin.cn' + el.getAttribute('href')
     })
     this.task.updateTs = new Date()
     this.task.status = constants.status.FINISHED
