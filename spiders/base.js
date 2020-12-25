@@ -404,9 +404,17 @@ class BaseSpider {
     this.platform = await models.Platform.findOne({ _id: ObjectId(this.platformId) });
 
     const cookie = await this.getCookiesForAxios();
+    if (!cookie) {
+      this.platform.loggedIn = false;
+      await this.platform.save();
+      return;
+    }
     let url = this.platform.url
     if (this.platform.name === constants.platform.CSDN) {
       url = "https://me.csdn.net/api/user/getUserPrivacy"
+    }
+    if (this.platform.name === constants.platform.ALIYUN) {
+      url = "https://developer.aliyun.com/developer/api/my/user/getUser"
     }
     axios.get(url, {
         headers: {
@@ -433,6 +441,9 @@ class BaseSpider {
         }
         else if (this.platform.name === constants.platform.V2EX) {
           this.platform.loggedIn = text.includes('登出');
+        }
+        else if (this.platform.name === constants.platform.ALIYUN) {
+          this.platform.loggedIn = text.data != null
         }
         else {
           this.platform.loggedIn = !text.includes('登录');

@@ -91,7 +91,16 @@ module.exports = {
       description: '微信公众平台,微信公众平台官方网站,公众号注册,微信公众号注册,微信订阅号注册,微信公众号申请,微信服务号申请,微信订阅号申请,微信企业号申请,微信服务号注册,微信企业号注册,订阅号注册,公众号申请,服务号申请,订阅号申请,企业号申请,服务号注册,企业号注册,微信',
       enableImport: false,
       enableLogin: false,
-    }
+    },
+    {
+      name: constants.platform.ALIYUN,
+      label: '阿里云开发者社区',
+      editorType: constants.editorType.MARKDOWN,
+      url: 'https://developer.aliyun.com/',
+      description: '阿里云开发者社区集合阿里巴巴经济体各个单元技术优势，提供分享、交流、学习、认证、工具、资源、大赛、活动、社群、MVP、创新中心等一站式服务能力，满足开发者全生命周期成长需求。',
+      enableImport: false,
+      enableLogin: false,
+    },
   ],
 
   // 环境变量

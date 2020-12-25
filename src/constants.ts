@@ -10,6 +10,7 @@ export default {
     CNBLOGS: 'cnblogs',
     V2EX: 'v2ex',
     WECHAT: 'wechat',
+    ALIYUN: 'aliyun',
   },
   status: {
     NOT_STARTED: 'not-started',

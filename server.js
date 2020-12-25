@@ -24,7 +24,13 @@ if (config.MONGO_USERNAME) {
 }
 
 // bodyParser中间件
-app.use(bodyParser.json())
+app.use(bodyParser.json({
+  limit: '5mb'
+}))
+app.use(bodyParser.urlencoded({
+  limit: '5mb',
+  extended: true //需明确设置
+}))
 
 // 日志中间件
 app.use(morgan('dev'))
