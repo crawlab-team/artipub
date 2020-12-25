@@ -1,24 +1,37 @@
+const fs = require('fs')
+const path = require('path')
 const constants = require('../constants');
 const BaseSpider = require('./base');
 
 class CsdnSpider extends BaseSpider {
-  // async afterGoToEditor() {
-  //   await this.page.evaluate(() => {
-  //     const el = document.querySelector('#btnStart')
-  //     if (el) el.click()
-  //   })
-  //   await this.page.waitFor(1000)
-  // }
 
-  // async inputContent(article, editorSel) {
-  //   const footerContent = `<br><b>本篇文章由一文多发平台<a href="https://github.com/crawlab-team/artipub" target="_blank">ArtiPub</a>自动发布</b>`
-  //   const content = article.contentHtml + footerContent;
-  //   const iframeWindow = document.querySelector('.cke_wysiwyg_frame').contentWindow
-  //   const el = iframeWindow.document.querySelector(editorSel.content)
-  //   el.focus()
-  //   iframeWindow.document.execCommand('delete', false)
-  //   iframeWindow.document.execCommand('insertHTML', false, content)
-  // }
+
+  async afterGoToEditor() {
+    // 创建tmp临时文件夹
+    const dirPath = path.resolve(path.join(__dirname, '..', 'tmp'))
+    if (!fs.existsSync(dirPath)) {
+      await fs.mkdirSync(dirPath)
+    }
+
+    // 内容
+    const content = this.article.content + `\n\n> 本篇文章由一文多发平台[ArtiPub](https://github.com/crawlab-team/artipub)自动发布`
+
+    // 写入临时markdown文件
+    const mdPath = path.join(dirPath, `${this.article._id.toString()}.md`)
+    await fs.writeFileSync(mdPath, content)
+
+    // 上传markdown文件
+    const handle = await this.page.$('input[accept=".md"]')
+    await handle.uploadFile(mdPath)
+    await this.page.waitFor(5000)
+
+    // 删除临时markdown文件
+    await fs.unlinkSync(mdPath)
+  }
+
+  async inputContent(article, editorSel) {
+    // do nothing
+  }
 
   async inputFooter(article, editorSel) {
     // do nothing
