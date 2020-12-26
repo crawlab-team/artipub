@@ -27,7 +27,7 @@ class JuejinSpider extends BaseSpider {
     // 选择类别
     await this.page.evaluate((task) => {
       document.querySelectorAll('.category-list > .item').forEach(el => {
-        if (el.textContent === task.category) {
+        if (el.textContent.trim() === task.category) {
           el.click()
         }
       })
