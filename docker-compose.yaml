@@ -1,9 +1,11 @@
-version: '3.3'
+version: "3.3"
 services:
   app:
     image: "tikazyq/artipub:latest"
     environment:
       MONGO_HOST: "mongo"
+      # MONGO_USERNAME: root
+      # MONGO_PASSWORD: example
       ARTIPUB_API_ADDRESS: "http://localhost:3000" # 后端API地址，如果安装地址不在本机，请修改为协议+服务器IP地址+端口号（默认为3000）
     ports:
       - "8000:8000" # frontend
@@ -13,5 +15,8 @@ services:
   mongo:
     image: mongo:latest
     restart: always
+    environment:
+      # MONGO_INITDB_ROOT_USERNAME: root
+      # MONGO_INITDB_ROOT_PASSWORD: example
     ports:
       - "27017:27017"
