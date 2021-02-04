@@ -403,6 +403,13 @@ class BaseSpider {
     // platform
     this.platform = await models.Platform.findOne({ _id: ObjectId(this.platformId) });
 
+    //百家号不支持 cookie，页面埋了token，只携带cookie 还是未登陆态，页面请求后会将token失效
+    if (this.platform.name === constants.platform.BAIJIAHAO) {
+      this.platform.loggedIn = false;
+      await this.platform.save();
+      return;
+    }
+
     const cookie = await this.getCookiesForAxios();
     if (!cookie) {
       this.platform.loggedIn = false;

@@ -24,6 +24,7 @@ import imgCnblogs from '@/assets/img/cnblogs-logo.gif';
 import imgV2ex from '@/assets/img/v2ex-logo.jpg';
 import imgWechat from '@/assets/img/wechat-logo.jpg';
 import imgAliyun from '@/assets/img/aliyun-logo.png';
+import baiJiaHao from '@/assets/img/baijiahao-logo.png';
 import juejin from "@/data/juejin";
 import v2ex from "@/data/v2ex";
 
@@ -447,6 +448,8 @@ const ArticleList: React.FC<ArticleListProps> = props => {
           return <img className={style.siteLogo} alt={d.label} src={imgWechat} />;
         } else if (d.name === constants.platform.ALIYUN) {
           return <img className={style.siteLogo} alt={d.label} src={imgAliyun} />;
+        } else if (d.name === constants.platform.BAIJIAHAO) {
+          return <img className={style.siteLogo} alt={d.label} src={baiJiaHao} />;
         } else {
           return <div />;
         }
