@@ -1,6 +1,7 @@
 import React, {useEffect} from 'react';
 import {PageHeaderWrapper} from '@ant-design/pro-layout';
-import {Badge, Button, Card, Form, Input, message, Modal, Popconfirm, Select, Table, Tag, Tooltip} from 'antd';
+import { QuestionCircleOutlined } from '@ant-design/icons';
+import {Badge, Button, Card, Form, Input, message, Modal, Popconfirm, Select, Table, Tag, Tooltip, Popover} from 'antd';
 import {Article, ArticleModelState} from '@/models/article';
 import {ConnectProps, ConnectState, Dispatch} from '@/models/connect';
 import {connect} from 'dva';
@@ -449,7 +450,23 @@ const ArticleList: React.FC<ArticleListProps> = props => {
         } else if (d.name === constants.platform.ALIYUN) {
           return <img className={style.siteLogo} alt={d.label} src={imgAliyun} />;
         } else if (d.name === constants.platform.BAIJIAHAO) {
-          return <img className={style.siteLogo} alt={d.label} src={baiJiaHao} />;
+          return (
+            <div className={style.baijiahaoLogo} >
+              <img className={style.siteLogo} alt={d.label} src={baiJiaHao} />
+              <Popover
+                content={
+                  <div className={style.baijiahaoTip} >
+                    需先实名认证，且文章正文有符合尺寸的图片
+                  </div>
+                }
+                title={null}
+                placement="rightTop"
+                trigger="hover"
+              >
+                <QuestionCircleOutlined />
+              </Popover>
+            </div>
+          );
         } else {
           return <div />;
         }
@@ -559,6 +576,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
                 />
               </Badge>
             </Tooltip>
+           
           </div>
         );
       },
