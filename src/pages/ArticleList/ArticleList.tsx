@@ -456,7 +456,9 @@ const ArticleList: React.FC<ArticleListProps> = props => {
               <Popover
                 content={
                   <div className={style.baijiahaoTip} >
-                    需先实名认证，且文章正文有符合尺寸的图片
+                      只支持登陆验证;  
+                      需先实名认证;  
+                      且文章正文有符合尺寸的图片
                   </div>
                 }
                 title={null}
