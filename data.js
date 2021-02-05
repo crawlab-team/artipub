@@ -101,6 +101,15 @@ module.exports = {
       enableImport: false,
       enableLogin: false,
     },
+    {
+      name: constants.platform.BAIJIAHAO,
+      label: '百家号',
+      editorType: constants.editorType.RICH_TEXT,
+      url: 'https://baijiahao.baidu.com',
+      description: '百家号是由百度专为内容创作者打造，集创作、发布和变现于一体的内容创作平台。',
+      enableImport: false,
+      enableLogin: true,
+    },
   ],
 
   // 环境变量

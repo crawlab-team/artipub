@@ -130,6 +130,24 @@ module.exports = {
     }
   },
 
+  baijiahao: {
+    urls: {
+      login: "https://baijiahao.baidu.com/builder/theme/bjh/login",
+      editor: "https://baijiahao.baidu.com/builder/rc/edit?type=news"
+    },
+    loginSel: {
+      username: "#TANGRAM__PSP_4__userName",
+      password: "#TANGRAM__PSP_4__password",
+      submit: "#TANGRAM__PSP_4__submit"
+    },
+    editorSel: {
+      title: ".input-container .ant-input",
+      content: "ueditor",
+      publish: '.op-publish'
+    }
+
+  },
+
   v2ex: {
     urls: {
       login: '',
