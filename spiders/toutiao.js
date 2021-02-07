@@ -1,4 +1,5 @@
 const BaseSpider = require('./base')
+const logger = require('../logger');
 
 class ToutiaoSpider extends BaseSpider {
   async inputContent(article, editorSel) {
@@ -9,6 +10,21 @@ class ToutiaoSpider extends BaseSpider {
     document.execCommand('insertHTML', false, content)
   }
 
+  async afterGoToEditor() {
+    const modalTip = await this.page.evaluate(() => {
+      let title = document.querySelector('.byte-modal-title')?.innerText;
+      let text = document.querySelector('.byte-modal-content')?.innerText;
+      document.querySelector('.byte-modal-close-icon')?.click();
+      return { title, text };
+    });
+
+    if (modalTip.title) {
+      logger.warn(modalTip.text);
+      await this.page.waitForTimeout(100);
+    }
+
+  }
+
   async inputFooter(article, editorSel) {
     // do nothing
   }
@@ -17,23 +33,39 @@ class ToutiaoSpider extends BaseSpider {
     // 发布文章
     const elPub = await this.page.$(this.editorSel.publish)
     await elPub.click()
-    await this.page.waitFor(10000)
+    await this.page.waitForTimeout(10000)
+
+    const naviUrl = await this.page.url();
+
+    //发布成功跳到列表页
+    if (naviUrl != 'https://mp.toutiao.com/profile_v4/graphic/articles') {
+      throw new Error('头条发布失败，可能因为图片、外链等原因，有头模式启动dubug');
+    }
 
     // 后续处理
     await this.afterPublish()
   }
 
   async afterInputEditor() {
+    //处理图片，要点击下
+    const editLinks = await this.page.$$('.editor-image-menu > .image-menu-event-prevent:nth-child(2) > a');
+    for (let element of editLinks) {
+      await element.click();
+      await this.page.waitForTimeout(2000);
+      await this.page.click('.btns button:nth-child(2)');
+      await this.page.waitForTimeout(2000);
+    };
   }
 
   async afterPublish() {
     const id = await this.page.evaluate(() => {
-      const url = document.querySelector('.master-title > a').getAttribute('href')
+      //选择第一个
+      const url = document.querySelector('.article-card-bone  a.title').getAttribute('href');
       return url.match(/pgc_id=(\d+)$/)[1]
-    })
-    if (!id) return
-    this.task.url = `https://toutiao.com/i${id}`
+    });
+    this.task.url = `https://www.toutiao.com/item/${id}`;
     this.task.updateTs = new Date()
+    this.task.error = null;
     await this.task.save()
   }
 
