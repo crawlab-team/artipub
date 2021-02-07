@@ -176,7 +176,7 @@ class BaseSpider {
    * 设置Cookie
    */
   async setCookies() {
-    const cookies = await models.Cookie.find({ domain: { $regex: this.platform.name } });
+    const cookies = await models.Cookie.find({ domain: this.getCookieDomainCondition() });
     for (let i = 0; i < cookies.length; i++) {
       const c = cookies[i];
       await this.page.setCookie({
@@ -191,13 +191,20 @@ class BaseSpider {
    * 获取可给axios 使用的cookie
    */
   async getCookiesForAxios() {
-    const cookies = await models.Cookie.find({ domain: { $regex: this.platform.name } });
+    const cookies = await models.Cookie.find({ domain: this.getCookieDomainCondition() });
     let cookieStr = '';
     for (let i = 0; i < cookies.length; i++) {
       const c = cookies[i];
       cookieStr += `${c.name}=${c.value};`;
     }
     return cookieStr;
+  }
+
+  /**
+   * 域查询条件
+   */
+  getCookieDomainCondition() {
+    return { $regex: this.platform.name };
   }
 
   /**
@@ -303,7 +310,6 @@ class BaseSpider {
     // 发布文章
     const elPub = await this.page.$(this.editorSel.publish);
     await elPub.click();
-    await this.page.waitFor(10000);
 
     // 后续处理
     await this.afterPublish();

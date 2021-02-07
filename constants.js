@@ -12,6 +12,7 @@ module.exports = {
     WECHAT: 'wechat',
     ALIYUN: 'aliyun',
     BAIJIAHAO: 'baijiahao',
+    DEVTOUTIAO: 'devtoutiao'
   },
   status: {
     NOT_STARTED: 'not-started',
