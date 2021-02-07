@@ -100,17 +100,17 @@ module.exports = {
 
   toutiao: {
     urls: {
-      login: '',
-      editor: 'https://mp.toutiao.com/profile_v3/graphic/publish'
+      login: "",
+      editor: "https://mp.toutiao.com/profile_v4/graphic/publish"
     },
     loginSel: {
       username: '',
       password: ''
     },
     editorSel: {
-      title: '#title',
-      content: '.ql-editor',
-      publish: '#publish'
+      title: ".editor-title textarea",
+      content: ".ProseMirror",
+      publish: ".publish-btn-last"
     }
   },
 

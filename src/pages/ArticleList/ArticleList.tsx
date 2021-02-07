@@ -440,7 +440,25 @@ const ArticleList: React.FC<ArticleListProps> = props => {
         } else if (d.name === constants.platform.OSCHINA) {
           return <img className={style.siteLogo} alt={d.label} src={imgOschina} />;
         } else if (d.name === constants.platform.TOUTIAO) {
-          return <img className={style.siteLogo} alt={d.label} src={imgToutiao} />;
+          return (
+            <div className={style.tipsWrapper} >
+              <img className={style.siteLogo} alt={d.label} src={imgToutiao} />
+              <Popover
+                content={
+                  <div className={style.tips} >
+                      标题字符数区间[5,30];  
+                      正文要有图片;
+                      正文不能包含非图片的外链
+                  </div>
+                }
+                title={null}
+                placement="rightTop"
+                trigger="hover"
+              >
+                <QuestionCircleOutlined />
+              </Popover>
+            </div>
+          );
         } else if (d.name === constants.platform.CNBLOGS) {
           return <img className={style.siteLogo} alt={d.label} src={imgCnblogs} />;
         } else if (d.name === constants.platform.V2EX) {
@@ -451,13 +469,14 @@ const ArticleList: React.FC<ArticleListProps> = props => {
           return <img className={style.siteLogo} alt={d.label} src={imgAliyun} />;
         } else if (d.name === constants.platform.BAIJIAHAO) {
           return (
-            <div className={style.baijiahaoLogo} >
+            <div className={style.tipsWrapper} >
               <img className={style.siteLogo} alt={d.label} src={baiJiaHao} />
               <Popover
                 content={
-                  <div className={style.baijiahaoTip} >
+                  <div className={style.tips} >
                       只支持登陆验证;  
                       需先实名认证;  
+                      每天最多发布5篇;  
                       且文章正文有符合尺寸的图片
                   </div>
                 }

@@ -90,11 +90,16 @@ class BaseImportSpider extends BaseSpider {
       await this.page.goto(this.platform.url, { timeout: 60000 })
     } catch (e) {
       console.error(e)
-      await this.browser.close()
+      const pages = await this.browser.pages();
+      await Promise.all(pages.map(page => page.close()));
+      await this.browser.close();
       return []
     }
     await this.page.waitFor(5000)
     const articles = await this.fetchArticles()
+
+    const pages = await this.browser.pages();
+    await Promise.all(pages.map(page => page.close()));
     await this.browser.close()
     return articles
   }
@@ -114,6 +119,8 @@ class BaseImportSpider extends BaseSpider {
       await this.importArticle(siteArticle)
     }
 
+    const pages = await this.browser.pages();
+    await Promise.all(pages.map(page => page.close()));
     await this.browser.close()
 
     logger.info('imported articles')

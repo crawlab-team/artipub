@@ -90,12 +90,6 @@ class BaseSpider {
     // 编辑器选择器
     this.editorSel = this.config.editorSel;
 
-    // 隐藏navigator
-    await this.page.evaluateOnNewDocument(() => {
-      Object.defineProperty(navigator, 'webdriver', {
-        get: () => false,
-      });
-    });
 
     // 脚注内容
     this.footerContent = {
@@ -393,6 +387,8 @@ class BaseSpider {
     await this.afterFetchStats();
 
     // 关闭浏览器
+    const pages = await this.browser.pages();
+    await Promise.all(pages.map(page => page.close()));
     await this.browser.close();
   }
 
