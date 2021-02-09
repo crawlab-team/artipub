@@ -191,8 +191,8 @@ npm run start:backend
 - [ ] [微博](https://weibo.com)
 - [x] [百度百家号](https://baijiahao.baidu.com)
 - [ ] [51CTO](https://51cto.com)
-- [ ] [开发者头条](https://toutiao.io)
-- [ ] 微信公众号
+- [x] [开发者头条](https://toutiao.io)
+- [x] 微信公众号
 
 ## 贡献代码
 

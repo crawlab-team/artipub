@@ -66,6 +66,22 @@ module.exports = {
     }
   },
 
+  devtoutiao: {
+    urls: {
+      login: '',
+      editor: 'https://toutiao.io/contribute?t=post'
+    },
+    loginSel: {
+      username: '',
+      password: ''
+    },
+    editorSel: {
+      title: '#post_title',
+      content: '.CodeMirror',
+      publish: 'input[type=submit]'
+    }
+  },
+
   zhihu: {
     urls: {
       login: '',
