@@ -190,7 +190,7 @@ npm run start:backend
 - [x] [博客园](https://cnblogs.com)
 - [ ] [微博](https://weibo.com)
 - [x] [百度百家号](https://baijiahao.baidu.com)
-- [ ] [51CTO](https://51cto.com)
+- [x] [51CTO](https://blog.51cto.com)
 - [x] [开发者头条](https://toutiao.io)
 - [x] 微信公众号
 

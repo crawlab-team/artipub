@@ -82,6 +82,22 @@ module.exports = {
     }
   },
 
+  '51cto': {
+    urls: {
+      login: '',
+      editor: 'https://blog.51cto.com/blogger/publish'
+    },
+    loginSel: {
+      username: '',
+      password: ''
+    },
+    editorSel: {
+      title: '#title',
+      content: '.CodeMirror',
+      publish: '#submit'
+    }
+  },
+
   zhihu: {
     urls: {
       login: '',

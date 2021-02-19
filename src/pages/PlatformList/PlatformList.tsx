@@ -22,6 +22,7 @@ import imgWechat from '@/assets/img/wechat-logo.jpg';
 import imgAliyun from '@/assets/img/aliyun-logo.png';
 import baiJiaHao from '@/assets/img/baijiahao-logo.png';
 import devtoutiao from '@/assets/img/devtoutiao-logo.png';
+import imgB51CTO from '@/assets/img/51CTO-logo.jpeg';
 
 export interface PlatformListProps extends ConnectProps {
   platform: PlatformModelState;
@@ -249,7 +250,10 @@ const PlatformList: React.FC<PlatformListProps> = props => {
           return <img className={style.siteLogo} alt={d.label} src={baiJiaHao}/>;
         } else if (d.name === constants.platform.DEVTOUTIAO) {
           return <img className={style.siteLogo} alt={d.label} src={devtoutiao}/>;
+        } else if (d.name === constants.platform.B_51CTO) {
+          return <img className={style.siteLogo} alt={d.label} src={imgB51CTO}/>;
         }
+
 
 
         return (
