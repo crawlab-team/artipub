@@ -12,7 +12,8 @@ export default {
     WECHAT: 'wechat',
     ALIYUN: 'aliyun',
     BAIJIAHAO: 'baijiahao',
-    DEVTOUTIAO: 'devtoutiao'
+    DEVTOUTIAO: 'devtoutiao',
+    B_51CTO: '51cto'
   },
   status: {
     NOT_STARTED: 'not-started',

@@ -27,6 +27,7 @@ import imgWechat from '@/assets/img/wechat-logo.jpg';
 import imgAliyun from '@/assets/img/aliyun-logo.png';
 import baiJiaHao from '@/assets/img/baijiahao-logo.png';
 import devtoutiao from '@/assets/img/devtoutiao-logo.png';
+import imgB51CTO from '@/assets/img/51CTO-logo.jpeg';
 import juejin from "@/data/juejin";
 import v2ex from "@/data/v2ex";
 
@@ -440,6 +441,8 @@ const ArticleList: React.FC<ArticleListProps> = props => {
           return <img className={style.siteLogo} alt={d.label} src={imgZhihu} />;
         } else if (d.name === constants.platform.OSCHINA) {
           return <img className={style.siteLogo} alt={d.label} src={imgOschina} />;
+        } else if (d.name === constants.platform.B_51CTO) {
+          return <img className={style.siteLogo} alt={d.label} src={imgB51CTO} />;
         } else if (d.name === constants.platform.TOUTIAO) {
           return (
             <div className={style.tipsWrapper} >
@@ -738,6 +741,43 @@ const ArticleList: React.FC<ArticleListProps> = props => {
         <Form.Item label="话题">
           <Input
             placeholder="输入话题（用逗号分割）"
+            value={task.currentTask ? task.currentTask.tag : undefined}
+            onChange={onTaskChange('input', 'tag')}
+          />
+        </Form.Item>
+      </Form>
+    );
+  } else if (currentPlatform && currentPlatform.name === constants.platform.B_51CTO) {
+    const artiType = [
+      {value: '1', label: '原创'},
+      {value: '2', label: '转载'},
+      {value: '3', label: '翻译'},
+    ];
+    const cate1 = [
+      {value: '27', label: '系统/运维'},
+      {value: '28', label: '云计算'},
+      {value: '29', label: '大数据'},
+      {value: '30', label: 'Web开发'},
+      {value: '31', label: '编程语言'},
+      {value: '32', label: '软件研发'},
+      {value: '33', label: '考试认证'},
+      {value: '34', label: '数据库'},
+      {value: '35', label: '网络/安全'},
+      {value: '36', label: '人工智能'},
+      {value: '37', label: '移动开发'},
+      {value: '38', label: '游戏开发'},
+      {value: '39', label: '嵌入式'},
+      {value: '40', label: '服务器'},
+      {value: '41', label: '企业信息化'},
+      {value: '42', label: 'Office办公'},
+      {value: '43', label: '其他'},
+    ];
+
+    platformContent = (
+      <Form labelCol={{sm: {span: 4}}} wrapperCol={{sm: {span: 20}}}>
+        <Form.Item label="标签">
+          <Input
+            placeholder="最多设置5个，支持, 分隔"
             value={task.currentTask ? task.currentTask.tag : undefined}
             onChange={onTaskChange('input', 'tag')}
           />

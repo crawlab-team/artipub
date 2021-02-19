@@ -440,7 +440,7 @@ class BaseSpider {
           this.platform.loggedIn = text.includes('成功');
         } else if (this.platform.name === constants.platform.JIANSHU) {
           this.platform.loggedIn = text.includes('current_user');
-        } else if (this.platform.name === constants.platform.CNBLOGS) {
+        } else if ([constants.platform.CNBLOGS, constants.platform.B_51CTO].includes(this.platform.name)) {
           this.platform.loggedIn = text.includes('我的博客');
         } else if (this.platform.name === constants.platform.SEGMENTFAULT) {
           this.platform.loggedIn = text.includes('user_id');

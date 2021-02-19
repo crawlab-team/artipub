@@ -1,4 +1,4 @@
-# ArtiPub
+![ArtiPub 内容创作者的搬运工,一处书写，随处可见](https://s3.ax1x.com/2021/02/19/yfhxKg.png)
 
 ![](https://img.shields.io/github/release/crawlab-team/artipub)
 ![](https://img.shields.io/github/last-commit/crawlab-team/artipub)
@@ -10,6 +10,22 @@
 ArtiPub (Article Publisher 的简称，意为 "文章发布者") 是一款开源的一文多发平台，可以帮助文章作者将编写好的文章自动发布到掘金、SegmentFault、CSDN、知乎、开源中国等技术媒体平台，传播优质知识，获取最大的曝光度。ArtiPub 安装简单，提供了多种安装方式，可以一键安装使用，安装一般只要 5 分钟。
 
 ArtiPub 目前支持文章编辑、文章发布、数据统计的功能，后期我们会加入存量文章导入、数据分析的功能，让您更好的管理、优化您的技术文章。此外，我们还会接入更多媒体渠道，真正做到让文章随处可阅。
+
+## 支持平台
+
+- [x] [掘金](https://juejin.cn)
+- [x] [SegmentFault](https://segmentfault.com)
+- [x] [CSDN](https://csdn.net)
+- [x] [简书](https://jianshu.com)
+- [x] [知乎](https://zhihu.com)
+- [x] [开源中国](https://oschina.net)
+- [x] [今日头条](https://toutiao.com)
+- [x] [博客园](https://cnblogs.com)
+- [ ] [微博](https://weibo.com)
+- [x] [百度百家号](https://baijiahao.baidu.com)
+- [x] [51CTO](https://blog.51cto.com)
+- [x] [开发者头条](https://toutiao.io)
+- [x] 微信公众号
 
 ## 预览截图
 
@@ -178,21 +194,6 @@ npm run start:backend
 
 另外，由于 ArtiPub 是开源的，JS 源码也比较易于理解，可扩展性很强，用户如果有其他平台的接入需求，完全可以更改源码来实现自己的需求，不用等待平台更新。开发组也将持续开发 ArtiPub，将其打造得更实用和易用。
 
-## 支持平台
-
-- [x] [掘金](https://juejin.cn)
-- [x] [SegmentFault](https://segmentfault.com)
-- [x] [CSDN](https://csdn.net)
-- [x] [简书](https://jianshu.com)
-- [x] [知乎](https://zhihu.com)
-- [x] [开源中国](https://oschina.net)
-- [x] [今日头条](https://toutiao.com)
-- [x] [博客园](https://cnblogs.com)
-- [ ] [微博](https://weibo.com)
-- [x] [百度百家号](https://baijiahao.baidu.com)
-- [ ] [51CTO](https://51cto.com)
-- [x] [开发者头条](https://toutiao.io)
-- [x] 微信公众号
 
 ## 贡献代码
 
