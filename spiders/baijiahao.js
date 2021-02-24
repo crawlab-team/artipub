@@ -77,7 +77,7 @@ class BaiJiaHaoSpider extends BaseSpider {
         if (codeClose) {
           const boundingBox = await codeClose.boundingBox();
 
-          //移动鼠标去关闭验证弹框
+          //移动鼠标去关闭验证弹框, 估计关闭事件绑定在伪元素上，用了坐标判断，元素click方法没法触发
           await this.page.mouse.move(boundingBox.x, boundingBox.y, {
             steps: 20
           });

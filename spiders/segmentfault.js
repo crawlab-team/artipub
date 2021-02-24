@@ -3,10 +3,21 @@ const constants = require('../constants')
 
 class SegmentfaultSpider extends BaseSpider {
   async inputContent(article, editorSel) {
-    const footerContent = `<br><b>本篇文章由一文多发平台<a href="https://github.com/crawlab-team/artipub" target="_blank">ArtiPub</a>自动发布</b>`
-    const content = article.content + footerContent
-    const el = document.querySelector('.CodeMirror')
-    el.CodeMirror.setValue(content)
+    //关掉提示 “你的专栏文章正在审核中，请耐心等待"
+    let warnWindow = document.querySelector(".btn-secondary");
+    if(warnWindow) {
+       warnWindow.click();
+    }
+    // const footerContent = `<br><b>本篇文章由一文多发平台<a href="https://github.com/crawlab-team/artipub" target="_blank">ArtiPub</a>自动发布</b>`;
+    const footerContent = "";
+    const content = article.content + footerContent;
+    console.log(content);
+    const el = document.querySelector(editorSel.content);
+    el.CodeMirror.setValue(content);
+    //输入tab,触发markdown 更新
+    el.CodeMirror.execCommand("goDocEnd");
+    el.CodeMirror.execCommand("insertTab");
+
   }
 
   async inputFooter(article, editorSel) {
@@ -15,70 +26,83 @@ class SegmentfaultSpider extends BaseSpider {
 
   async afterInputEditor() {
     // 点击添加标签
-    await this.page.click('#add-tag-btn')
-    await this.page.waitFor(3000)
+    await this.page.click(".tag-wrap");
+    await this.page.waitFor(3000);
 
     // 输入并选择标签
-    const tags = this.task.tag.split(',')
-    const elTagInput = await this.page.$('#searchTag')
+    const tags = this.task.tag.split(",");
+    const elTagInput = await this.page.$("#searchTag");
     for (const tag of tags) {
       // 清除已有内容
       await this.page.evaluate(() => {
-        const el = document.querySelector('#searchTag')
-        el.select()
-        document.execCommand('delete', false)
-      })
-      await this.page.waitFor(1000)
+        const el = document.querySelector("#searchTag");
+        el.select();
+        document.execCommand("delete", false);
+      });
+      await this.page.waitFor(1000);
 
       // 输入标签
-      await elTagInput.type(tag)
-      await this.page.waitFor(3000)
+      await elTagInput.type(tag);
+      await this.page.waitFor(3000);
       await this.page.evaluate(() => {
-        const el = document.querySelector('#tagSearchResult > a:nth-child(1)')
+        const el = document.querySelector("#tagSearchResult > a:nth-child(1)");
         if (el) {
-          el.click()
+          el.click();
         }
-      })
-      await this.page.waitFor(3000)
+      });
+      await this.page.waitFor(3000);
     }
 
-    // 点击发布文章
-    await this.page.click('#submitDiv > button')
-    await this.page.waitFor(1000)
+
+  }
+
+  async publish() {
+    // 发布文章
+    //触发"发布文章"按钮的下拉列表
+    await this.page.click(".show ,.dropdown");
+    await this.page.waitFor(1000);
+    // 点击"确认发布"
+    await this.page.click("#sureSubmitBtn");
+    await this.page.waitFor(10000);
+
+    // 后续处理
+    await this.afterPublish();
   }
 
   async afterPublish() {
-    this.task.url = this.page.url()
-    this.task.updateTs = new Date()
-    this.task.status = constants.status.FINISHED
-    if (this.task.url.includes('https://segmentfault.com/a/')) {
-      await this.task.save()
+    this.task.url = this.page.url();
+    this.task.updateTs = new Date();
+    this.task.status = constants.status.FINISHED;
+    if (this.task.url.includes("https://segmentfault.com/a/")) {
+      await this.task.save();
     }
   }
 
   async fetchStats() {
-    if (!this.task.url) return
-    await this.page.goto(this.task.url, { timeout: 60000 })
-    await this.page.waitFor(5000)
+    if (!this.task.url) return;
+    await this.page.goto(this.task.url, { timeout: 60000 });
+    await this.page.waitFor(5000);
 
     const stats = await this.page.evaluate(() => {
-      const text = document.querySelector('body').innerText
-      const mRead = text.match(/(\d+) 次阅读/)
-      const mComment = text.match(/(\d+) 条评论/)
-      const readNum = mRead ? Number(mRead[1]) : 0
-      const likeNum = Number(document.querySelector('#side-widget-votes-num').innerText)
-      const commentNum = mComment ? Number(mComment[1]) : 0
+      const text = document.querySelector("body").innerText;
+      const mRead = text.match(/(\d+) 次阅读/);
+      const mComment = text.match(/(\d+) 条评论/);
+      const readNum = mRead ? Number(mRead[1]) : 0;
+      const likeNum = Number(
+        document.querySelector("#side-widget-votes-num").innerText
+      );
+      const commentNum = mComment ? Number(mComment[1]) : 0;
       return {
         readNum,
         likeNum,
         commentNum
-      }
-    })
-    this.task.readNum = stats.readNum
-    this.task.likeNum = stats.likeNum
-    this.task.commentNum = stats.commentNum
-    await this.task.save()
-    await this.page.waitFor(3000)
+      };
+    });
+    this.task.readNum = stats.readNum;
+    this.task.likeNum = stats.likeNum;
+    this.task.commentNum = stats.commentNum;
+    await this.task.save();
+    await this.page.waitFor(3000);
   }
 }
 

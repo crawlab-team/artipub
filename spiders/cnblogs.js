@@ -13,8 +13,25 @@ class CnblogsSpider extends BaseSpider {
   //   iframeWindow.document.execCommand('insertHTML', false, content)
   // }
 
-  async inputFooter(article, editorSel) {
-    // do nothing
+  async afterGoToEditor() {
+    const isMarkdownEditor = await this.page.evaluate(() => {
+      return document.querySelector('#editor-switcher').innerText.includes('markdown');
+    });
+
+    //切换到markdown编辑器
+    if (!isMarkdownEditor) {
+      await this.page.click('#editor-switcher');
+      await this.page.click('#dropdown-menu > button:nth-child(2)');
+    }
+
+    //推荐到首页候选区,需要满足字数
+    // await this.page.click('#site-publish-candidate');
+
+  }
+
+  async afterInputEditor() {
+    //点击预览，触发编辑器事件，不然保存时取不到文本域的值
+    await this.page.click('.tab-bar li:nth-child(2)');
   }
 
   async afterPublish() {

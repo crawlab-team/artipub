@@ -59,7 +59,7 @@ ArtiPub 目前支持文章编辑、文章发布、数据统计的功能，后期
 #### NPM 或源码安装
 
 - MongoDB: 3.6+
-- NodeJS: 8.12+
+- NodeJS: 10+
 
 ## 安装方式
 
@@ -71,18 +71,22 @@ ArtiPub 提供 3 种安装方式如下。
 
 ### 通过 Docker 安装
 
-通过 Docker，可以免去安装 MongoDB 的步骤，也是我们最推荐的安装方式。使用 Docker 安装 ArtiPub 前，请确保您安装了 Docker 以及 Docker Compose。
+通过 Docker，可以免去安装 MongoDB 的步骤，也是我们最推荐的安装方式。使用 Docker 安装 ArtiPub 前，请确保您安装了 Docker 以及 Docker Compose。docker运行 ArtiPub 有两种方式。
 
-在您的项目目录下创建 `docker-compose.yaml` 文件，输入如下内容。
+- 通过 docker-compose.yaml 启动
+  
+适用于你本地之前没有运行 `mongodb` 容器。 在您的项目目录下创建 `docker-compose.yaml` 文件，输入如下内容。
 
 ```yaml
-version: '3.3'
+version: "3.3"
 services:
   app:
-    image: "tikazyq/artipub:latest"
+    image: "tanliyuan123/artipub:1.0"
     environment:
       MONGO_HOST: "mongo"
-      ARTIPUB_API_ADDRESS: "http://localhost:3000" # 后端 API 地址，如果安装地址不在本机，请修改为协议 + 服务器 IP 地址 + 端口号（默认为 3000）
+      # MONGO_USERNAME: root
+      # MONGO_PASSWORD: example
+      ARTIPUB_API_ADDRESS: "http://localhost:3000" # 后端API地址，如果安装地址不在本机，请修改为协议+服务器IP地址+端口号（默认为3000）
     ports:
       - "8000:8000" # frontend
       - "3000:3000" # backend
@@ -91,11 +95,13 @@ services:
   mongo:
     image: mongo:latest
     restart: always
+    #volumes:
+    #  - "E:\\mongodb:/data/db"
     ports:
       - "27017:27017"
 ```
 
-然后在命令行中输入如下命令。
+然后在命令行中输入如下命令。如果你想再次启动容器时上次内容不会被销毁，去掉 `volumes` 两行的注释，改成自己本地路径即可。
 
 ```bash
 docker-compose up
@@ -104,6 +110,14 @@ docker-compose up
 然后在浏览器中输入 `http://localhost:8000` 可以看到界面。
 
 注意⚠️，如果您的 Docker 宿主机不是本机，例如您用了 Docker Machine 或者 Docker 服务在其他机器上，您需要将环境变量 `ARTIPUB_API_ADDRESS` 改为宿主机 IP + 端口号（默认 3000）。然后，在浏览器输入 `http://< 宿主机 IP>:8000` 即可看到界面。
+
+  - 独立启动 artipub 镜像
+  
+  如果你本地已有启动的mongodb容器，不想用上面方式再起一个。其中 `goofy_ganguly` 为本地已启动的 mongodb 容器名, 替换成你本地的即可。
+
+  ```bash
+  docker run --rm -it --link goofy_ganguly  -p 3000:3000/tcp  -p 8000:8000/tcp  tanliyuan123/artipub:1.0
+  ```
 
 ### 通过 npm 包安装
 

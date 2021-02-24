@@ -13,16 +13,14 @@ class JuejinSpider extends BaseSpider {
   async inputFooter(article, editorSel) {
     // do nothing
   }
-  async afterGoToEditor() {
-    await this.page.goto(this.urls.editor)
-    await this.page.waitFor(5000)
-  }
+
 
   async afterInputEditor() {
     // 点击发布文章
-    const elPubBtn = await this.page.$('.publish-popup')
-    await elPubBtn.click()
-    await this.page.waitFor(5000)
+    await this.page.click('.publish-popup');
+    await this.page.waitForSelector('.publish-popup .panel', {
+      visible: true
+    });
 
     // 选择类别
     await this.page.evaluate((task) => {
@@ -32,7 +30,6 @@ class JuejinSpider extends BaseSpider {
         }
       })
     }, this.task)
-    await this.page.waitFor(5000)
 
     // 选择标签
     const elTagButton = await this.page.$('.add-btn-item')
@@ -40,11 +37,12 @@ class JuejinSpider extends BaseSpider {
     const elTagInput = await this.page.$('.tag-input > input')
     console.log(this.task.tag)
     await elTagInput.type(this.task.tag)
-    await this.page.waitFor(5000)
+    await this.page.waitForSelector('.suggested-tag-list > .tag:nth-child(1)');
     await this.page.evaluate(() => {
       document.querySelector('.suggested-tag-list > .tag:nth-child(1)').click()
     })
-    await this.page.waitFor(5000)
+    //要等会才能点按钮, 选择完标签后，发布按钮会变成disabled,然后又马上变回可以点击
+    await this.page.waitFor(1000)
   }
 
   async afterPublish() {
@@ -53,6 +51,7 @@ class JuejinSpider extends BaseSpider {
       return 'https://juejin.cn' + el.getAttribute('href')
     })
     this.task.updateTs = new Date()
+    this.task.error = null;
     this.task.status = constants.status.FINISHED
     await this.task.save()
   }
