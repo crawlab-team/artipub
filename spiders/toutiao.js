@@ -26,6 +26,10 @@ class ToutiaoSpider extends BaseSpider {
       await this.page.waitForTimeout(100);
     }
 
+    await this.page.waitForSelector(this.editorSel.content, {
+      visible: true
+    });
+
   }
 
   async inputFooter(article, editorSel) {
@@ -50,13 +54,21 @@ class ToutiaoSpider extends BaseSpider {
   }
 
   async afterInputEditor() {
+    //部分分辨率会展开右侧发文助手，影响点击
+    await this.page.evaluate(() => {
+      document.querySelector('.byte-drawer-close-icon')?.click();
+    });
+    await this.page.waitForTimeout(1000);
+
     //处理图片，要点击下
     const editLinks = await this.page.$$('.editor-image-menu > .image-menu-event-prevent:nth-child(2) > a');
+
     for (let element of editLinks) {
       await element.click();
-      await this.page.waitForTimeout(2000);
+
+      await this.page.waitForTimeout(1000);
       await this.page.click('.btns button:nth-child(2)');
-      await this.page.waitForTimeout(2000);
+      await this.page.waitForTimeout(1000);
     };
   }
 

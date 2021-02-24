@@ -27,6 +27,7 @@ class OschinaSpider extends BaseSpider {
     //切换到HTML编辑器
     await this.page.click('#editorTabList a');
     await this.page.waitForSelector('.cke_wysiwyg_frame');
+    await this.page.waitForTimeout(500);
   }
 
   async inputContent(article, editorSel) {
