@@ -10,10 +10,11 @@ module.exports = {
       submit: '.btn:nth-child(3)'
     },
     editorSel: {
-      title: '.title-input',
-      content: '.CodeMirror',
-      publish: '.publish-btn'
-    }
+      title: ".title-input",
+      content: ".CodeMirror",
+      publish: ".publish-btn"
+    },
+    publishNavigationChange: true
   },
 
   segmentfault: {
@@ -27,10 +28,11 @@ module.exports = {
       submit: 'button[type="submit"]'
     },
     editorSel: {
-      title: '#title',
-      content: '.CodeMirror',
-      publish: '#sureSubmitBtn'
-    }
+      title: "input[name=title]",
+      content: ".CodeMirror",
+      publish: "#sureSubmitBtn"
+    },
+    publishNavigationChange: true
   },
 
   jianshu: {
@@ -47,7 +49,8 @@ module.exports = {
       title: 'input:not([name="name"])',
       content: '#arthur-editor',
       publish: 'a[data-action="publicize"]'
-    }
+    },
+    publishNavigationChange: false
   },
 
   csdn: {
@@ -60,10 +63,11 @@ module.exports = {
       password: ''
     },
     editorSel: {
-      title: '.article-bar__title--input',
-      content: '.editor__inner',
-      publish: '.btn-b-red'
-    }
+      title: ".article-bar__title--input",
+      content: ".editor__inner",
+      publish: ".btn-b-red"
+    },
+    publishNavigationChange: false
   },
 
   devtoutiao: {
@@ -79,7 +83,8 @@ module.exports = {
       title: '#post_title',
       content: '.CodeMirror',
       publish: 'input[type=submit]'
-    }
+    },
+    publishNavigationChange: true
   },
 
   '51cto': {
@@ -95,7 +100,8 @@ module.exports = {
       title: '#title',
       content: '.CodeMirror',
       publish: '#submit'
-    }
+    },
+    publishNavigationChange: true
   },
 
   zhihu: {
@@ -108,10 +114,11 @@ module.exports = {
       password: ''
     },
     editorSel: {
-      title: '.WriteIndex-titleInput > .Input',
-      content: '.public-DraftEditor-content',
-      publish: '.PublishPanel-stepTwoButton'
-    }
+      title: ".WriteIndex-titleInput > .Input",
+      content: ".public-DraftEditor-content",
+      publish: ".PublishPanel-stepTwoButton"
+    },
+    publishNavigationChange: true
   },
 
   oschina: {
@@ -125,9 +132,10 @@ module.exports = {
     },
     editorSel: {
       title: 'input[name="title"]',
-      content: '.cke_editable',
-      publish: '.submit'
-    }
+      content: ".cke_editable",
+      publish: ".submit"
+    },
+    publishNavigationChange: true
   },
 
   toutiao: {
@@ -143,7 +151,8 @@ module.exports = {
       title: ".editor-title textarea",
       content: ".ProseMirror",
       publish: ".publish-btn-last"
-    }
+    },
+    publishNavigationChange: true
   },
 
   cnblogs: {
@@ -156,10 +165,11 @@ module.exports = {
       password: ''
     },
     editorSel: {
-      title: '#post-title',
-      content: '#md-editor',
-      publish: 'button[data-el-locator="publishBtn"]'
-    }
+      title: "#post-title",
+      content: "#md-editor",
+      publish: 'button[cnbellocator="publishBtn"]'
+    },
+    publishNavigationChange: true
   },
 
   baijiahao: {
@@ -176,8 +186,8 @@ module.exports = {
       title: ".input-container .ant-input",
       content: "ueditor",
       publish: '.op-publish'
-    }
-
+    },
+    publishNavigationChange: true
   },
 
   v2ex: {
@@ -190,10 +200,11 @@ module.exports = {
       password: ''
     },
     editorSel: {
-      title: '#topic_title',
-      content: '#editor',
-      publish: '.super.normal.button'
-    }
+      title: "#topic_title",
+      content: "#editor",
+      publish: ".super.normal.button"
+    },
+    publishNavigationChange: true
   },
 
   wechat: {
@@ -207,10 +218,11 @@ module.exports = {
       password: ''
     },
     editorSel: {
-      title: '',
-      content: '',
-      publish: ''
-    }
+      title: "",
+      content: "",
+      publish: ""
+    },
+    publishNavigationChange: true
   },
   aliyun: {
     urls: {
@@ -222,9 +234,10 @@ module.exports = {
       password: ''
     },
     editorSel: {
-      title: '#title',
-      content: '.textarea',
-      publish: '.next-btn-primary'
-    }
+      title: "#title",
+      content: ".textarea",
+      publish: ".next-btn-primary"
+    },
+    publishNavigationChange: true
   }
 }

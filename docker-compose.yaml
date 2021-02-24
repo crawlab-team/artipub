@@ -1,7 +1,7 @@
 version: "3.3"
 services:
   app:
-    image: "tikazyq/artipub:latest"
+    image: "artipub:1.0"
     environment:
       MONGO_HOST: "mongo"
       # MONGO_USERNAME: root
@@ -15,8 +15,7 @@ services:
   mongo:
     image: mongo:latest
     restart: always
-    environment:
-      # MONGO_INITDB_ROOT_USERNAME: root
-      # MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - "E:\\mongodb:/data/db"
     ports:
       - "27017:27017"

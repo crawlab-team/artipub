@@ -19,8 +19,14 @@ class OschinaSpider extends BaseSpider {
 
     if (!url) throw new Error('editor url cannot be empty')
 
-    await this.page.goto(url)
-    await this.page.waitFor(5000)
+    await Promise.all([
+      this.page.goto(url),
+      this.page.waitForNavigation()
+    ]);
+
+    //切换到HTML编辑器
+    await this.page.click('#editorTabList a');
+    await this.page.waitForSelector('.cke_wysiwyg_frame');
   }
 
   async inputContent(article, editorSel) {

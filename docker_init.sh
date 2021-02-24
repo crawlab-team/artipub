@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # replace original url to new one
 if [ "${ARTIPUB_API_ADDRESS}" = "" ];

@@ -11,6 +11,9 @@ class ToutiaoSpider extends BaseSpider {
   }
 
   async afterGoToEditor() {
+    await this.page.waitForSelector(this.editorSel.title);
+
+    //关闭模态提醒框
     const modalTip = await this.page.evaluate(() => {
       let title = document.querySelector('.byte-modal-title')?.innerText;
       let text = document.querySelector('.byte-modal-content')?.innerText;

@@ -12,7 +12,7 @@ class DevTouTiaoSpider extends BaseSpider {
   }
 
   async afterInputEditor() {
-   
+
   }
 
   async inputFooter(article, editorSel) {
@@ -26,7 +26,11 @@ class DevTouTiaoSpider extends BaseSpider {
   async afterPublish() {
     await this.page.waitForSelector('.user-nav-tabs');
 
-    await this.page.click('.user-nav-tabs li:nth-child(2) a');
+    await Promise.all([
+      this.page.click('.user-nav-tabs li:nth-child(2) a'),
+      this.page.waitForNavigation()
+    ]);
+
     const articleLink = await this.page.$('.posts .post:nth-child(1) .title a');
     const url = await (await articleLink.getProperty('href')).jsonValue();
 

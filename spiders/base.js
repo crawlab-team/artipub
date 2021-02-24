@@ -59,10 +59,9 @@ class BaseSpider {
       // 打开开发者工具, 当此值为true时, headless总为false
       devtools: false,
       // 关闭headless模式, 不会打开浏览器
-      headless: enableChromeDebug !== 'Y',
-      args: [
-        '--no-sandbox',
-      ],
+      headless: enableChromeDebug !== "Y",
+      args: ["--no-sandbox", '--start-maximized'],
+      defaultViewport: null
     });
 
     // 页面
@@ -76,20 +75,12 @@ class BaseSpider {
     };
 
     // 配置
-    this.config = config[this.platform.name];
-    if (!config) {
+    const platformConfig = config[this.platform.name];
+    if (!platformConfig) {
       throw new Error(`config (platform: ${this.platform.name}) cannot be found`);
     }
 
-    // URL信息
-    this.urls = this.config.urls;
-
-    // 登陆选择器
-    this.loginSel = this.config.loginSel;
-
-    // 编辑器选择器
-    this.editorSel = this.config.editorSel;
-
+    Object.assign(this, platformConfig);
 
     // 脚注内容
     this.footerContent = {
@@ -212,8 +203,13 @@ class BaseSpider {
    */
   async goToEditor() {
     logger.info(`navigating to ${this.urls.editor}`);
-    await this.page.goto(this.urls.editor);
-    await this.page.waitFor(5000);
+    await Promise.all([
+      this.page.goto(this.urls.editor),
+      this.page.waitForNavigation({
+        waitUntil: ['load', 'domcontentloaded', 'networkidle2']
+      })
+    ]);
+
     await this.afterGoToEditor();
   }
 
@@ -243,7 +239,7 @@ class BaseSpider {
     const el = document.querySelector(editorSel.content);
     el.focus();
     try {
-      HTMLPreElement.prototype.select = function() {
+      HTMLPreElement.prototype.select = function () {
         let range = document.createRange();
         range.selectNodeContents(this);
 
@@ -277,7 +273,6 @@ class BaseSpider {
     logger.info(`input editor title`);
     // 输入标题
     await this.page.evaluate(this.inputTitle, this.article, this.editorSel, this.task);
-    await this.page.waitFor(3000);
 
     // 输入内容
     logger.info(`input editor  content`);
@@ -287,8 +282,6 @@ class BaseSpider {
     // 输入脚注
     await this.page.evaluate(this.inputFooter, this.article, this.editorSel);
     await this.page.waitFor(3000);
-
-    await this.page.waitFor(10000);
 
     // 后续处理
     await this.afterInputEditor();
@@ -309,7 +302,14 @@ class BaseSpider {
     logger.info(`publishing article`);
     // 发布文章
     const elPub = await this.page.$(this.editorSel.publish);
-    await elPub.click();
+
+    //发布后地址会变更用waitForNavigation，不会变更用固定时间，尽量减少等待时间
+    await Promise.all([
+      this.page.$eval(this.editorSel.publish, submit => submit.click()),
+      this.publishNavigationChange
+        ? this.page.waitForNavigation()
+        : this.page.waitForTimeout(1500)
+    ]);
 
     // 后续处理
     await this.afterPublish();
@@ -434,7 +434,7 @@ class BaseSpider {
         console.log(url);
         let text = res.data;
         if (this.platform.name === constants.platform.TOUTIAO) {
-          this.platform.loggedIn = text.includes('userName');
+          this.platform.loggedIn = !text.includes('login-button');
         } else if (this.platform.name === constants.platform.CSDN) {
           text = text.message
           this.platform.loggedIn = text.includes('成功');
@@ -459,6 +459,10 @@ class BaseSpider {
         }
         console.log(this.platform.loggedIn);
         await this.platform.save();
+      })
+      .catch(error => {
+        console.error(`${url} 登录态校验异常`);
+        console.error(error);
       });
 
   }

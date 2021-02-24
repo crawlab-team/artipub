@@ -450,7 +450,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
               <Popover
                 content={
                   <div className={style.tips} >
-                      标题字符数区间[5,30];  
+                      标题字符数区间[5,30];
                       正文要有图片;
                       正文不能包含非图片的外链
                   </div>
@@ -480,9 +480,9 @@ const ArticleList: React.FC<ArticleListProps> = props => {
               <Popover
                 content={
                   <div className={style.tips} >
-                      只支持登陆验证;  
-                      需先实名认证;  
-                      每天最多发布5篇;  
+                      只支持登陆验证;
+                      需先实名认证;
+                      每天最多发布5篇;
                       且文章正文有符合尺寸的图片
                   </div>
                 }
@@ -603,7 +603,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
                 />
               </Badge>
             </Tooltip>
-           
+
           </div>
         );
       },
@@ -883,7 +883,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
         </Button>
       </div>
       <Card>
-        <Table dataSource={article.articles} columns={articleColumns} />
+        <Table dataSource={article.articles} columns={articleColumns} rowKey={record => record._id}/>
       </Card>
     </PageHeaderWrapper>
   );
