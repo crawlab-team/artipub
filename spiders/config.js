@@ -158,7 +158,7 @@ module.exports = {
   cnblogs: {
     urls: {
       login: '',
-      editor: 'https://i.cnblogs.com/articles/edit'
+      editor: 'https://i.cnblogs.com/posts/edit'
     },
     loginSel: {
       username: '',
