@@ -39,7 +39,7 @@ program
     process.env.MONGO_PASSWORD = password
 
     // 开启后段服务
-    require('./server')
+    require('./backend/server')
   })
 
 program.parse(process.argv)
