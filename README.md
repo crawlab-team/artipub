@@ -27,6 +27,11 @@ ArtiPub 目前支持文章编辑、文章发布、数据统计的功能，后期
 - [x] [开发者头条](https://toutiao.io)
 - [x] 微信公众号
 
+### git clone 备用地址
+如若github clone网络过慢，可使用如下同步更新的国内仓库。
+- https://gitee.com/tanliyuan/artipub.git
+- https://e.coding.net/tanliyuan/artipub/Artipub.git
+  
 ## 预览截图
 
 #### 平台管理
@@ -81,7 +86,7 @@ ArtiPub 提供 3 种安装方式如下。
 version: "3.3"
 services:
   app:
-    image: "tanliyuan123/artipub:1.0"
+    image: "tanliyuan123/artipub:1.1.0"
     environment:
       MONGO_HOST: "mongo"
       # MONGO_USERNAME: root
