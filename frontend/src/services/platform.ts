@@ -1,4 +1,4 @@
-import request from 'frontend/src/utils/request';
+import request from "@/utils/request";
 
 export async function queryPlatformList(): Promise<any> {
   return request.get(`/platforms`);

@@ -1,8 +1,8 @@
 import { Effect } from 'dva';
-import { addTask, addTasks, queryTaskList, saveTask } from 'frontend/src/services/task';
+import { addTask, addTasks, queryTaskList, saveTask } from "@/services/task";
 import { Reducer } from 'redux';
-import {Platform} from "frontend/src/models/platform";
-import {ConnectState} from "frontend/src/models/connect";
+import { Platform } from "@/models/platform";
+import { ConnectState } from "@/models/connect";
 
 export interface Task {
   _id?: string;

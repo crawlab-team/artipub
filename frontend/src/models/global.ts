@@ -2,8 +2,8 @@ import { Reducer } from 'redux';
 import { Subscription } from 'dva';
 
 import { Effect } from './connect';
-import { NoticeIconData } from 'frontend/src/components/NoticeIcon';
-import { queryNotices } from 'frontend/src/services/user';
+import { NoticeIconData } from "@/components/NoticeIcon";
+import { queryNotices } from "@/services/user";
 
 export interface NoticeItem extends NoticeIconData {
   id: string;

@@ -1,7 +1,7 @@
 import { Icon, Tooltip } from 'antd';
 import React from 'react';
 import { connect } from 'dva';
-import { ConnectProps, ConnectState } from 'frontend/src/models/connect';
+import { ConnectProps, ConnectState } from "@/models/connect";
 
 import styles from './index.less';
 

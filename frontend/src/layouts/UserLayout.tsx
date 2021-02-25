@@ -5,8 +5,8 @@ import React from 'react';
 import { connect } from 'dva';
 import { formatMessage } from 'umi-plugin-react/locale';
 
-import SelectLang from 'frontend/src/components/SelectLang';
-import { ConnectProps, ConnectState } from 'frontend/src/models/connect';
+import SelectLang from "@/components/SelectLang";
+import { ConnectProps, ConnectState } from "@/models/connect";
 import logo from '../assets/logo.png';
 import styles from './UserLayout.less';
 

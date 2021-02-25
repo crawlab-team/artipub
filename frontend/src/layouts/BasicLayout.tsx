@@ -14,10 +14,10 @@ import Link from 'umi/link';
 import {connect} from 'dva';
 import {setLocale, formatMessage} from 'umi-plugin-react/locale';
 
-import Authorized from 'frontend/src/utils/Authorized';
-import RightContent from 'frontend/src/components/GlobalHeader/RightContent';
-import {ConnectState, Dispatch} from 'frontend/src/models/connect';
-import {isAntDesignPro} from 'frontend/src/utils/utils';
+import Authorized from '@/utils/Authorized';
+import RightContent from '@/components/GlobalHeader/RightContent';
+import {ConnectState, Dispatch} from '@/models/connect';
+import {isAntDesignPro} from '@/utils/utils';
 import logo from '../assets/logo.png';
 import style from './BasicLayout.scss';
 import {Row} from "antd";

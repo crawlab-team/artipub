@@ -1,6 +1,6 @@
 import {Effect} from 'dva';
 import {Reducer} from 'redux';
-import {queryEnvironmentList, saveEnvironment} from "frontend/src/services/environment";
+import { queryEnvironmentList, saveEnvironment } from "@/services/environment";
 
 export interface Environment {
   _id?: string;

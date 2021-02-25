@@ -1,12 +1,12 @@
 import React, {useEffect} from 'react';
 import {PageHeaderWrapper} from '@ant-design/pro-layout';
 import {Button, Card, Form, Input, Modal, Select, Spin, Table, Tag, Tooltip} from 'antd';
-import {Platform, PlatformModelState, SiteArticle} from 'frontend/src/models/platform';
-import {ConnectProps, ConnectState, Dispatch} from 'frontend/src/models/connect';
+import { Platform, PlatformModelState, SiteArticle } from "@/models/platform";
+import { ConnectProps, ConnectState, Dispatch } from "@/models/connect";
 import {connect} from 'dva';
 import {ColumnProps, SelectionSelectFn, TableRowSelection} from 'antd/lib/table';
 import style from './PlatformList.scss';
-import constants from 'frontend/src/constants';
+import constants from "@/constants";
 
 // logo images
 import imgJuejin from '@/assets/img/juejin-logo.svg';

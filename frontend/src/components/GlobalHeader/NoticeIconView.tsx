@@ -5,10 +5,10 @@ import { formatMessage } from 'umi-plugin-react/locale';
 import groupBy from 'lodash/groupBy';
 import moment from 'moment';
 
-import { NoticeItem } from 'frontend/src/models/global';
+import { NoticeItem } from "@/models/global";
 import NoticeIcon from '../NoticeIcon';
-import { CurrentUser } from 'frontend/src/models/user';
-import { ConnectProps, ConnectState } from 'frontend/src/models/connect';
+import { CurrentUser } from "@/models/user";
+import { ConnectProps, ConnectState } from "@/models/connect";
 import styles from './index.less';
 
 export interface GlobalHeaderRightProps extends ConnectProps {

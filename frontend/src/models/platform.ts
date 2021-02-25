@@ -5,8 +5,9 @@ import {
   fetchPlatformArticles,
   importPlatformArticles,
   queryPlatformList,
-  savePlatform, updateCookieStatus,
-} from 'frontend/src/services/platform';
+  savePlatform,
+  updateCookieStatus
+} from "@/services/platform";
 import { Reducer } from 'redux';
 import { message } from 'antd';
 

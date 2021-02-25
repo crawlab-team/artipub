@@ -3,7 +3,7 @@ import React, { useRef } from 'react';
 
 import { FormattedMessage } from 'umi-plugin-react/locale';
 import { connect } from 'dva';
-import { isAntDesignPro } from 'frontend/src/utils/utils';
+import { isAntDesignPro } from "@/utils/utils";
 import styles from './index.less';
 
 const firstUpperCase = (pathString: string): string =>

@@ -5,8 +5,8 @@ import React from 'react';
 import { connect } from 'dva';
 import router from 'umi/router';
 
-import { ConnectProps, ConnectState } from 'frontend/src/models/connect';
-import { CurrentUser } from 'frontend/src/models/user';
+import { ConnectProps, ConnectState } from "@/models/connect";
+import { CurrentUser } from "@/models/user";
 import HeaderDropdown from '../HeaderDropdown';
 import styles from './index.less';
 

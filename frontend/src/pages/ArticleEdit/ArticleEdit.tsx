@@ -1,9 +1,9 @@
 import React, {ChangeEventHandler, useEffect} from 'react';
 // import {PageHeaderWrapper} from '@ant-design/pro-layout';
-import BlankLayout from 'frontend/src/layouts/BlankLayout';
+import BlankLayout from "@/layouts/BlankLayout";
 // import UserLayout from '@/layouts/UserLayout';
-import {ArticleModelState} from 'frontend/src/models/article';
-import {ConnectProps, ConnectState, Dispatch} from 'frontend/src/models/connect';
+import { ArticleModelState } from "@/models/article";
+import { ConnectProps, ConnectState, Dispatch } from "@/models/connect";
 import {connect} from 'dva';
 import {Button, Input, message} from 'antd';
 // @ts-ignore

@@ -5,10 +5,10 @@ import {RouterTypes} from 'umi';
 import {GlobalModelState} from './global';
 import {DefaultSettings as SettingModelState} from '../../config/defaultSettings';
 import {UserModelState} from './user';
-import {ArticleModelState} from "frontend/src/models/article";
-import {PlatformModelState} from "frontend/src/models/platform";
-import {TaskModelState} from "frontend/src/models/task";
-import {EnvironmentModelState} from "frontend/src/models/environment";
+import { ArticleModelState } from "@/models/article";
+import { PlatformModelState } from "@/models/platform";
+import { TaskModelState } from "@/models/task";
+import { EnvironmentModelState } from "@/models/environment";
 
 export {GlobalModelState, SettingModelState, UserModelState};
 

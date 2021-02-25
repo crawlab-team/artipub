@@ -2,16 +2,16 @@ import React, {useEffect} from 'react';
 import {PageHeaderWrapper} from '@ant-design/pro-layout';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import {Badge, Button, Card, Form, Input, message, Modal, Popconfirm, Select, Table, Tag, Tooltip, Popover} from 'antd';
-import {Article, ArticleModelState} from 'frontend/src/models/article';
-import {ConnectProps, ConnectState, Dispatch} from 'frontend/src/models/connect';
+import { Article, ArticleModelState } from "@/models/article";
+import { ConnectProps, ConnectState, Dispatch } from "@/models/connect";
 import {connect} from 'dva';
 import {ColumnProps, SelectionSelectFn, TableRowSelection} from 'antd/lib/table';
 import router from 'umi/router';
 import style from './ArticleList.scss';
-import {Platform, PlatformModelState} from 'frontend/src/models/platform';
+import { Platform, PlatformModelState } from "@/models/platform";
 import moment from 'moment';
-import {Task, TaskModelState} from 'frontend/src/models/task';
-import constants from 'frontend/src/constants';
+import { Task, TaskModelState } from "@/models/task";
+import constants from "@/constants";
 
 // logo images
 import imgJuejin from '@/assets/img/juejin-logo.svg';
@@ -28,8 +28,8 @@ import imgAliyun from '@/assets/img/aliyun-logo.png';
 import baiJiaHao from '@/assets/img/baijiahao-logo.png';
 import devtoutiao from '@/assets/img/devtoutiao-logo.png';
 import imgB51CTO from '@/assets/img/51CTO-logo.jpeg';
-import juejin from "frontend/src/data/juejin";
-import v2ex from "frontend/src/data/v2ex";
+import juejin from "@/data/juejin";
+import v2ex from "@/data/v2ex";
 
 export interface ArticleListProps extends ConnectProps {
   task: TaskModelState;

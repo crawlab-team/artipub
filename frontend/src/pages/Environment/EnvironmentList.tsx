@@ -1,10 +1,10 @@
 import React, {useEffect} from 'react';
 import {PageHeaderWrapper} from '@ant-design/pro-layout';
 import {Card, Input, message, Select, Table} from 'antd';
-import {ConnectProps, ConnectState, Dispatch} from 'frontend/src/models/connect';
+import { ConnectProps, ConnectState, Dispatch } from "@/models/connect";
 import {connect} from 'dva';
 import {ColumnProps} from 'antd/lib/table';
-import {Environment, EnvironmentModelState} from "frontend/src/models/environment";
+import { Environment, EnvironmentModelState } from "@/models/environment";
 import constants from '../../constants';
 
 export interface EnvironmentListProps extends ConnectProps {

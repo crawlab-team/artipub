@@ -1,4 +1,4 @@
-import request from 'frontend/src/utils/request';
+import request from "@/utils/request";
 
 export async function queryArticle(payload: any): Promise<any> {
   return request(`/articles/${payload.id}`);

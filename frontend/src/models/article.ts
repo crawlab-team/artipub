@@ -5,8 +5,8 @@ import {
   publishArticle,
   queryArticle,
   queryArticles,
-  saveArticle,
-} from 'frontend/src/services/article';
+  saveArticle
+} from "@/services/article";
 import { Reducer } from 'redux';
 
 export interface Article {
