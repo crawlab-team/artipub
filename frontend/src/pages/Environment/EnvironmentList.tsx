@@ -124,7 +124,7 @@ const EnvironmentList: React.FC<EnvironmentListProps> = props => {
           dataSource={environment.environments ? environment.environments.filter((d: Environment) => ![
             constants.environment.WECHAT_ACCESS_TOKEN,
           ].includes(d._id || '')) : []}
-          columns={columns}
+          columns={columns} rowKey={record => record._id}
         />
       </Card>
     </PageHeaderWrapper>

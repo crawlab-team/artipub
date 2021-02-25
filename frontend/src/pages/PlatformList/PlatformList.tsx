@@ -584,7 +584,7 @@ const PlatformList: React.FC<PlatformListProps> = props => {
         </Button>
       </div>
       <Card>
-        <Table dataSource={platform.platforms} columns={columns}/>
+        <Table dataSource={platform.platforms} columns={columns} rowKey={record => record._id}/>
       </Card>
     </PageHeaderWrapper>
   );
