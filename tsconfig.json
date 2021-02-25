@@ -17,7 +17,7 @@
     "experimentalDecorators": true,
     "strict": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["frontend/src/*"]
     }
   },
   "exclude": [
@@ -27,7 +27,7 @@
     "acceptance-tests",
     "webpack",
     "jest",
-    "src/setupTests.ts",
+    "frontend/src/setupTests.ts",
     "tslint:latest",
     "tslint-config-prettier"
   ]
