@@ -1,6 +1,6 @@
 {
   "name": "artipub-frontend",
-  "version": "0.1.6-alpha.4",
+  "version": "0.1.6",
   "description": "Article publishing platform that automatically distributes your articles to various media channels",
   "scripts": {
     "prod": "http-server ./dist",
