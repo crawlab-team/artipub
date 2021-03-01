@@ -1,16 +1,16 @@
 {
-  "name": "artipub",
-  "version": "0.1.4",
+  "name": "artipub-frontend",
+  "version": "0.1.6",
   "description": "Article publishing platform that automatically distributes your articles to various media channels",
-  "main": "index.js",
   "scripts": {
-    "start": "node cli.js start",
-    "start:frontend": "umi dev",
+    "prod": "http-server ./dist",
+    "dev": "umi dev",
     "build": "umi build",
+    "prerelease": "npm version prerelease --preid=alpha",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
-    "artipub": "./cli.js"
+    "artipub-fe": "cli.js"
   },
   "repository": {
     "type": "git",
@@ -25,7 +25,18 @@
     "post",
     "puppeteer"
   ],
+  "files": [
+    "dist/",
+    "cli.js"
+  ],
   "author": "Marvin Zhang",
+  "contributors": [
+    {
+      "name": "tanliyuan",
+      "email": "tanliyuan_n@163.com",
+      "url": "https://juejin.cn/user/3843548383021127/posts"
+    }
+  ],
   "license": "BSD-3-Clause",
   "bugs": {
     "url": "https://github.com/crawlab-team/artipub/issues"
@@ -39,7 +50,9 @@
     "antd": "^3.20.0",
     "classnames": "^2.2.6",
     "codemirror": "^5.48.2",
+    "commander": "^7.1.0",
     "dva": "^2.4.1",
+    "http-server": "^0.12.3",
     "lodash": "^4.17.11",
     "markdown-it": "^10.0.0",
     "moment": "^2.24.0",
