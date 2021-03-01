@@ -65,6 +65,7 @@ ArtiPub 目前支持文章编辑、文章发布、数据统计的功能，后期
 
 - MongoDB: 3.6+
 - NodeJS: 10+
+- NPM: > 5+ , < 7+
 
 ## 安装方式
 
@@ -128,29 +129,22 @@ docker-compose up
 
 如果您对 npm 熟悉，且已经有 MongoDB 的环境，这是最为快捷的方式。
 
-**安装 npm 包**
+从0.1.6版本开始前后端分开打包.
 
-```bash
-npm install -g artipub
-```
+**安装 artipub-front 前端包**
+
+[artipub-front](frontend/README.md)
+
+**安装 artipub-backend 后端包**
+
+[artipub-backend](backend/README.md)
 
 安装 npm 包时，为了加速下载速度，可以加入 `--registry` 参数来设置镜像源（后面源码安装时也可以这样操作）
 
 ```bash
-npm install -g artipub --registry=https://registry.npm.taobao.org
+npm install -g artipub-frontend --registry=https://registry.npm.taobao.org
 ```
 
-**运行 ArtiPub**
-
-```bash
-artipub start
-```
-
-该命令默认会使用 `localhost:27017/artipub` 为 MongoDB 数据库链接。输入如下命令可以看更多配置，例如配置数据库等。
-
-```bash
-artipub -h
-```
 
 成功运行后，在浏览器中输入 `http://localhost:8000` 可以看到界面。
 
@@ -165,20 +159,26 @@ git clone https://github.com/crawlab-team/artipub
 **安装 npm 包**
 
 ```bash
-cd artipub
+cd artipub/frontend
+npm install
+
+cd artipub/backend
 npm install
 ```
 
 **启动前端**
 
 ```bash
-npm run start:frontend
+//frontend 目录下
+npm run build
+npm run dev
 ```
 
 **启动后端**
 
 ```bash
-npm run start:backend
+//backend 目录下
+npm run start
 ```
 
 **配置数据库**
