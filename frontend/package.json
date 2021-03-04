@@ -14,7 +14,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/crawlab-team/artipub.git"
+    "url": "https://github.com/crawlab-team/artipub.git",
+    "directory": "frontend"
   },
   "keywords": [
     "nodejs",

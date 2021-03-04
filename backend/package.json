@@ -17,6 +17,12 @@
       "url": "https://juejin.cn/user/3843548383021127/posts"
     }
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/crawlab-team/artipub.git",
+    "directory": "backend"
+  },
+  "homepage": "https://github.com/crawlab-team/artipub#readme",
   "bin": {
     "artipub-be": "cli.js"
   },
