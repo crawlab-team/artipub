@@ -1,5 +1,5 @@
 {
-  "name": "artipub-backend",
+  "name": "@crawlab-team/artipub-backend",
   "version": "0.1.7",
   "description": "",
   "main": "server.js",
@@ -17,6 +17,10 @@
       "url": "https://juejin.cn/user/3843548383021127/posts"
     }
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crawlab-team/artipub.git"
+  },
   "bin": {
     "artipub-be": "cli.js"
   },
@@ -24,6 +28,9 @@
     "dist/",
     "cli.js"
   ],
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "license": "ISC",
   "dependencies": {
     "async-lock": "^1.2.2",
