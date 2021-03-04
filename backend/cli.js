@@ -25,8 +25,8 @@ program
     process.env.MONGO_USERNAME = username
     process.env.MONGO_PASSWORD = password
 
-    // 开启后段服务
-    require('./server')
+    // 开启后端服务
+    require('./dist/server')
   })
 
 program.parse(process.argv)

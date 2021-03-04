@@ -87,7 +87,7 @@ ArtiPub 提供 3 种安装方式如下。
 version: "3.3"
 services:
   app:
-    image: "tanliyuan123/artipub:1.1.0"
+    image: "tanliyuan123/artipub:1.2.0"
     environment:
       MONGO_HOST: "mongo"
       # MONGO_USERNAME: root
@@ -122,7 +122,7 @@ docker-compose up
   如果你本地已有启动的mongodb容器，不想用上面方式再起一个。其中 `goofy_ganguly` 为本地已启动的 mongodb 容器名, 替换成你本地的即可。
 
   ```bash
-  docker run --rm -it --link goofy_ganguly  -p 3000:3000/tcp  -p 8000:8000/tcp  tanliyuan123/artipub:1.0
+  docker run --rm -it --link goofy_ganguly  -p 3000:3000/tcp  -p 8000:8000/tcp  tanliyuan123/artipub:1.2.0
   ```
 
 ### 通过 npm 包安装

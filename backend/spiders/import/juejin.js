@@ -19,7 +19,7 @@ class JuejinImportSpider extends BaseImportSpider {
       }
     })
     await this.page.goto('https://juejin.cn' + userPath + '/posts', { waitUntil: 'networkidle2' })
-    await this.page.waitFor(3000)
+    await this.page.waitForTimeout(3000)
 
     return await this.page.evaluate(() => {
       const _articles = []
@@ -49,7 +49,7 @@ class JuejinImportSpider extends BaseImportSpider {
 
     // 导航至文章编辑页面
     await this.page.goto(`https://juejin.cn/editor/posts/${id}`)
-    await this.page.waitFor(5000)
+    await this.page.waitForTimeout(5000)
 
     // 点击文章选择框
     await this.page.click(this.editorSel.content)
@@ -61,13 +61,13 @@ class JuejinImportSpider extends BaseImportSpider {
     await this.page.keyboard.down(ctrlKey)
     await this.page.keyboard.press('KeyA')
     await this.page.keyboard.up(ctrlKey)
-    await this.page.waitFor(500)
+    await this.page.waitForTimeout(500)
 
     // 拷贝文章内容
     await this.page.keyboard.down(ctrlKey)
     await this.page.keyboard.press('KeyC')
     await this.page.keyboard.up(ctrlKey)
-    await this.page.waitFor(500)
+    await this.page.waitForTimeout(500)
     await this.page.screenshot({ path: 'C:\\Users\\marvzhang\\artipub\\backend\\screenshot1.png' })
 
     // 读取剪切板内容

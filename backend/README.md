@@ -5,18 +5,18 @@
 
 ```bash
 //全局安装
-npm i -g artipub-backend
+npm i -g artipub-backend --production
 
 //默认启动 http://localhost:3000, 确保本地 mongodb 已经启动在 27017 端口
 artipub-be start
 
 //查看其他配置参数
-artipub-be --help
+artipub-be start --help
 ```
 
 ```bash
 //非全局安装
-npm i artipub-backend
+npm i artipub-backend --production
 
 //安装目录下执行, 确保npm 5+, 有npx命令
 npx artipub-be start
@@ -25,5 +25,5 @@ npx artipub-be start
 ./node_modules/.bin/artipub-be start
 
 //查看其他配置参数
-npx artipub-be --help
+npx artipub-be start --help
 ```

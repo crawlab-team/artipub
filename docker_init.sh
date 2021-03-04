@@ -14,4 +14,4 @@ nginx -s stop | true
 nginx
 
 # start backend
-npm run start
+npm run prod
