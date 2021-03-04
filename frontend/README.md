@@ -5,18 +5,18 @@
 
 ```bash
 //全局安装
-npm i -g artipub-frontend
+npm i -g artipub-frontend --production
 
 //默认启动 http://localhost:8000
 artipub-fe start
 
 //查看其他配置参数
-artipub-fe --help
+artipub-fe start --help
 ```
 
 ```bash
 //非全局安装
-npm i artipub-frontend
+npm i artipub-frontend --production
 
 //安装目录下执行, 确保npm 5+, 有npx命令
 npx artipub-fe start
@@ -25,5 +25,5 @@ npx artipub-fe start
 ./node_modules/.bin/artipub-fe start
 
 //查看其他配置参数
-npx artipub-fe --help
+npx artipub-fe start --help
 ```

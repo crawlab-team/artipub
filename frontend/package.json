@@ -1,6 +1,6 @@
 {
   "name": "artipub-frontend",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Article publishing platform that automatically distributes your articles to various media channels",
   "scripts": {
     "prod": "http-server ./dist",
@@ -78,7 +78,6 @@
     "@types/history": "^4.7.2",
     "@types/jest": "^24.0.13",
     "@types/lodash": "^4.14.133",
-    "@types/puppeteer-core": "^5.4.0",
     "@types/qs": "^6.5.3",
     "@types/react": "^16.8.19",
     "@types/react-document-title": "^2.0.3",

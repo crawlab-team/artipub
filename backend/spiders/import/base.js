@@ -89,13 +89,13 @@ class BaseImportSpider extends BaseSpider {
     try {
       await this.page.goto(this.platform.url, { timeout: 60000 })
     } catch (e) {
-      console.error(e)
+      logger.error(e)
       const pages = await this.browser.pages();
       await Promise.all(pages.map(page => page.close()));
       await this.browser.close();
       return []
     }
-    await this.page.waitFor(5000)
+    await this.page.waitForTimeout(5000)
     const articles = await this.fetchArticles()
 
     const pages = await this.browser.pages();
