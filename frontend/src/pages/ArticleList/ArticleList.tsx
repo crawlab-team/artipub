@@ -1,7 +1,29 @@
 import React, {useEffect} from 'react';
 import {PageHeaderWrapper} from '@ant-design/pro-layout';
-import { QuestionCircleOutlined } from '@ant-design/icons';
-import {Badge, Button, Card, Form, Input, message, Modal, Popconfirm, Select, Table, Tag, Tooltip, Popover} from 'antd';
+import {
+  CloudOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  QuestionCircleOutlined,
+  SearchOutlined,
+  ToolOutlined,
+} from '@ant-design/icons';
+import { Form } from '@ant-design/compatible';
+import '@ant-design/compatible/assets/index.css';
+import {
+  Badge,
+  Button,
+  Card,
+  Input,
+  message,
+  Modal,
+  Popconfirm,
+  Select,
+  Table,
+  Tag,
+  Tooltip,
+  Popover,
+} from 'antd';
 import { Article, ArticleModelState } from "@/models/article";
 import { ConnectState, Dispatch } from "@/models/connect";
 import { ConnectProps } from 'umi';
@@ -397,7 +419,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
               <Button
                 type="primary"
                 shape="circle"
-                icon="cloud"
+                icon={<CloudOutlined />}
                 className={style.pubBtn}
                 onClick={onArticleTasksModalOpen(d)}
               />
@@ -406,14 +428,14 @@ const ArticleList: React.FC<ArticleListProps> = props => {
               <Button
                 type="default"
                 shape="circle"
-                icon="edit"
+                icon={<EditOutlined />}
                 className={style.editBtn}
                 onClick={onArticleEdit(d)}
               />
             </Tooltip>
             <Popconfirm title="您确认删除该文章吗？" onConfirm={onArticleDelete(d)}>
               <Tooltip title="删除">
-                <Button type="danger" shape="circle" icon="delete" className={style.delBtn} />
+                <Button type="danger" shape="circle" icon={<DeleteOutlined />} className={style.delBtn} />
               </Tooltip>
             </Popconfirm>
           </div>
@@ -586,7 +608,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
                 disabled={!t.url}
                 type="default"
                 shape="circle"
-                icon="search"
+                icon={<SearchOutlined />}
                 className={style.viewBtn}
                 onClick={onTaskViewArticle(t)}
               />
@@ -597,7 +619,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
                   disabled={t && !t.checked}
                   type="primary"
                   shape="circle"
-                  icon="tool"
+                  icon={<ToolOutlined />}
                   className={style.configBtn}
                   onClick={onTaskModalOpen(p)}
                 />

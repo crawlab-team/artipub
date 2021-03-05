@@ -1,4 +1,5 @@
-import { Icon, Popover, Typography } from 'antd';
+import { DownloadOutlined } from '@ant-design/icons';
+import { Popover, Typography } from 'antd';
 import React, { useRef } from 'react';
 
 import { FormattedMessage, connect } from 'umi';
@@ -72,7 +73,7 @@ export default connect(({ routing }: { routing: RoutingType }) => ({
       getPopupContainer={dom => (divDom.current ? divDom.current : dom)}
     >
       <div className={styles['copy-block']} ref={divDom}>
-        <Icon type="download" />
+        <DownloadOutlined />
       </div>
     </Popover>
   );

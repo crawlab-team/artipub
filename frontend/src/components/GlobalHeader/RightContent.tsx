@@ -1,4 +1,5 @@
-import { Icon, Tooltip } from 'antd';
+import { GithubOutlined } from '@ant-design/icons';
+import { Tooltip } from 'antd';
 import React from 'react';
 import {  ConnectState } from "@/models/connect";
 import { ConnectProps, connect } from 'umi'
@@ -23,7 +24,7 @@ const GlobalHeaderRight: React.SFC<GlobalHeaderRightProps> = props => {
     <div className={className}>
       <Tooltip title="Github">
         <a href="https://github.com/crawlab-team/artipub" target="_blank">
-          <Icon type="github" className={styles.github}/>
+          <GithubOutlined className={styles.github} />
         </a>
       </Tooltip>
     </div>
