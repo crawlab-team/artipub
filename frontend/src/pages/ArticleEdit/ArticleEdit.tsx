@@ -3,17 +3,17 @@ import React, {ChangeEventHandler, useEffect} from 'react';
 import BlankLayout from "@/layouts/BlankLayout";
 // import UserLayout from '@/layouts/UserLayout';
 import { ArticleModelState } from "@/models/article";
-import { ConnectProps, ConnectState, Dispatch } from "@/models/connect";
-import {connect} from 'dva';
+import { ConnectState, Dispatch } from "@/models/connect";
+import {connect, ConnectProps} from 'umi';
 import {Button, Input, message} from 'antd';
 // @ts-ignore
 import MarkdownIt from 'markdown-it';
 import MdEditor from "react-markdown-editor-lite";
 
 // 引入codemirror样式
-import style from './ArticleEdit.scss';
+import style from './ArticleEdit.less';
 import 'codemirror/mode/markdown/markdown';
-import {router} from 'umi';
+import { history } from 'umi';
 
 export interface ArticleEditProps extends ConnectProps {
   article: ArticleModelState;
@@ -130,7 +130,7 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
 
   // 点击返回
   const onBack = () => {
-    router.push('/articles');
+    history.push('/articles');
 
     TDAPP.onEvent('文章编辑-返回');
   };
@@ -158,7 +158,7 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
 
         {/*主要内容*/}
         <div className={style.main}>
-          <MdEditor
+          <MdEditor name='md'
             style={{width: '100%', height: 'calc(100vh - 50px)'}}
             value={article.currentArticle ? article.currentArticle.content : ''}
             renderHTML={(text) => {

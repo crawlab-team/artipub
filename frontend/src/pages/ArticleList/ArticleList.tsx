@@ -3,11 +3,11 @@ import {PageHeaderWrapper} from '@ant-design/pro-layout';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import {Badge, Button, Card, Form, Input, message, Modal, Popconfirm, Select, Table, Tag, Tooltip, Popover} from 'antd';
 import { Article, ArticleModelState } from "@/models/article";
-import { ConnectProps, ConnectState, Dispatch } from "@/models/connect";
-import {connect} from 'dva';
+import { ConnectState, Dispatch } from "@/models/connect";
+import { ConnectProps } from 'umi';
+import {connect, history} from 'umi';
 import {ColumnProps, SelectionSelectFn, TableRowSelection} from 'antd/lib/table';
-import router from 'umi/router';
-import style from './ArticleList.scss';
+import style from './ArticleList.less';
 import { Platform, PlatformModelState } from "@/models/platform";
 import moment from 'moment';
 import { Task, TaskModelState } from "@/models/task";
@@ -43,7 +43,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
 
   const onArticleEdit: Function = (d: Article) => {
     return () => {
-      router.push(`/articles/edit/${d._id}`);
+      history.push(`/articles/edit/${d._id}`);
 
       TDAPP.onEvent('文章管理-点击编辑');
     };
@@ -68,7 +68,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
         type: 'article/resetArticle',
       });
     }
-    router.push('/articles/new');
+    history.push('/articles/new');
 
     TDAPP.onEvent('文章管理-创建文章');
   };
@@ -748,11 +748,13 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       </Form>
     );
   } else if (currentPlatform && currentPlatform.name === constants.platform.B_51CTO) {
+    //@ts-ignore
     const artiType = [
       {value: '1', label: '原创'},
       {value: '2', label: '转载'},
       {value: '3', label: '翻译'},
     ];
+    //@ts-ignore
     const cate1 = [
       {value: '27', label: '系统/运维'},
       {value: '28', label: '云计算'},

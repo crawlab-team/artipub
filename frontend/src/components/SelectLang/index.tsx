@@ -1,5 +1,5 @@
 import { Icon, Menu } from 'antd';
-import { formatMessage, getLocale, setLocale } from 'umi-plugin-react/locale';
+import { formatMessage, getLocale, setLocale } from 'umi';
 
 import { ClickParam } from 'antd/es/menu';
 import React from 'react';

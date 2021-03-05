@@ -1,4 +1,4 @@
-import { MenuTheme } from 'antd/es/menu';
+import { MenuTheme } from 'antd/es/menu/MenuContext';
 
 export type ContentWidth = 'Fluid' | 'Fixed';
 
@@ -57,4 +57,4 @@ export default {
   title: 'ArtiPub v0.1.4',
   pwa: false,
   iconfontUrl: '',
-} as DefaultSettings;
+} ;

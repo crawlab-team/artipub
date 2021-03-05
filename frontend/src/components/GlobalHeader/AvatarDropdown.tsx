@@ -1,11 +1,10 @@
 import { Avatar, Icon, Menu, Spin } from 'antd';
 import { ClickParam } from 'antd/es/menu';
-import { FormattedMessage } from 'umi-plugin-react/locale';
 import React from 'react';
-import { connect } from 'dva';
-import router from 'umi/router';
+import { connect , FormattedMessage, history} from 'umi';
 
-import { ConnectProps, ConnectState } from "@/models/connect";
+import { ConnectProps } from "umi";
+import { ConnectState } from "@/models/connect";
 import { CurrentUser } from "@/models/user";
 import HeaderDropdown from '../HeaderDropdown';
 import styles from './index.less';
@@ -29,7 +28,7 @@ class AvatarDropdown extends React.Component<GlobalHeaderRightProps> {
 
       return;
     }
-    router.push(`/account/${key}`);
+    history.push(`/account/${key}`);
   };
 
   render(): React.ReactNode {

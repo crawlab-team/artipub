@@ -1,4 +1,4 @@
-import { Effect } from 'dva';
+import { Effect } from 'umi';
 import { addTask, addTasks, queryTaskList, saveTask } from "@/services/task";
 import { Reducer } from 'redux';
 import { Platform } from "@/models/platform";

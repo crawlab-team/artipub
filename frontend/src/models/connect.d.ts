@@ -1,7 +1,4 @@
-import {AnyAction} from 'redux';
-import {EffectsCommandMap} from 'dva';
 import {MenuDataItem} from '@ant-design/pro-layout';
-import {RouterTypes} from 'umi';
 import {GlobalModelState} from './global';
 import {DefaultSettings as SettingModelState} from '../../config/defaultSettings';
 import {UserModelState} from './user';
@@ -35,10 +32,6 @@ export interface ConnectState {
   environment: EnvironmentModelState;
 }
 
-export type Effect = (
-  action: AnyAction,
-  effects: EffectsCommandMap & { select: <T>(func: (state: ConnectState) => T) => T },
-) => void;
 
 /**
  * @type P: Type of payload
@@ -53,11 +46,4 @@ export type Dispatch = <P = any, C = (payload: P) => void>(action: {
 
 export interface Route extends MenuDataItem {
   routes?: Route[];
-}
-
-/**
- * @type T: Params matched in dynamic routing
- */
-export interface ConnectProps<T = {}> extends Partial<RouterTypes<Route, T>> {
-  dispatch?: Dispatch;
 }

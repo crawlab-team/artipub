@@ -10,16 +10,13 @@ import ProLayout, {
   Settings,
 } from '@ant-design/pro-layout';
 import React, {useEffect} from 'react';
-import Link from 'umi/link';
-import {connect} from 'dva';
-import {setLocale, formatMessage} from 'umi-plugin-react/locale';
-
+import { Link, connect, setLocale, formatMessage } from 'umi';
 import Authorized from '@/utils/Authorized';
 import RightContent from '@/components/GlobalHeader/RightContent';
 import {ConnectState, Dispatch} from '@/models/connect';
 import {isAntDesignPro} from '@/utils/utils';
 import logo from '../assets/logo.png';
-import style from './BasicLayout.scss';
+import style from './BasicLayout.less';
 import {Row} from "antd";
 
 export interface BasicLayoutProps extends ProLayoutProps {
@@ -126,6 +123,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
         if (menuItemProps.isUrl) {
           return defaultDom;
         }
+        //@ts-ignore
         return <Link to={menuItemProps.path}>{defaultDom}</Link>;
       }}
       breadcrumbRender={(routers = []) => [

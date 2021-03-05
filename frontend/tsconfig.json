@@ -6,7 +6,7 @@
     "lib": ["esnext", "dom"],
     "sourceMap": true,
     "baseUrl": ".",
-    "jsx": "react",
+    "jsx": "react-jsx",
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "node",
     "forceConsistentCasingInFileNames": true,
@@ -14,19 +14,35 @@
     "suppressImplicitAnyIndexErrors": true,
     "noUnusedLocals": true,
     "allowJs": true,
+    "skipLibCheck": true,
     "experimentalDecorators": true,
     "strict": true,
-    "esModuleInterop": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@@/*": ["./src/.umi/*"]
+    }
   },
+  "include": [
+    "mock/**/*",
+    "src/**/*",
+    "tests/**/*",
+    "test/**/*",
+    "__test__/**/*",
+    "typings/**/*",
+    "config/**/*",
+    ".eslintrc.js",
+    ".stylelintrc.js",
+    ".prettierrc.js",
+    "jest.config.js",
+    "mock/*"
+  ],
   "exclude": [
     "node_modules",
     "build",
+    "dist",
     "scripts",
-    "acceptance-tests",
     "webpack",
     "jest",
-    "frontend/src/setupTests.ts",
-    "tslint:latest",
-    "tslint-config-prettier"
+    "src/.umi/*",
   ]
 }

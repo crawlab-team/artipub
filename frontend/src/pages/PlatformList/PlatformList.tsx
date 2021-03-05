@@ -2,10 +2,10 @@ import React, {useEffect} from 'react';
 import {PageHeaderWrapper} from '@ant-design/pro-layout';
 import {Button, Card, Form, Input, Modal, Select, Spin, Table, Tag, Tooltip} from 'antd';
 import { Platform, PlatformModelState, SiteArticle } from "@/models/platform";
-import { ConnectProps, ConnectState, Dispatch } from "@/models/connect";
-import {connect} from 'dva';
+import { ConnectState, Dispatch } from "@/models/connect";
+import {connect, ConnectProps} from 'umi';
 import {ColumnProps, SelectionSelectFn, TableRowSelection} from 'antd/lib/table';
-import style from './PlatformList.scss';
+import style from './PlatformList.less';
 import constants from "@/constants";
 
 // logo images

@@ -1,7 +1,7 @@
 import React from 'react';
 import {PageHeaderWrapper} from '@ant-design/pro-layout';
 import {Button, Card, Row} from "antd";
-import style from './Helper.scss'
+import style from './Helper.less'
 import {apiEndpoint} from "../../../config/config";
 const Helper: React.FC<any> = () => {
   const onDownload = () => {

@@ -4,7 +4,7 @@ import {UnControlled as CodeMirror} from 'react-codemirror2'
 import showdown from 'showdown';
 
 // 引入样式
-import style from './Demo.scss';
+import style from './Demo.less';
 
 // 引入CodeMirror样式
 import 'codemirror/mode/markdown/markdown';
