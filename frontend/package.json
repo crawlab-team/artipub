@@ -1,6 +1,6 @@
 {
-  "name": "@crawlab-team/artipub-frontend",
-  "version": "0.1.7",
+  "name": "artipub-frontend",
+  "version": "0.2.0",
   "description": "Article publishing platform that automatically distributes your articles to various media channels",
   "scripts": {
     "prod": "http-server ./dist",
@@ -30,9 +30,6 @@
     "dist/",
     "cli.js"
   ],
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  },
   "author": "Marvin Zhang",
   "contributors": [
     {

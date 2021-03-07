@@ -1,6 +1,6 @@
 {
-  "name": "@crawlab-team/artipub-backend",
-  "version": "0.1.7",
+  "name": "artipub-backend",
+  "version": "0.2.0",
   "description": "",
   "main": "server.js",
   "scripts": {
@@ -28,9 +28,6 @@
   "files": [
     "dist/"
   ],
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
-  },
   "license": "ISC",
   "dependencies": {
     "async-lock": "^1.2.2",
