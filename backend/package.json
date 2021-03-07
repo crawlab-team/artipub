@@ -1,5 +1,5 @@
 {
-  "name": "artipub-backend",
+  "name": "@crawlab-team/artipub-backend",
   "version": "0.2.0",
   "description": "",
   "main": "server.js",
