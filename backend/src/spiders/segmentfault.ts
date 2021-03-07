@@ -1,6 +1,5 @@
 import BaseSpider = require('./base')
 import constants from '../constants'
-import logger from '../logger';
 
 class SegmentfaultSpider extends BaseSpider {
   async inputContent(article, editorSel) {
@@ -12,7 +11,6 @@ class SegmentfaultSpider extends BaseSpider {
     // const footerContent = `<br><b>本篇文章由一文多发平台<a href="https://github.com/crawlab-team/artipub" target="_blank">ArtiPub</a>自动发布</b>`;
     const footerContent = "";
     const content = article.content + footerContent;
-    logger.info(content);
     const el = document.querySelector(editorSel.content);
     el.CodeMirror.setValue(content);
     //输入tab,触发markdown 更新

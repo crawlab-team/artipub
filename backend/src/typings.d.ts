@@ -1,4 +1,4 @@
-declare const UE: any;
+declare let UE: any;
 
 declare module 'puppeteer-chromium-resolver' {
   import * as Puppeteer from 'puppeteer-core';

@@ -1,5 +1,3 @@
-declare module 'slash2';
-declare module 'antd-theme-webpack-plugin';
 
 declare module '*.css';
 declare module '*.less';

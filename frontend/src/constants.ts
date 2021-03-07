@@ -1,4 +1,7 @@
 export default {
+  //后端地址
+  apiEndpoint : 'http://localhost:3000',
+
   platform: {
     JUEJIN: 'juejin',
     SEGMENTFAULT: 'segmentfault',

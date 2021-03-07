@@ -1,11 +1,14 @@
 import React, {useEffect} from 'react';
 import {PageHeaderWrapper} from '@ant-design/pro-layout';
-import {Button, Card, Form, Input, Modal, Select, Spin, Table, Tag, Tooltip} from 'antd';
+import { ImportOutlined, KeyOutlined, SyncOutlined } from '@ant-design/icons';
+import { Form } from '@ant-design/compatible';
+import '@ant-design/compatible/assets/index.css';
+import { Button, Card, Input, Modal, Select, Spin, Table, Tag, Tooltip } from 'antd';
 import { Platform, PlatformModelState, SiteArticle } from "@/models/platform";
-import { ConnectProps, ConnectState, Dispatch } from "@/models/connect";
-import {connect} from 'dva';
+import { ConnectState, Dispatch } from "@/models/connect";
+import {connect, ConnectProps} from 'umi';
 import {ColumnProps, SelectionSelectFn, TableRowSelection} from 'antd/lib/table';
-import style from './PlatformList.scss';
+import style from './PlatformList.less';
 import constants from "@/constants";
 
 // logo images
@@ -334,7 +337,7 @@ const PlatformList: React.FC<PlatformListProps> = props => {
                 disabled={!d.enableImport}
                 type="primary"
                 shape="circle"
-                icon="import"
+                icon={<ImportOutlined />}
                 className={style.fetchBtn}
                 onClick={onFetch(d)}
               />
@@ -344,7 +347,7 @@ const PlatformList: React.FC<PlatformListProps> = props => {
                 disabled={!d.enableLogin}
                 type="default"
                 shape="circle"
-                icon="key"
+                icon={<KeyOutlined />}
                 className={style.loginBtn}
                 onClick={onAccount(d)}
               />
@@ -578,7 +581,7 @@ const PlatformList: React.FC<PlatformListProps> = props => {
           type="primary"
           loading={platform.updateCookieStatusLoading}
           onClick={onUpdateCookieStatus}
-          icon="sync"
+          icon={<SyncOutlined />}
         >
           更新Cookie状态
         </Button>

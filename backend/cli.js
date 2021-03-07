@@ -1,9 +1,7 @@
 #!/usr/bin/env node
-const { version }= require('./package.json');
 const  program = require('commander')
 
 program
-  .version(version)
   .command('start')
   .description('Start ArtiPub backend server')
   .option('-H, --host <host>', 'mongodb host name', '127.0.0.1')
@@ -26,7 +24,7 @@ program
     process.env.MONGO_PASSWORD = password
 
     // 开启后端服务
-    require('./dist/server')
+    require('./src/server')
   })
 
 program.parse(process.argv)

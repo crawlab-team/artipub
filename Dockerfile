@@ -12,7 +12,7 @@ WORKDIR /app
 ADD ./backend ./docker_init.sh ./nginx /app/
 RUN cp /app/artipub.conf /etc/nginx/conf.d/artipub.conf
 RUN npm install --registry=https://registry.npm.taobao.org
-RUN npm run build
+RUN npm run build-nomap
 
 EXPOSE 3000 8000
 CMD /app/docker_init.sh

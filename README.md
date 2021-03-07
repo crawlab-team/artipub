@@ -183,11 +183,11 @@ npm run start
 
 **配置数据库**
 
-数据库的配置在 `./config.js` 中，可以按情况配置。
+数据库的配置在 `backend/src/config.ts` 中，可以按情况配置。
 
 **配置后端 API 地址**
 
-如果您部署的服务不在本机，需要在 `./src/config/config.ts` 中将 `apiEndpoint` 改成对应的 IP 地址 + 端口。
+如果您部署的服务不在本机，需要在 `frontend/src/constants.ts` 中将 `apiEndpoint` 改成对应的 IP 地址 + 端口。
 
 ## 原理
 

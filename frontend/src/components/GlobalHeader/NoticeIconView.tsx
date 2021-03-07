@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import { Tag, message } from 'antd';
-import { connect } from 'dva';
-import { formatMessage } from 'umi-plugin-react/locale';
+import { useIntl, connect } from 'umi';
 import groupBy from 'lodash/groupBy';
 import moment from 'moment';
 
 import { NoticeItem } from "@/models/global";
 import NoticeIcon from '../NoticeIcon';
 import { CurrentUser } from "@/models/user";
-import { ConnectProps, ConnectState } from "@/models/connect";
+import { ConnectProps } from "umi";
+import { ConnectState } from "@/models/connect";
 import styles from './index.less';
 
 export interface GlobalHeaderRightProps extends ConnectProps {
@@ -42,7 +42,7 @@ class GlobalHeaderRight extends Component<GlobalHeaderRightProps> {
 
   handleNoticeClear = (title: string, key: string) => {
     const { dispatch } = this.props;
-    message.success(`${formatMessage({ id: 'component.noticeIcon.cleared' })} ${title}`);
+    message.success(`${useIntl().formatMessage({ id: 'component.noticeIcon.cleared' })} ${title}`);
     if (dispatch) {
       dispatch({
         type: 'global/clearNotices',
@@ -109,8 +109,8 @@ class GlobalHeaderRight extends Component<GlobalHeaderRightProps> {
           this.changeReadState(item as NoticeItem);
         }}
         loading={fetchingNotices}
-        clearText={formatMessage({ id: 'component.noticeIcon.clear' })}
-        viewMoreText={formatMessage({ id: 'component.noticeIcon.view-more' })}
+        clearText={useIntl().formatMessage({ id: 'component.noticeIcon.clear' })}
+        viewMoreText={useIntl().formatMessage({ id: 'component.noticeIcon.view-more' })}
         onClear={this.handleNoticeClear}
         onPopupVisibleChange={onNoticeVisibleChange}
         onViewMore={() => message.info('Click on view more')}
@@ -120,22 +120,22 @@ class GlobalHeaderRight extends Component<GlobalHeaderRightProps> {
           tabKey="notification"
           count={unreadMsg.notification}
           list={noticeData.notification}
-          title={formatMessage({ id: 'component.globalHeader.notification' })}
-          emptyText={formatMessage({ id: 'component.globalHeader.notification.empty' })}
+          title={useIntl().formatMessage({ id: 'component.globalHeader.notification' })}
+          emptyText={useIntl().formatMessage({ id: 'component.globalHeader.notification.empty' })}
           showViewMore
         />
         <NoticeIcon.Tab
           tabKey="message"
           count={unreadMsg.message}
           list={noticeData.message}
-          title={formatMessage({ id: 'component.globalHeader.message' })}
-          emptyText={formatMessage({ id: 'component.globalHeader.message.empty' })}
+          title={useIntl().formatMessage({ id: 'component.globalHeader.message' })}
+          emptyText={useIntl().formatMessage({ id: 'component.globalHeader.message.empty' })}
           showViewMore
         />
         <NoticeIcon.Tab
           tabKey="event"
-          title={formatMessage({ id: 'component.globalHeader.event' })}
-          emptyText={formatMessage({ id: 'component.globalHeader.event.empty' })}
+          title={useIntl().formatMessage({ id: 'component.globalHeader.event' })}
+          emptyText={useIntl().formatMessage({ id: 'component.globalHeader.event.empty' })}
           count={unreadMsg.event}
           list={noticeData.event}
           showViewMore

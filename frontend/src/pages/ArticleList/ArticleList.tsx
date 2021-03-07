@@ -1,13 +1,35 @@
 import React, {useEffect} from 'react';
 import {PageHeaderWrapper} from '@ant-design/pro-layout';
-import { QuestionCircleOutlined } from '@ant-design/icons';
-import {Badge, Button, Card, Form, Input, message, Modal, Popconfirm, Select, Table, Tag, Tooltip, Popover} from 'antd';
+import {
+  CloudOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  QuestionCircleOutlined,
+  SearchOutlined,
+  ToolOutlined,
+} from '@ant-design/icons';
+import { Form } from '@ant-design/compatible';
+import '@ant-design/compatible/assets/index.css';
+import {
+  Badge,
+  Button,
+  Card,
+  Input,
+  message,
+  Modal,
+  Popconfirm,
+  Select,
+  Table,
+  Tag,
+  Tooltip,
+  Popover,
+} from 'antd';
 import { Article, ArticleModelState } from "@/models/article";
-import { ConnectProps, ConnectState, Dispatch } from "@/models/connect";
-import {connect} from 'dva';
-import {ColumnProps, SelectionSelectFn, TableRowSelection} from 'antd/lib/table';
-import router from 'umi/router';
-import style from './ArticleList.scss';
+import { ConnectState, Dispatch } from "@/models/connect";
+import { ConnectProps } from 'umi';
+import {connect, history} from 'umi';
+import {ColumnProps} from 'antd/lib/table';
+import style from './ArticleList.less';
 import { Platform, PlatformModelState } from "@/models/platform";
 import moment from 'moment';
 import { Task, TaskModelState } from "@/models/task";
@@ -43,7 +65,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
 
   const onArticleEdit: Function = (d: Article) => {
     return () => {
-      router.push(`/articles/edit/${d._id}`);
+      history.push(`/articles/edit/${d._id}`);
 
       TDAPP.onEvent('文章管理-点击编辑');
     };
@@ -68,7 +90,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
         type: 'article/resetArticle',
       });
     }
-    router.push('/articles/new');
+    history.push('/articles/new');
 
     TDAPP.onEvent('文章管理-创建文章');
   };
@@ -247,7 +269,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     });
   };
 
-  const onTaskSelect: SelectionSelectFn<any> = async (
+  const onTaskSelect = async (
     d: any,
     selected: boolean,
     selectedPlatforms: Object[],
@@ -349,7 +371,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     );
   };
 
-  const taskRowSelection: TableRowSelection<any> = {
+  const taskRowSelection = {
     selectedRowKeys: task.tasks.filter((d: Task) => d.checked).map((d: Task) => d.platformId),
     onSelect: onTaskSelect,
     onSelectAll: onTaskSelectAll,
@@ -397,7 +419,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
               <Button
                 type="primary"
                 shape="circle"
-                icon="cloud"
+                icon={<CloudOutlined />}
                 className={style.pubBtn}
                 onClick={onArticleTasksModalOpen(d)}
               />
@@ -406,14 +428,14 @@ const ArticleList: React.FC<ArticleListProps> = props => {
               <Button
                 type="default"
                 shape="circle"
-                icon="edit"
+                icon={<EditOutlined />}
                 className={style.editBtn}
                 onClick={onArticleEdit(d)}
               />
             </Tooltip>
             <Popconfirm title="您确认删除该文章吗？" onConfirm={onArticleDelete(d)}>
               <Tooltip title="删除">
-                <Button type="danger" shape="circle" icon="delete" className={style.delBtn} />
+                <Button type="link" danger shape="circle" icon={<DeleteOutlined />} className={style.delBtn} />
               </Tooltip>
             </Popconfirm>
           </div>
@@ -586,7 +608,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
                 disabled={!t.url}
                 type="default"
                 shape="circle"
-                icon="search"
+                icon={<SearchOutlined />}
                 className={style.viewBtn}
                 onClick={onTaskViewArticle(t)}
               />
@@ -597,7 +619,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
                   disabled={t && !t.checked}
                   type="primary"
                   shape="circle"
-                  icon="tool"
+                  icon={<ToolOutlined />}
                   className={style.configBtn}
                   onClick={onTaskModalOpen(p)}
                 />
@@ -663,7 +685,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
             onChange={onTaskChange('select', 'category')}
           >
             {categories.map(category => (
-              <Select.Option key={category}>{category}</Select.Option>
+              <Select.Option key={category} value={category}>{category}</Select.Option>
             ))}
           </Select>
         </Form.Item>
@@ -678,7 +700,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
             }
           >
             {tags.map(tag => (
-              <Select.Option key={tag}>{tag}</Select.Option>
+              <Select.Option key={tag} value={tag}>{tag}</Select.Option>
             ))}
           </Select>
         </Form.Item>
@@ -718,7 +740,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
             onChange={onTaskChange('select', 'category')}
           >
             {categories.map(c => (
-              <Select.Option key={c.value}>{c.label}</Select.Option>
+              <Select.Option key={c.value} value={c.value}>{c.label}</Select.Option>
             ))}
           </Select>
         </Form.Item>
@@ -729,7 +751,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
             onChange={onTaskChange('select', 'pubType')}
           >
             {pubTypes.map(pt => (
-              <Select.Option key={pt.value}>{pt.label}</Select.Option>
+              <Select.Option key={pt.value} value={pt.value}>{pt.label}</Select.Option>
             ))}
           </Select>
         </Form.Item>
@@ -748,11 +770,13 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       </Form>
     );
   } else if (currentPlatform && currentPlatform.name === constants.platform.B_51CTO) {
+    //@ts-ignore
     const artiType = [
       {value: '1', label: '原创'},
       {value: '2', label: '转载'},
       {value: '3', label: '翻译'},
     ];
+    //@ts-ignore
     const cate1 = [
       {value: '27', label: '系统/运维'},
       {value: '28', label: '云计算'},
@@ -813,7 +837,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
             onChange={onTaskChange('select', 'category')}
           >
             {categories.map(category => (
-              <Select.Option key={category}>{category}</Select.Option>
+              <Select.Option key={category} value={category}>{category}</Select.Option>
             ))}
           </Select>
         </Form.Item>
@@ -834,7 +858,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
             }
           >
             {categories.map(category => (
-              <Select.Option key={category.value}>{category.label}</Select.Option>
+              <Select.Option key={category.value} value={category.value}>{category.label}</Select.Option>
             ))}
           </Select>
         </Form.Item>
