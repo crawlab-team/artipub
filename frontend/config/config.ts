@@ -1,15 +1,14 @@
 import { defineConfig } from 'umi';;
 import defaultSettings from './defaultSettings'; // https://umijs.org/config/
 
-
-
-export const apiEndpoint = 'http://localhost:3000';
-
 export default defineConfig({
   hash: true,
   antd: {},
   dva: {
     hmr: true,
+  },
+  history: {
+    type: 'hash',
   },
   locale: {
     // default zh-CN

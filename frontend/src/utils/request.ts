@@ -4,7 +4,7 @@
  */
 import { extend } from 'umi-request';
 import { notification } from 'antd';
-import {apiEndpoint} from "../../config/config";
+import constants from "../constants";
 
 const codeMessage = {
   200: '服务器成功返回请求的数据。',
@@ -45,7 +45,7 @@ const errorHandler = (error: { response: Response }): Response => {
  * 配置request请求时的默认参数
  */
 const request = extend({
-  prefix: apiEndpoint,
+  prefix: constants.apiEndpoint,
   errorHandler, // 默认错误处理
   credentials: 'include', // 默认请求是否带上cookie
 });

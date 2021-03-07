@@ -28,7 +28,7 @@ import { Article, ArticleModelState } from "@/models/article";
 import { ConnectState, Dispatch } from "@/models/connect";
 import { ConnectProps } from 'umi';
 import {connect, history} from 'umi';
-import {ColumnProps, SelectionSelectFn, TableRowSelection} from 'antd/lib/table';
+import {ColumnProps} from 'antd/lib/table';
 import style from './ArticleList.less';
 import { Platform, PlatformModelState } from "@/models/platform";
 import moment from 'moment';
@@ -269,7 +269,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     });
   };
 
-  const onTaskSelect: SelectionSelectFn<any> = async (
+  const onTaskSelect = async (
     d: any,
     selected: boolean,
     selectedPlatforms: Object[],
@@ -371,7 +371,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     );
   };
 
-  const taskRowSelection: TableRowSelection<any> = {
+  const taskRowSelection = {
     selectedRowKeys: task.tasks.filter((d: Task) => d.checked).map((d: Task) => d.platformId),
     onSelect: onTaskSelect,
     onSelectAll: onTaskSelectAll,
@@ -435,7 +435,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
             </Tooltip>
             <Popconfirm title="您确认删除该文章吗？" onConfirm={onArticleDelete(d)}>
               <Tooltip title="删除">
-                <Button type="danger" shape="circle" icon={<DeleteOutlined />} className={style.delBtn} />
+                <Button type="link" danger shape="circle" icon={<DeleteOutlined />} className={style.delBtn} />
               </Tooltip>
             </Popconfirm>
           </div>
@@ -685,7 +685,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
             onChange={onTaskChange('select', 'category')}
           >
             {categories.map(category => (
-              <Select.Option key={category}>{category}</Select.Option>
+              <Select.Option key={category} value={category}>{category}</Select.Option>
             ))}
           </Select>
         </Form.Item>
@@ -700,7 +700,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
             }
           >
             {tags.map(tag => (
-              <Select.Option key={tag}>{tag}</Select.Option>
+              <Select.Option key={tag} value={tag}>{tag}</Select.Option>
             ))}
           </Select>
         </Form.Item>
@@ -740,7 +740,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
             onChange={onTaskChange('select', 'category')}
           >
             {categories.map(c => (
-              <Select.Option key={c.value}>{c.label}</Select.Option>
+              <Select.Option key={c.value} value={c.value}>{c.label}</Select.Option>
             ))}
           </Select>
         </Form.Item>
@@ -751,7 +751,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
             onChange={onTaskChange('select', 'pubType')}
           >
             {pubTypes.map(pt => (
-              <Select.Option key={pt.value}>{pt.label}</Select.Option>
+              <Select.Option key={pt.value} value={pt.value}>{pt.label}</Select.Option>
             ))}
           </Select>
         </Form.Item>
@@ -837,7 +837,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
             onChange={onTaskChange('select', 'category')}
           >
             {categories.map(category => (
-              <Select.Option key={category}>{category}</Select.Option>
+              <Select.Option key={category} value={category}>{category}</Select.Option>
             ))}
           </Select>
         </Form.Item>
@@ -858,7 +858,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
             }
           >
             {categories.map(category => (
-              <Select.Option key={category.value}>{category.label}</Select.Option>
+              <Select.Option key={category.value} value={category.value}>{category.label}</Select.Option>
             ))}
           </Select>
         </Form.Item>

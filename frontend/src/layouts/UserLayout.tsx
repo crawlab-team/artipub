@@ -1,6 +1,6 @@
 import { DefaultFooter, MenuDataItem, getMenuData, getPageTitle } from '@ant-design/pro-layout';
 import DocumentTitle from 'react-document-title';
-import { Link, connect, formatMessage } from 'umi';
+import { Link, connect, useIntl } from 'umi';
 import React from 'react';
 
 import SelectLang from "@/components/SelectLang";
@@ -32,7 +32,7 @@ const UserLayout: React.SFC<UserLayoutProps> = props => {
       title={getPageTitle({
         pathname: location.pathname,
         breadcrumb,
-        formatMessage,
+        formatMessage: useIntl().formatMessage,
         ...props,
       })}
     >

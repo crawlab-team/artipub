@@ -193,7 +193,7 @@ export default {
   v2ex: {
     urls: {
       login: '',
-      editor: 'https://v2ex.com/new'
+      editor: 'https://www.v2ex.com/new'
     },
     loginSel: {
       username: '',

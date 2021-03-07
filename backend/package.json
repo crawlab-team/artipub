@@ -4,9 +4,10 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "dev": "ts-node server.ts",
+    "dev": "ts-node ./src/server.ts",
     "build": "tsc",
-    "prod": "node ./dist/server.js",
+    "build-nomap": "tsc --sourceMap false",
+    "prod": "node ./dist/src/server.js",
     "prerelease": "npm version prerelease --preid=alpha"
   },
   "author": "Marvin Zhang",
@@ -22,11 +23,10 @@
     "url": "git+https://github.com/crawlab-team/artipub.git"
   },
   "bin": {
-    "artipub-be": "cli.js"
+    "artipub-be": "./dist/cli.js"
   },
   "files": [
-    "dist/",
-    "cli.js"
+    "dist/"
   ],
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"

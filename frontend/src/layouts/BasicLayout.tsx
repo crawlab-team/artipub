@@ -10,7 +10,7 @@ import ProLayout, {
   Settings,
 } from '@ant-design/pro-layout';
 import React, {useEffect} from 'react';
-import { Link, connect, setLocale, formatMessage } from 'umi';
+import { Link, connect, setLocale, useIntl } from 'umi';
 import Authorized from '@/utils/Authorized';
 import RightContent from '@/components/GlobalHeader/RightContent';
 import {ConnectState, Dispatch} from '@/models/connect';
@@ -18,6 +18,7 @@ import {isAntDesignPro} from '@/utils/utils';
 import logo from '../assets/logo.png';
 import style from './BasicLayout.less';
 import {Row} from "antd";
+
 
 export interface BasicLayoutProps extends ProLayoutProps {
   breadcrumbNameMap: {
@@ -86,7 +87,9 @@ const footerRender: BasicLayoutProps['footerRender'] = (_, defaultDom) => {
 };
 
 const BasicLayout: React.FC<BasicLayoutProps> = props => {
-  const {dispatch, children, settings} = props;
+  const { dispatch, children, settings } = props;
+  const { formatMessage } = useIntl();
+
   /**
    * constructor
    */
