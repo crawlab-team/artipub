@@ -5,7 +5,7 @@ import style from './Helper.less'
 import constants from "../../constants";
 const Helper: React.FC<any> = () => {
   const onDownload = () => {
-    window.location.pathname = '/artipub-helper.zip';
+    window.open('https://gitee.com/tanliyuan/artipub/releases/v0.1.5');
     TDAPP.onEvent('登陆助手-下载登陆助手');
   };
 
