@@ -1,7 +1,7 @@
 {
-  "name": "artipub-chrome-extension",
+  "name": "artipub--browser-extension",
   "version": "0.1.5",
-  "description": "Chrome extension login helper for ArtiPub",
+  "description": "browser extension login helper for ArtiPub",
   "scripts": {
     "dev": "webpack-dev-server --config webpack.dev.js --content-base ./dist",
     "build:dev": "webpack --config webpack.dev.js",
