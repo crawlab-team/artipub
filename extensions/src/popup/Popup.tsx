@@ -1,7 +1,8 @@
-import {Button, Card, Input} from 'antd';
+import { Button, Card, Input } from 'antd';
 import * as React from 'react';
 import axios from 'axios';
 import './Popup.scss';
+import { browser } from "webextension-polyfill-ts";
 
 interface AppProps {
 }
@@ -21,7 +22,7 @@ export default class Popup extends React.Component<AppProps, AppState> {
 
   componentDidMount() {
     // Example of how to send a message to eventPage.ts.
-    chrome.runtime.sendMessage({popupMounted: true});
+    browser.runtime.sendMessage({ popupMounted: true });
 
     this.setState({
       allowedDomains: [],
@@ -43,10 +44,12 @@ export default class Popup extends React.Component<AppProps, AppState> {
       allowedDomains: platforms.map((d: any) => d.name)
     });
 
-    chrome.cookies.getAllCookieStores(cookieStores => {
+    let cookieStores = browser.cookies.getAllCookieStores();
+    cookieStores.then(cookieStores => {
       // console.log(cookieStores);
       cookieStores.forEach(store => {
-        chrome.cookies.getAll({storeId: store.id}, cookies => {
+        let cookies = browser.cookies.getAll({ storeId: store.id });
+        cookies.then(cookies => {
           const data = cookies.filter(c => {
             if (c.domain.match('aliyun')) {
               if (c.domain == '.aliyun.com' || c.domain == 'developer.aliyun.com') {
@@ -64,14 +67,14 @@ export default class Popup extends React.Component<AppProps, AppState> {
 
           axios.post(this.state.url + '/cookies', data)
             .then(() => {
-              this.setState({fetched: true});
+              this.setState({ fetched: true });
             })
             .finally(() => {
-              this.setState({loading: false});
+              this.setState({ loading: false });
             });
-        });
+        })
       });
-    });
+    })
   }
 
   onConfig() {
@@ -111,7 +114,7 @@ export default class Popup extends React.Component<AppProps, AppState> {
     let input;
     if (this.state && this.state.configVisible) {
       input = (
-        <Input value={this.state.url} className="input-url" placeholder="后端地址" onChange={this.onUrlChange.bind(this)}/>
+        <Input value={this.state.url} className="input-url" placeholder="后端地址" onChange={this.onUrlChange.bind(this)} />
       );
     }
 
@@ -120,7 +123,7 @@ export default class Popup extends React.Component<AppProps, AppState> {
         <h2>
           ArtiPub登陆助手
           <Button type="primary" shape="circle" icon="tool" className="config-btn"
-            onClick={this.onConfig.bind(this)}/>
+            onClick={this.onConfig.bind(this)} />
         </h2>
         {input}
         {btn}
