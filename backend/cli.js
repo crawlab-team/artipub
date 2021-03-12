@@ -1,9 +1,13 @@
 #!/usr/bin/env node
-const  program = require('commander')
+const program = require('commander');
+const path = require('path');
+const exec = require('child_process').exec;
 
 program
   .command('start')
   .description('Start ArtiPub backend server')
+  .option('-D, --daemon', '用pm2后台启动服务,需已全局安装pm2,未安装则先执行 npm i -g pm2')
+  .option('-p, --port <port>', 'port number', 27017)
   .option('-H, --host <host>', 'mongodb host name', '127.0.0.1')
   .option('-p, --port <port>', 'port number', 27017)
   .option('-d, --dbname <dbname>', 'database name', 'artipub')
@@ -23,8 +27,13 @@ program
     process.env.MONGO_USERNAME = username
     process.env.MONGO_PASSWORD = password
 
+    const configFile = path.resolve(__dirname, './ecosystem.config.js');
     // 开启后端服务
-    require('./src/server')
+    if (options.daemon) {
+      exec(`pm2 start ${configFile}`);
+    } else {
+      require('./dist/server');
+    }
   })
 
 program.parse(process.argv)

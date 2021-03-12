@@ -12,6 +12,9 @@ artipub-be start
 
 //查看其他配置参数
 artipub-be start --help
+
+//加 -D 可以后台启动服务，使用的是pm2，配置见 ecosystem.config.js 
+artipub-be start -D
 ```
 
 ```bash

@@ -1,13 +1,13 @@
 {
   "name": "@crawlab-team/artipub-backend",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "",
   "main": "server.js",
   "scripts": {
     "dev": "ts-node ./src/server.ts",
     "build": "tsc",
     "build-nomap": "tsc --sourceMap false",
-    "prod": "node ./dist/src/server.js",
+    "prod": "pm2 start ecosystem.config.js",
     "prerelease": "npm version prerelease --preid=alpha"
   },
   "author": "Marvin Zhang",
@@ -25,10 +25,12 @@
   },
   "homepage": "https://github.com/crawlab-team/artipub#readme",
   "bin": {
-    "artipub-be": "./dist/cli.js"
+    "artipub-be": "./cli.js"
   },
   "files": [
-    "dist/"
+    "dist/",
+    "cli.js",
+    "ecosystem.config.js"
   ],
   "license": "ISC",
   "dependencies": {
