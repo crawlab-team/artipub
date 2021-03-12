@@ -15,6 +15,7 @@ artipub-be start --help
 
 //加 -D 可以后台启动服务，使用的是pm2，配置见 ecosystem.config.js 
 artipub-be start -D
+pm2 list
 ```
 
 ```bash
