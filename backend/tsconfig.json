@@ -23,6 +23,8 @@
   "exclude": [
     "node_modules",
     "dist",
+    "cli.js",
+    "ecosystem.config.js",
     "scripts",
     "acceptance-tests",
     "webpack",

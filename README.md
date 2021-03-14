@@ -170,7 +170,6 @@ npm install
 
 ```bash
 //frontend 目录下
-npm run build
 npm run dev
 ```
 
@@ -178,7 +177,13 @@ npm run dev
 
 ```bash
 //backend 目录下
-npm run start
+npm run dev
+
+
+
+//运行prod 需先全局安装pm2
+npm i pm2 -g
+npm run prod
 ```
 
 **配置数据库**
