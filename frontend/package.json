@@ -1,6 +1,6 @@
 {
-  "name": "@crawlab-team/artipub-frontend",
-  "version": "0.2.0",
+  "name": "artipub-frontend",
+  "version": "0.2.1-alpha.1",
   "description": "Article publishing platform that automatically distributes your articles to various media channels",
   "scripts": {
     "prod": "http-server ./dist",
@@ -69,6 +69,7 @@
     "react-dom": "^17.0.0",
     "react-markdown-editor-lite": "^0.4.3",
     "react-redux": "^7.2.2",
+    "replace-in-file": "^6.2.0",
     "showdown": "^1.9.0",
     "umi": "^3.2.14",
     "umi-request": "^1.0.8"
