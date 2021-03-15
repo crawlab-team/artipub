@@ -1,6 +1,6 @@
 {
-  "name": "artipub-frontend",
-  "version": "0.2.1-alpha.1",
+  "name": "@crawlab-team/artipub-frontend",
+  "version": "0.2.1",
   "description": "Article publishing platform that automatically distributes your articles to various media channels",
   "scripts": {
     "prod": "http-server ./dist",
@@ -56,7 +56,6 @@
     "classnames": "^2.2.6",
     "codemirror": "^5.48.2",
     "commander": "^7.1.0",
-    "http-server": "^0.12.3",
     "lodash": "^4.17.11",
     "markdown-it": "^10.0.0",
     "moment": "^2.25.3",

@@ -15,8 +15,9 @@ program
   .version(version)
   .command('start')
   .description('Start ArtiPub frontend server')
-  .option('-h, --backendHost <host>', `backend server address, default: ${defaultBackendHost}`, defaultBackendHost)
-  .option('-p, --port <port>', 'frontend static server port number', 8000)
+  .option('-D, --daemon', '用pm2后台启动服务,需已全局安装pm2,未安装则先执行 npm i -g pm2')
+  .option('-h, --backendHost [host]', `backend server address, default: ${defaultBackendHost}`, defaultBackendHost)
+  .option('-p, --port [port]', 'frontend static server port number', 8000)
   .action((options) => {
     //非默认就替换前端脚本中后端地址
     if (options.backendHost !== defaultBackendHost) {
@@ -26,17 +27,23 @@ program
         from: defaultBackendHost,
         to: options.backendHost
       }
-      
+
       try {
         replace.sync(replaceOption);
       } catch(error) {
-        console.error(`替换 ${umiIndex} 脚本中后端地址失败，请确保有修改权限。`);
+        console.error(`替换 ${umiIndex} 脚本中后端地址失败，请确保有修改权限。执行 chmod 777 umi.[哈希值].js。`);
+        console.error(`错误：${error}`);
         exit(1);
       }
 
     }
 
-    const setUpCmd = `npx http-server ${distDir} -p ${options.port}`;
+    let setUpCmd;
+    if (options.daemon) {
+      setUpCmd = `pm2 serve ${distDir} ${options.port}`;
+    } else {
+      setUpCmd = `npx http-server ${distDir} -p ${options.port}`;
+    }
 
     // 开启前端服务
     console.log(`启动命令：${setUpCmd}`)
