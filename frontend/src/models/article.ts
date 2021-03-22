@@ -1,13 +1,13 @@
-import { Effect } from 'dva';
+import type { Effect } from 'dva';
 import {
   addArticle,
   deleteArticle,
   publishArticle,
   queryArticle,
   queryArticles,
-  saveArticle
-} from "@/services/article";
-import { Reducer } from 'redux';
+  saveArticle,
+} from '@/services/article';
+import type { Reducer } from 'redux';
 
 export interface Article {
   _id?: string;
@@ -190,7 +190,7 @@ const ArticleModel: ArticleModelType = {
     },
     saveArticleTitle(state, action) {
       if (!state || !state.currentArticle) return { ...state };
-      const currentArticle = state.currentArticle;
+      const { currentArticle } = state;
       currentArticle.title = action.payload.title;
       return {
         ...state,
@@ -199,7 +199,7 @@ const ArticleModel: ArticleModelType = {
     },
     saveArticleContent(state, action) {
       if (!state || !state.currentArticle) return { ...state };
-      const currentArticle = state.currentArticle;
+      const { currentArticle } = state;
       currentArticle.content = action.payload.content;
       currentArticle.contentHtml = action.payload.contentHtml;
       return {
@@ -209,7 +209,7 @@ const ArticleModel: ArticleModelType = {
     },
     saveArticleContentHtml(state, action) {
       if (!state || !state.currentArticle) return { ...state };
-      const currentArticle = state.currentArticle;
+      const { currentArticle } = state;
       currentArticle.contentHtml = action.payload.contentHtml;
       return {
         ...state,
@@ -218,7 +218,7 @@ const ArticleModel: ArticleModelType = {
     },
     saveArticlePlatformIds(state, action) {
       if (!state || !state.currentArticle) return { ...state };
-      const currentArticle = state.currentArticle;
+      const { currentArticle } = state;
       currentArticle.platformIds = action.payload;
       return {
         ...state,

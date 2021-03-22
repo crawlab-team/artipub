@@ -1,7 +1,9 @@
 export default {
-  //后端地址
-  apiEndpoint : 'http://localhost:3000',
-
+  // 后端地址
+  // apiEndpoint: '/api',
+  apiEndpoint: 'http://localhost:3000',
+  // 登录助手下载地址
+  browserExt: 'https://gitee.com/tanliyuan/artipub/releases/v0.1.5',
   platform: {
     JUEJIN: 'juejin',
     SEGMENTFAULT: 'segmentfault',
@@ -16,7 +18,7 @@ export default {
     ALIYUN: 'aliyun',
     BAIJIAHAO: 'baijiahao',
     DEVTOUTIAO: 'devtoutiao',
-    B_51CTO: '51cto'
+    B_51CTO: '51cto',
   },
   status: {
     NOT_STARTED: 'not-started',
@@ -47,5 +49,5 @@ export default {
     NO_COOKIE: 'no_cookie',
     EXPIRED: 'expired',
     EXISTS: 'exists',
-  }
+  },
 };

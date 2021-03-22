@@ -1,4 +1,4 @@
-import { Effect } from 'dva';
+import type { Effect } from 'dva';
 import {
   addPlatform,
   deletePlatform,
@@ -6,9 +6,9 @@ import {
   importPlatformArticles,
   queryPlatformList,
   savePlatform,
-  updateCookieStatus
-} from "@/services/platform";
-import { Reducer } from 'redux';
+  updateCookieStatus,
+} from '@/services/platform';
+import type { Reducer } from 'redux';
 import { message } from 'antd';
 
 export interface Platform {
@@ -178,7 +178,7 @@ const PlatformModel: PlatformModelType = {
         payload: false,
       });
     },
-    *updateCookieStatus(_, {call, put}) {
+    *updateCookieStatus(_, { call, put }) {
       yield put({
         type: 'setUpdateCookieStatusLoading',
         payload: true,
@@ -193,7 +193,7 @@ const PlatformModel: PlatformModelType = {
         type: 'setPlatformList',
         payload: response.data,
       });
-    }
+    },
   },
 
   reducers: {

@@ -1,18 +1,19 @@
-import React, {ChangeEventHandler, useEffect} from 'react';
+import type { ChangeEventHandler } from 'react';
+import React, { useEffect } from 'react';
 // import {PageHeaderWrapper} from '@ant-design/pro-layout';
-import BlankLayout from "@/layouts/BlankLayout";
 // import UserLayout from '@/layouts/UserLayout';
-import { ArticleModelState } from "@/models/article";
-import { ConnectState, Dispatch } from "@/models/connect";
-import {connect, ConnectProps} from 'umi';
-import {Button, Input, message} from 'antd';
+import type { ArticleModelState } from '@/models/article';
+import type { ConnectState, Dispatch } from '@/models/connect';
+import type { ConnectProps } from 'umi';
+import { connect } from 'umi';
+import { Button, Input, message } from 'antd';
 // @ts-ignore
 import MarkdownIt from 'markdown-it';
-import MdEditor from "react-markdown-editor-lite";
-
+import MdEditor from 'react-markdown-editor-lite';
+import 'react-markdown-editor-lite/lib/index.css';
 // 引入codemirror样式
 import style from './ArticleEdit.less';
-import 'codemirror/mode/markdown/markdown';
+// import 'codemirror/mode/markdown/markdown';
 import { history } from 'umi';
 
 export interface ArticleEditProps extends ConnectProps {
@@ -20,12 +21,12 @@ export interface ArticleEditProps extends ConnectProps {
   dispatch: Dispatch;
 }
 
-const ArticleEdit: React.FC<ArticleEditProps> = props => {
-  const {dispatch, article} = props;
+const ArticleEdit: React.FC<ArticleEditProps> = (props) => {
+  const { dispatch, article } = props;
 
-  const isEdit = (): Boolean => {
+  const isEdit = (): boolean => {
     return (
-      !!location.hash.match(/edit/) ||
+      !!window.location.hash.match(/edit/) ||
       (!!article.currentArticle && !!article.currentArticle._id)
     );
   };
@@ -34,7 +35,7 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
     if (dispatch) {
       if (isEdit()) {
         // 如果为编辑文章
-        const arr = location.hash.split('/');
+        const arr = window.location.hash.split('/');
         dispatch({
           type: 'article/fetchArticle',
           payload: {
@@ -50,7 +51,7 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
   }, []);
 
   // 更新标题
-  const onTitleChange: ChangeEventHandler<HTMLInputElement> = ev => {
+  const onTitleChange: ChangeEventHandler<HTMLInputElement> = (ev) => {
     // console.log(article.currentArticle);
     // console.log(ev.target.value);
     if (dispatch) {
@@ -65,8 +66,8 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
 
   // 更新内容
   const onContentChange = (data: any) => {
-    const text = data.text;
-    const html = data.html;
+    const { text } = data;
+    const { html } = data;
     if (dispatch) {
       dispatch({
         type: 'article/setArticleContent',
@@ -79,7 +80,7 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
   };
 
   const onImageUpload = (data: any) => {
-    console.log(data);
+    // console.log(data);
   };
 
   // markdown to html转换器
@@ -136,50 +137,49 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
   };
 
   return (
-    <BlankLayout>
-      <div className={style.articleEdit}>
-        {/*标题*/}
-        <div className={style.topBar}>
-          <Input
-            className={style.title}
-            placeholder="文章标题"
-            value={article.currentArticle ? article.currentArticle.title : ''}
-            onChange={onTitleChange}
-          />
-          <div className={style.actions}>
-            <Button className={style.backBtn} type="default" onClick={onBack}>
-              返回
-            </Button>
-            <Button className={style.saveBtn} type="primary" onClick={onSave}>
-              保存
-            </Button>
-          </div>
-        </div>
-
-        {/*主要内容*/}
-        <div className={style.main}>
-          <MdEditor name='md'
-            style={{width: '100%', height: 'calc(100vh - 50px)'}}
-            value={article.currentArticle ? article.currentArticle.content : ''}
-            renderHTML={(text) => {
-              const html = mdParser.render(text);
-              dispatch({
-                type: 'article/setArticleContentHtml',
-                payload: {
-                  contentHtml: html,
-                },
-              });
-              return html;
-            }}
-            onChange={onContentChange}
-            onImageUpload={onImageUpload}
-          />
+    <div className={style.articleEdit}>
+      {/* 标题 */}
+      <div className={style.topBar}>
+        <Input
+          className={style.title}
+          placeholder="文章标题"
+          value={article.currentArticle ? article.currentArticle.title : ''}
+          onChange={onTitleChange}
+        />
+        <div className={style.actions}>
+          <Button className={style.backBtn} type="default" onClick={onBack}>
+            返回
+          </Button>
+          <Button className={style.saveBtn} type="primary" onClick={onSave}>
+            保存
+          </Button>
         </div>
       </div>
-    </BlankLayout>
+
+      {/* 主要内容 */}
+      <div className={style.main}>
+        <MdEditor
+          name="md"
+          style={{ width: '100%', height: 'calc(100vh - 50px)' }}
+          value={article.currentArticle ? article.currentArticle.content : ''}
+          renderHTML={(text) => {
+            const html = mdParser.render(text);
+            dispatch({
+              type: 'article/setArticleContentHtml',
+              payload: {
+                contentHtml: html,
+              },
+            });
+            return html;
+          }}
+          onChange={onContentChange}
+          onImageUpload={onImageUpload}
+        />
+      </div>
+    </div>
   );
 };
 
-export default connect(({article}: ConnectState) => ({
+export default connect(({ article }: ConnectState) => ({
   article,
 }))(ArticleEdit);

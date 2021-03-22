@@ -5,6 +5,8 @@ import { useIntl } from 'umi';
 import defaultSettings from '../config/defaultSettings';
 
 const { pwa } = defaultSettings;
+const isHttps = document.location.protocol === 'https:';
+
 // if pwa is true
 if (pwa) {
   // Notify user if offline now
@@ -25,7 +27,7 @@ if (pwa) {
       // Send skip-waiting event to waiting SW with MessageChannel
       await new Promise((resolve, reject) => {
         const channel = new MessageChannel();
-        channel.port1.onmessage = msgEvent => {
+        channel.port1.onmessage = (msgEvent) => {
           if (msgEvent.data.error) {
             reject(msgEvent.data.error);
           } else {
@@ -55,17 +57,29 @@ if (pwa) {
       description: useIntl().formatMessage({ id: 'app.pwa.serviceworker.updated.hint' }),
       btn,
       key,
-      onClose: async () => {},
+      onClose: async () => null,
     });
   });
-} else if ('serviceWorker' in navigator) {
-  // eslint-disable-next-line compat/compat
-  navigator.serviceWorker.ready
-    .then(registration => {
-      registration.unregister();
-      return true;
-    })
-    .catch(() => {
-      console.log('serviceWorker unregister error');
+} else if ('serviceWorker' in navigator && isHttps) {
+  // unregister service worker
+  const { serviceWorker } = navigator;
+  if (serviceWorker.getRegistrations) {
+    serviceWorker.getRegistrations().then((sws) => {
+      sws.forEach((sw) => {
+        sw.unregister();
+      });
     });
+  }
+  serviceWorker.getRegistration().then((sw) => {
+    if (sw) sw.unregister();
+  });
+
+  // remove all caches
+  if (window.caches && window.caches.keys) {
+    caches.keys().then((keys) => {
+      keys.forEach((key) => {
+        caches.delete(key);
+      });
+    });
+  }
 }

@@ -3,9 +3,8 @@ node_modules
 logs/
 .idea/
 tmp/
-yarn.lock
 .DS_Store
-package-lock.json
 .umi/
 dist/
 .history
+.vscode

@@ -1,15 +1,17 @@
-import React, {useEffect} from 'react';
-import {PageHeaderWrapper} from '@ant-design/pro-layout';
+import React, { useEffect } from 'react';
+import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { ImportOutlined, KeyOutlined, SyncOutlined } from '@ant-design/icons';
-import { Form } from '@ant-design/compatible';
-import '@ant-design/compatible/assets/index.css';
-import { Button, Card, Input, Modal, Select, Spin, Table, Tag, Tooltip } from 'antd';
-import { Platform, PlatformModelState, SiteArticle } from "@/models/platform";
-import { ConnectState, Dispatch } from "@/models/connect";
-import {connect, ConnectProps} from 'umi';
-import {ColumnProps, SelectionSelectFn, TableRowSelection} from 'antd/lib/table';
+// import { Form } from '@ant-design/compatible';
+// import '@ant-design/compatible/assets/index.css';
+import { Form, Button, Card, Input, Modal, Select, Spin, Table, Tag, Tooltip } from 'antd';
+import type { Platform, PlatformModelState, SiteArticle } from '@/models/platform';
+import type { ConnectState, Dispatch } from '@/models/connect';
+import type { ConnectProps } from 'umi';
+import { connect } from 'umi';
+import type { SelectionSelectFn, TableRowSelection } from 'antd/lib/table/interface';
+import type { ColumnProps } from 'antd/lib/table';
 import style from './PlatformList.less';
-import constants from "@/constants";
+import constants from '@/constants';
 
 // logo images
 import imgJuejin from '@/assets/img/juejin-logo.svg';
@@ -32,8 +34,8 @@ export interface PlatformListProps extends ConnectProps {
   dispatch: Dispatch;
 }
 
-const PlatformList: React.FC<PlatformListProps> = props => {
-  const {dispatch, platform} = props;
+const PlatformList: React.FC<PlatformListProps> = (props) => {
+  const { dispatch, platform } = props;
 
   // const onEdit: Function = (d: Platform) => {
   //   return () => {
@@ -77,9 +79,9 @@ const PlatformList: React.FC<PlatformListProps> = props => {
   //   };
   // };
 
-  const onFieldChange: Function = (type: string, fieldName: string) => {
+  const onFieldChange = (type: string, fieldName: string) => {
     return (ev: any) => {
-      const currentPlatform = platform.currentPlatform;
+      const { currentPlatform } = platform;
       if (currentPlatform) {
         if (type === constants.inputType.INPUT) {
           currentPlatform[fieldName] = ev.target.value;
@@ -126,7 +128,7 @@ const PlatformList: React.FC<PlatformListProps> = props => {
     }
   };
 
-  const onFetch: Function = (d: Platform) => {
+  const onFetch = (d: Platform) => {
     return async () => {
       await dispatch({
         type: 'platform/saveFetchModalVisible',
@@ -166,7 +168,7 @@ const PlatformList: React.FC<PlatformListProps> = props => {
     });
   };
 
-  const onAccount: Function = (d: Platform) => {
+  const onAccount = (d: Platform) => {
     return async () => {
       await dispatch({
         type: 'platform/saveAccountModalVisible',
@@ -176,7 +178,7 @@ const PlatformList: React.FC<PlatformListProps> = props => {
         type: 'platform/saveCurrentPlatform',
         payload: d,
       });
-      TDAPP.onEvent('平台管理-打开账户设置')
+      TDAPP.onEvent('平台管理-打开账户设置');
     };
   };
 
@@ -185,7 +187,7 @@ const PlatformList: React.FC<PlatformListProps> = props => {
       type: 'platform/saveAccountModalVisible',
       payload: false,
     });
-    TDAPP.onEvent('平台管理-取消账户设置')
+    TDAPP.onEvent('平台管理-取消账户设置');
   };
 
   const onAccountSave = async () => {
@@ -197,7 +199,7 @@ const PlatformList: React.FC<PlatformListProps> = props => {
       type: 'platform/saveAccountModalVisible',
       payload: false,
     });
-    TDAPP.onEvent('平台管理-保存账户设置')
+    TDAPP.onEvent('平台管理-保存账户设置');
   };
 
   const getStatsComponent = (d: any) => {
@@ -206,13 +208,13 @@ const PlatformList: React.FC<PlatformListProps> = props => {
     d.commentNum = d.commentNum || 0;
     return (
       <div>
-        <Tooltip title={'阅读数: ' + d.readNum.toString()}>
+        <Tooltip title={`阅读数: ${d.readNum.toString()}`}>
           <Tag color="green">{d.readNum}</Tag>
         </Tooltip>
-        <Tooltip title={'点赞数: ' + d.likeNum.toString()}>
+        <Tooltip title={`点赞数: ${d.likeNum.toString()}`}>
           <Tag color="orange">{d.likeNum}</Tag>
         </Tooltip>
-        <Tooltip title={'评论数: ' + d.commentNum.toString()}>
+        <Tooltip title={`评论数: ${d.commentNum.toString()}`}>
           <Tag color="blue">{d.commentNum}</Tag>
         </Tooltip>
       </div>
@@ -228,42 +230,40 @@ const PlatformList: React.FC<PlatformListProps> = props => {
       render: (text: string, d: Platform) => {
         let img = <span>Logo</span>;
         if (d.name === constants.platform.JUEJIN) {
-          img = <img className={style.siteLogo} src={imgJuejin}/>;
+          img = <img className={style.siteLogo} src={imgJuejin} />;
         } else if (d.name === constants.platform.SEGMENTFAULT) {
-          img = <img className={style.siteLogo} src={imgSegmentfault}/>;
+          img = <img className={style.siteLogo} src={imgSegmentfault} />;
         } else if (d.name === constants.platform.JIANSHU) {
-          img = <img className={style.siteLogo} src={imgJianshu}/>;
+          img = <img className={style.siteLogo} src={imgJianshu} />;
         } else if (d.name === constants.platform.CSDN) {
-          img = <img className={style.siteLogo} src={imgCsdn}/>;
+          img = <img className={style.siteLogo} src={imgCsdn} />;
         } else if (d.name === constants.platform.ZHIHU) {
-          img = <img className={style.siteLogo} src={imgZhihu}/>;
+          img = <img className={style.siteLogo} src={imgZhihu} />;
         } else if (d.name === constants.platform.OSCHINA) {
-          img = <img className={style.siteLogo} src={imgOschina}/>;
+          img = <img className={style.siteLogo} src={imgOschina} />;
         } else if (d.name === constants.platform.TOUTIAO) {
-          img = <img className={style.siteLogo} src={imgToutiao}/>;
+          img = <img className={style.siteLogo} src={imgToutiao} />;
         } else if (d.name === constants.platform.CNBLOGS) {
-          img = <img className={style.siteLogo} alt={d.label} src={imgCnblogs}/>;
+          img = <img className={style.siteLogo} alt={d.label} src={imgCnblogs} />;
         } else if (d.name === constants.platform.V2EX) {
-          img = <img className={style.siteLogo} alt={d.label} src={imgV2ex}/>;
+          img = <img className={style.siteLogo} alt={d.label} src={imgV2ex} />;
         } else if (d.name === constants.platform.WECHAT) {
-          return <img className={style.siteLogo} alt={d.label} src={imgWechat}/>;
+          return <img className={style.siteLogo} alt={d.label} src={imgWechat} />;
         } else if (d.name === constants.platform.ALIYUN) {
-          return <img className={style.siteLogo} alt={d.label} src={imgAliyun}/>;
+          return <img className={style.siteLogo} alt={d.label} src={imgAliyun} />;
         } else if (d.name === constants.platform.BAIJIAHAO) {
-          return <img className={style.siteLogo} alt={d.label} src={baiJiaHao}/>;
+          return <img className={style.siteLogo} alt={d.label} src={baiJiaHao} />;
         } else if (d.name === constants.platform.DEVTOUTIAO) {
-          return <img className={style.siteLogo} alt={d.label} src={devtoutiao}/>;
+          return <img className={style.siteLogo} alt={d.label} src={devtoutiao} />;
         } else if (d.name === constants.platform.B_51CTO) {
-          return <img className={style.siteLogo} alt={d.label} src={imgB51CTO}/>;
+          return <img className={style.siteLogo} alt={d.label} src={imgB51CTO} />;
         }
-
-
 
         return (
           <a href={d.url} target="_blank">
             {img}
           </a>
-        )
+        );
       },
     },
     {
@@ -283,10 +283,10 @@ const PlatformList: React.FC<PlatformListProps> = props => {
       dataIndex: 'description',
       key: 'description',
       width: 'auto',
-      render: text => {
+      render: (text) => {
         let shortText = text;
         if (text && text.length > 50) {
-          shortText = shortText.substr(0, 50) + '...';
+          shortText = `${shortText.substr(0, 50)}...`;
         }
         return (
           <div className={style.description} title={text}>
@@ -306,23 +306,21 @@ const PlatformList: React.FC<PlatformListProps> = props => {
             <Tooltip title="可以发布文章到该平台">
               <Tag color="green">已导入</Tag>
             </Tooltip>
-          )
-        } else {
-          if (d.name === constants.platform.WECHAT) {
-            return (
-              <Tooltip title="可以发布文章到该平台">
-                <Tag color="green">不需导入</Tag>
-              </Tooltip>
-            )
-          } else {
-            return (
-              <Tooltip title="请用登陆助手导入Cookie">
-                <Tag color="red">未导入</Tag>
-              </Tooltip>
-            );
-          }
+          );
         }
-      }
+        if (d.name === constants.platform.WECHAT) {
+          return (
+            <Tooltip title="可以发布文章到该平台">
+              <Tag color="green">不需导入</Tag>
+            </Tooltip>
+          );
+        }
+        return (
+          <Tooltip title="请用登陆助手导入Cookie">
+            <Tag color="red">未导入</Tag>
+          </Tooltip>
+        );
+      },
     },
     {
       title: '操作',
@@ -352,9 +350,9 @@ const PlatformList: React.FC<PlatformListProps> = props => {
                 onClick={onAccount(d)}
               />
             </Tooltip>
-            {/*<Popconfirm title="您确认删除该平台吗？" onConfirm={onDelete(d)}>*/}
-            {/*  <Button type="danger" shape="circle" icon="delete" className={style.delBtn}/>*/}
-            {/*</Popconfirm>*/}
+            {/* <Popconfirm title="您确认删除该平台吗？" onConfirm={onDelete(d)}> */}
+            {/*  <Button type="danger" shape="circle" icon="delete" className={style.delBtn}/> */}
+            {/* </Popconfirm> */}
           </div>
         );
       },
@@ -383,9 +381,8 @@ const PlatformList: React.FC<PlatformListProps> = props => {
       render: (text: string, d: SiteArticle) => {
         if (d.exists) {
           return <Tag color="green">已存在</Tag>;
-        } else {
-          return <Tag color="red">不存在</Tag>;
         }
+        return <Tag color="red">不存在</Tag>;
       },
     },
     {
@@ -396,9 +393,8 @@ const PlatformList: React.FC<PlatformListProps> = props => {
       render: (text: string, d: SiteArticle) => {
         if (d.associated) {
           return <Tag color="green">已关联</Tag>;
-        } else {
-          return <Tag color="red">未关联</Tag>;
         }
+        return <Tag color="red">未关联</Tag>;
       },
     },
     {
@@ -411,17 +407,16 @@ const PlatformList: React.FC<PlatformListProps> = props => {
       },
     },
   ];
-
   const onSiteArticleSelect: SelectionSelectFn<any> = async (
-    d: any,
-    selected: boolean,
-    selectedSiteArticles: Object[],
-    nativeEvent: Event,
+    // d: any,
+    // selected: boolean,
+    selectedSiteArticles: Record<string, unknown>[],
+    // nativeEvent: Event,
   ) => {
     const siteArticles = platform.siteArticles || [];
     for (let i = 0; i < siteArticles.length; i++) {
       siteArticles[i].checked = selectedSiteArticles
-        .map((d: any) => d.url)
+        .map((_d: any) => _d.url)
         .includes(siteArticles[i].url);
     }
     await dispatch({
@@ -452,14 +447,14 @@ const PlatformList: React.FC<PlatformListProps> = props => {
   const getTip = () => {
     if (platform.fetchLoading) {
       return '正在获取文章列表，需要大约15-60秒，请耐心等待...';
-    } else if (platform.importLoading) {
+    }
+    if (platform.importLoading) {
       const articleNum = platform.siteArticles
-        ? platform.siteArticles.filter(d => d.checked && (!d.exists || !d.associated)).length
+        ? platform.siteArticles.filter((d) => d.checked && (!d.exists || !d.associated)).length
         : 0;
       return `正在导入文章，需要大约${15 * articleNum}秒（每篇文章大约15秒），请耐心等待...`;
-    } else {
-      return '';
     }
+    return '';
   };
 
   const onUpdateCookieStatus = () => {
@@ -486,7 +481,7 @@ const PlatformList: React.FC<PlatformListProps> = props => {
         onOk={onSave}
         onCancel={onModalCancel}
       >
-        <Form labelCol={{sm: {span: 4}}} wrapperCol={{sm: {span: 20}}}>
+        <Form labelCol={{ sm: { span: 4 } }} wrapperCol={{ sm: { span: 20 } }}>
           <Form.Item label="代号">
             <Input
               value={platform.currentPlatform ? platform.currentPlatform.name : ''}
@@ -504,8 +499,8 @@ const PlatformList: React.FC<PlatformListProps> = props => {
               value={platform.currentPlatform ? platform.currentPlatform.editorType : ''}
               onChange={onFieldChange(constants.inputType.SELECT, 'editorType')}
             >
-              <Select.Option key={constants.editorType.MARKDOWN}>Markdown</Select.Option>
-              <Select.Option key={constants.editorType.RICH_TEXT}>富文本编辑</Select.Option>
+              <Select.Option value={constants.editorType.MARKDOWN}>Markdown</Select.Option>
+              <Select.Option value={constants.editorType.RICH_TEXT}>富文本编辑</Select.Option>
             </Select>
           </Form.Item>
           <Form.Item label="描述">
@@ -539,11 +534,11 @@ const PlatformList: React.FC<PlatformListProps> = props => {
             dataSource={
               platform.siteArticles
                 ? platform.siteArticles.map((d: SiteArticle) => {
-                  return {
-                    key: d.url,
-                    ...d,
-                  };
-                })
+                    return {
+                      key: d.url,
+                      ...d,
+                    };
+                  })
                 : []
             }
             columns={siteArticlesColumns}
@@ -555,7 +550,7 @@ const PlatformList: React.FC<PlatformListProps> = props => {
         onCancel={onAccountModalCancel}
         onOk={onAccountSave}
       >
-        <Form>
+        <Form layout="vertical">
           <Form.Item label="登陆用户名">
             <Input
               value={platform.currentPlatform ? platform.currentPlatform.username : ''}
@@ -573,10 +568,10 @@ const PlatformList: React.FC<PlatformListProps> = props => {
           </Form.Item>
         </Form>
       </Modal>
-      {/*<div className={style.actions}>*/}
-      {/*  <Button className={style.addBtn} type="primary" onClick={onAdd}>添加平台</Button>*/}
-      {/*</div>*/}
-      <div style={{textAlign: 'right', marginBottom: '20px'}}>
+      {/* <div className={style.actions}> */}
+      {/*  <Button className={style.addBtn} type="primary" onClick={onAdd}>添加平台</Button> */}
+      {/* </div> */}
+      <div style={{ textAlign: 'right', marginBottom: '20px' }}>
         <Button
           type="primary"
           loading={platform.updateCookieStatusLoading}
@@ -587,12 +582,12 @@ const PlatformList: React.FC<PlatformListProps> = props => {
         </Button>
       </div>
       <Card>
-        <Table dataSource={platform.platforms} columns={columns} rowKey={record => record._id}/>
+        <Table dataSource={platform.platforms} columns={columns} rowKey={(record) => record._id} />
       </Card>
     </PageHeaderWrapper>
   );
 };
 
-export default connect(({platform}: ConnectState) => ({
+export default connect(({ platform }: ConnectState) => ({
   platform,
 }))(PlatformList);

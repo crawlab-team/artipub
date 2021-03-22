@@ -1,10 +1,11 @@
-import React, {useEffect} from 'react';
-import {PageHeaderWrapper} from '@ant-design/pro-layout';
-import {Card, Input, message, Select, Table} from 'antd';
-import { ConnectState, Dispatch } from "@/models/connect";
-import {connect, ConnectProps} from 'umi';
-import {ColumnProps} from 'antd/lib/table';
-import { Environment, EnvironmentModelState } from "@/models/environment";
+import React, { useEffect } from 'react';
+import { PageHeaderWrapper } from '@ant-design/pro-layout';
+import { Card, Input, message, Select, Table } from 'antd';
+import type { ConnectState, Dispatch } from '@/models/connect';
+import type { ConnectProps } from 'umi';
+import { connect } from 'umi';
+import type { ColumnProps } from 'antd/lib/table';
+import type { Environment, EnvironmentModelState } from '@/models/environment';
 import constants from '../../constants';
 
 export interface EnvironmentListProps extends ConnectProps {
@@ -12,15 +13,47 @@ export interface EnvironmentListProps extends ConnectProps {
   dispatch: Dispatch;
 }
 
-const EnvironmentList: React.FC<EnvironmentListProps> = props => {
-  const {dispatch, environment} = props;
+const EnvironmentList: React.FC<EnvironmentListProps> = (props) => {
+  const { dispatch, environment } = props;
+  const onSave = (d: Environment) => {
+    return () => {
+      dispatch({
+        type: 'environment/saveEnvironment',
+        payload: d,
+      });
+      message.success('保存成功, 请重启服务器使系统设置生效');
 
+      TDAPP.onEvent('系统设置-更新设置');
+    };
+  };
+  const onFieldChange = (type: string, d: Environment) => {
+    return (ev: any) => {
+      if (type === constants.inputType.SELECT) {
+        d.value = ev;
+        onSave(d)();
+      } else {
+        d.value = ev.target.value;
+      }
+
+      const environments = environment.environments
+        ? environment.environments.map((_d: Environment) => {
+            if (_d._id === d._id) _d.value = d.value;
+            return _d;
+          })
+        : [];
+
+      dispatch({
+        type: 'environment/saveEnvironmentList',
+        payload: environments,
+      });
+    };
+  };
   const getValue = (d: Environment) => {
     if (d._id === constants.environment.UPDATE_STATS_CRON) {
       return (
         <Select
           value={d.value}
-          style={{width: '200px'}}
+          style={{ width: '200px' }}
           onChange={onFieldChange(constants.inputType.SELECT, d)}
         >
           <Select.Option value="0 0/5 * * * *">每5分钟</Select.Option>
@@ -31,29 +64,29 @@ const EnvironmentList: React.FC<EnvironmentListProps> = props => {
           <Select.Option value="0 0 0/12 * * *">每12小时</Select.Option>
           <Select.Option value="0 0 0 * * *">每天</Select.Option>
         </Select>
-      )
-    } else if (d._id === constants.environment.ENABLE_CHROME_DEBUG) {
+      );
+    }
+    if (d._id === constants.environment.ENABLE_CHROME_DEBUG) {
       return (
         <Select
           value={d.value}
-          style={{width: '200px'}}
+          style={{ width: '200px' }}
           onChange={onFieldChange(constants.inputType.SELECT, d)}
         >
           <Select.Option value="Y">开启</Select.Option>
           <Select.Option value="N">关闭</Select.Option>
         </Select>
       );
-    } else {
-      return (
-        <Input
-          value={d.value}
-          style={{width: '200px'}}
-          onChange={onFieldChange(constants.inputType.INPUT, d)}
-          onBlur={onSave(d)}
-          placeholder={d.label}
-        />
-      )
     }
+    return (
+      <Input
+        value={d.value}
+        style={{ width: '200px' }}
+        onChange={onFieldChange(constants.inputType.INPUT, d)}
+        onBlur={onSave(d)}
+        placeholder={d.label}
+      />
+    );
   };
 
   const columns: ColumnProps<any>[] = [
@@ -70,48 +103,15 @@ const EnvironmentList: React.FC<EnvironmentListProps> = props => {
       width: '180px',
       render: (text, d) => {
         return getValue(d);
-      }
+      },
     },
   ];
-
-  const onFieldChange: Function = (type: string, d: Environment) => {
-    return (ev: any) => {
-      if (type === constants.inputType.SELECT) {
-        d.value = ev;
-        onSave(d)();
-      } else {
-        d.value = ev.target.value;
-      }
-
-      const environments = environment.environments ? environment.environments.map((_d: Environment) => {
-        if (_d._id === d._id) _d.value = d.value;
-        return _d;
-      }) : [];
-
-      dispatch({
-        type: 'environment/saveEnvironmentList',
-        payload: environments,
-      });
-    }
-  };
-
-  const onSave: Function = (d: Environment) => {
-    return () => {
-      dispatch({
-        type: 'environment/saveEnvironment',
-        payload: d,
-      });
-      message.success('保存成功, 请重启服务器使系统设置生效');
-
-      TDAPP.onEvent('系统设置-更新设置');
-    }
-  };
 
   useEffect(() => {
     if (dispatch) {
       dispatch({
-        type: 'environment/fetchEnvironmentList'
-      })
+        type: 'environment/fetchEnvironmentList',
+      });
     }
   }, []);
 
@@ -121,16 +121,22 @@ const EnvironmentList: React.FC<EnvironmentListProps> = props => {
     <PageHeaderWrapper>
       <Card>
         <Table
-          dataSource={environment.environments ? environment.environments.filter((d: Environment) => ![
-            constants.environment.WECHAT_ACCESS_TOKEN,
-          ].includes(d._id || '')) : []}
-          columns={columns} rowKey={record => record._id}
+          dataSource={
+            environment.environments
+              ? environment.environments.filter(
+                  (d: Environment) =>
+                    ![constants.environment.WECHAT_ACCESS_TOKEN].includes(d._id || ''),
+                )
+              : []
+          }
+          columns={columns}
+          rowKey={(record) => record._id}
         />
       </Card>
     </PageHeaderWrapper>
   );
 };
 
-export default connect(({environment}: ConnectState) => ({
+export default connect(({ environment }: ConnectState) => ({
   environment,
 }))(EnvironmentList);

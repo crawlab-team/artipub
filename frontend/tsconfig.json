@@ -35,14 +35,6 @@
     ".prettierrc.js",
     "jest.config.js",
     "mock/*"
-, "Welcome.tsx"  ],
-  "exclude": [
-    "node_modules",
-    "build",
-    "dist",
-    "scripts",
-    "webpack",
-    "jest",
-    "src/.umi/*",
-  ]
+  ],
+  "exclude": ["node_modules", "build", "dist", "scripts", "src/.umi/*", "webpack", "jest"]
 }

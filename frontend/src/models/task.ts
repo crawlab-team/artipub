@@ -1,8 +1,8 @@
-import { Effect } from 'umi';
-import { addTask, addTasks, queryTaskList, saveTask } from "@/services/task";
-import { Reducer } from 'redux';
-import { Platform } from "@/models/platform";
-import { ConnectState } from "@/models/connect";
+import type { Effect } from 'umi';
+import { addTask, addTasks, queryTaskList, saveTask } from '@/services/task';
+import type { Reducer } from 'redux';
+import type { Platform } from '@/models/platform';
+import type { ConnectState } from '@/models/connect';
 
 export interface Task {
   _id?: string;

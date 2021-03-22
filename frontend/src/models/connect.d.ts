@@ -1,17 +1,17 @@
-import {MenuDataItem} from '@ant-design/pro-layout';
-import {GlobalModelState} from './global';
-import {DefaultSettings as SettingModelState} from '../../config/defaultSettings';
-import {UserModelState} from './user';
-import { ArticleModelState } from "@/models/article";
-import { PlatformModelState } from "@/models/platform";
-import { TaskModelState } from "@/models/task";
-import { EnvironmentModelState } from "@/models/environment";
+import type { MenuDataItem } from '@ant-design/pro-layout';
+import { GlobalModelState } from './global';
+// import {DefaultSettings as SettingModelState} from '../../config/defaultSettings';
+import { UserModelState } from './user';
+import type { ArticleModelState } from '@/models/article';
+import type { PlatformModelState } from '@/models/platform';
+import type { TaskModelState } from '@/models/task';
+import type { EnvironmentModelState } from '@/models/environment';
 
-export {GlobalModelState, SettingModelState, UserModelState};
+export { GlobalModelState, SettingModelState, UserModelState };
 
 export interface Loading {
   global: boolean;
-  effects: { [key: string]: boolean | undefined };
+  effects: Record<string, boolean | undefined>;
   models: {
     global?: boolean;
     menu?: boolean;
@@ -31,7 +31,6 @@ export interface ConnectState {
   task: TaskModelState;
   environment: EnvironmentModelState;
 }
-
 
 /**
  * @type P: Type of payload

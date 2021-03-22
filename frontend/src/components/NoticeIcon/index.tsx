@@ -1,176 +1,152 @@
-import { BellOutlined } from '@ant-design/icons';
-import { Badge, Spin, Tabs } from 'antd';
-import React, { Component } from 'react';
-import classNames from 'classnames';
-import NoticeList, { NoticeIconTabProps } from './NoticeList';
+import React, { useEffect, useState } from 'react';
+import { Tag, message } from 'antd';
+import { groupBy } from 'lodash';
+import moment from 'moment';
+import { useModel } from 'umi';
+import { getNotices } from '@/services/ant-design-pro/api';
 
-import HeaderDropdown from '../HeaderDropdown';
+import NoticeIcon from './NoticeIcon';
 import styles from './index.less';
 
-const { TabPane } = Tabs;
+export type GlobalHeaderRightProps = {
+  fetchingNotices?: boolean;
+  onNoticeVisibleChange?: (visible: boolean) => void;
+  onNoticeClear?: (tabName?: string) => void;
+};
 
-export interface NoticeIconData {
-  avatar?: string | React.ReactNode;
-  title?: React.ReactNode;
-  description?: React.ReactNode;
-  datetime?: React.ReactNode;
-  extra?: React.ReactNode;
-  style?: React.CSSProperties;
-  key?: string | number;
-  read?: boolean;
-}
+const getNoticeData = (notices: API.NoticeIconItem[]): Record<string, API.NoticeIconItem[]> => {
+  if (!notices || notices.length === 0 || !Array.isArray(notices)) {
+    return {};
+  }
 
-export interface NoticeIconProps {
-  count?: number;
-  bell?: React.ReactNode;
-  className?: string;
-  loading?: boolean;
-  onClear?: (tabName: string, tabKey: string) => void;
-  onItemClick?: (item: NoticeIconData, tabProps: NoticeIconTabProps) => void;
-  onViewMore?: (tabProps: NoticeIconTabProps, e: MouseEvent) => void;
-  onTabChange?: (tabTile: string) => void;
-  style?: React.CSSProperties;
-  onPopupVisibleChange?: (visible: boolean) => void;
-  popupVisible?: boolean;
-  clearText?: string;
-  viewMoreText?: string;
-  clearClose?: boolean;
-  children: React.ReactElement<NoticeIconTabProps>[];
-}
+  const newNotices = notices.map((notice) => {
+    const newNotice = { ...notice };
 
-export default class NoticeIcon extends Component<NoticeIconProps> {
-  public static Tab: typeof NoticeList = NoticeList;
-
-  static defaultProps = {
-    onItemClick: (): void => {},
-    onPopupVisibleChange: (): void => {},
-    onTabChange: (): void => {},
-    onClear: (): void => {},
-    onViewMore: (): void => {},
-    loading: false,
-    clearClose: false,
-    emptyImage: 'https://gw.alipayobjects.com/zos/rmsportal/wAhyIChODzsoKIOBHcBk.svg',
-  };
-
-  state = {
-    visible: false,
-  };
-
-  onItemClick = (item: NoticeIconData, tabProps: NoticeIconTabProps): void => {
-    const { onItemClick } = this.props;
-    if (onItemClick) {
-      onItemClick(item, tabProps);
+    if (newNotice.datetime) {
+      newNotice.datetime = moment(notice.datetime as string).fromNow();
     }
-  };
 
-  onClear = (name: string, key: string): void => {
-    const { onClear } = this.props;
-    if (onClear) {
-      onClear(name, key);
+    if (newNotice.id) {
+      newNotice.key = newNotice.id;
     }
-  };
 
-  onTabChange = (tabType: string): void => {
-    const { onTabChange } = this.props;
-    if (onTabChange) {
-      onTabChange(tabType);
+    if (newNotice.extra && newNotice.status) {
+      const color = {
+        todo: '',
+        processing: 'blue',
+        urgent: 'red',
+        doing: 'gold',
+      }[newNotice.status];
+      newNotice.extra = (
+        <Tag
+          color={color}
+          style={{
+            marginRight: 0,
+          }}
+        >
+          {newNotice.extra}
+        </Tag>
+      ) as any;
     }
-  };
 
-  onViewMore = (tabProps: NoticeIconTabProps, event: MouseEvent): void => {
-    const { onViewMore } = this.props;
-    if (onViewMore) {
-      onViewMore(tabProps, event);
-    }
-  };
+    return newNotice;
+  });
+  return groupBy(newNotices, 'type');
+};
 
-  getNotificationBox(): React.ReactNode {
-    const { children, loading, clearText, viewMoreText } = this.props;
-    if (!children) {
-      return null;
+const getUnreadData = (noticeData: Record<string, API.NoticeIconItem[]>) => {
+  const unreadMsg: Record<string, number> = {};
+  Object.keys(noticeData).forEach((key) => {
+    const value = noticeData[key];
+
+    if (!unreadMsg[key]) {
+      unreadMsg[key] = 0;
     }
-    const panes = React.Children.map(
-      children,
-      (child: React.ReactElement<NoticeIconTabProps>): React.ReactNode => {
-        if (!child) {
-          return null;
+
+    if (Array.isArray(value)) {
+      unreadMsg[key] = value.filter((item) => !item.read).length;
+    }
+  });
+  return unreadMsg;
+};
+
+const NoticeIconView = () => {
+  const { initialState } = useModel('@@initialState');
+  const { currentUser } = initialState || {};
+  const [notices, setNotices] = useState<API.NoticeIconItem[]>([]);
+
+  useEffect(() => {
+    getNotices().then(({ data }) => setNotices(data || []));
+  }, []);
+
+  const noticeData = getNoticeData(notices);
+  const unreadMsg = getUnreadData(noticeData || {});
+
+  const changeReadState = (id: string) => {
+    setNotices(
+      notices.map((item) => {
+        const notice = { ...item };
+        if (notice.id === id) {
+          notice.read = true;
         }
-        const { list, title, count, tabKey, showClear, showViewMore } = child.props;
-        const len = list && list.length ? list.length : 0;
-        const msgCount = count || count === 0 ? count : len;
-        const tabTitle: string = msgCount > 0 ? `${title} (${msgCount})` : title;
-        return (
-          <TabPane tab={tabTitle} key={title}>
-            <NoticeList
-              clearText={clearText}
-              viewMoreText={viewMoreText}
-              data={list}
-              onClear={(): void => this.onClear(title, tabKey)}
-              onClick={(item): void => this.onItemClick(item, child.props)}
-              onViewMore={(event): void => this.onViewMore(child.props, event)}
-              showClear={showClear}
-              showViewMore={showViewMore}
-              title={title}
-              {...child.props}
-            />
-          </TabPane>
-        );
-      },
+        return notice;
+      }),
     );
-    return (
-      <>
-        <Spin spinning={loading} delay={300}>
-          <Tabs className={styles.tabs} onChange={this.onTabChange}>
-            {panes}
-          </Tabs>
-        </Spin>
-      </>
-    );
-  }
-
-  handleVisibleChange = (visible: boolean): void => {
-    const { onPopupVisibleChange } = this.props;
-    this.setState({ visible });
-    if (onPopupVisibleChange) {
-      onPopupVisibleChange(visible);
-    }
   };
 
-  render(): React.ReactNode {
-    const { className, count, popupVisible, bell } = this.props;
-    const { visible } = this.state;
-    const noticeButtonClass = classNames(className, styles.noticeButton);
-    const notificationBox = this.getNotificationBox();
-    const NoticeBellIcon = bell || <BellOutlined className={styles.icon} />;
-    const trigger = (
-      <span className={classNames(noticeButtonClass, { opened: visible })}>
-        <Badge count={count} style={{ boxShadow: 'none' }} className={styles.badge}>
-          {NoticeBellIcon}
-        </Badge>
-      </span>
+  const clearReadState = (title: string, key: string) => {
+    setNotices(
+      notices.map((item) => {
+        const notice = { ...item };
+        if (notice.type === key) {
+          notice.read = true;
+        }
+        return notice;
+      }),
     );
-    if (!notificationBox) {
-      return trigger;
-    }
-    const popoverProps: {
-      visible?: boolean;
-    } = {};
-    if ('popupVisible' in this.props) {
-      popoverProps.visible = popupVisible;
-    }
+    message.success(`${'清空了'} ${title}`);
+  };
 
-    return (
-      <HeaderDropdown
-        placement="bottomRight"
-        overlay={notificationBox}
-        overlayClassName={styles.popover}
-        trigger={['click']}
-        visible={visible}
-        onVisibleChange={this.handleVisibleChange}
-        {...popoverProps}
-      >
-        {trigger}
-      </HeaderDropdown>
-    );
-  }
-}
+  return (
+    <NoticeIcon
+      className={styles.action}
+      count={currentUser && currentUser.unreadCount}
+      onItemClick={(item) => {
+        changeReadState(item.id!);
+      }}
+      onClear={(title: string, key: string) => clearReadState(title, key)}
+      loading={false}
+      clearText="清空"
+      viewMoreText="查看更多"
+      onViewMore={() => message.info('Click on view more')}
+      clearClose
+    >
+      <NoticeIcon.Tab
+        tabKey="notification"
+        count={unreadMsg.notification}
+        list={noticeData.notification}
+        title="通知"
+        emptyText="你已查看所有通知"
+        showViewMore
+      />
+      <NoticeIcon.Tab
+        tabKey="message"
+        count={unreadMsg.message}
+        list={noticeData.message}
+        title="消息"
+        emptyText="您已读完所有消息"
+        showViewMore
+      />
+      <NoticeIcon.Tab
+        tabKey="event"
+        title="待办"
+        emptyText="你已完成所有待办"
+        count={unreadMsg.event}
+        list={noticeData.event}
+        showViewMore
+      />
+    </NoticeIcon>
+  );
+};
+
+export default NoticeIconView;

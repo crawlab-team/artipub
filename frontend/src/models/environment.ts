@@ -1,6 +1,6 @@
-import {Effect} from 'dva';
-import {Reducer} from 'redux';
-import { queryEnvironmentList, saveEnvironment } from "@/services/environment";
+import type { Effect } from 'dva';
+import type { Reducer } from 'redux';
+import { queryEnvironmentList, saveEnvironment } from '@/services/environment';
 
 export interface Environment {
   _id?: string;
@@ -33,22 +33,23 @@ const EnvironmentModel: EnvironmentModelType = {
   },
 
   effects: {
-    * fetchEnvironmentList(_, {call, put}) {
+    *fetchEnvironmentList(_, { call, put }) {
       const response = yield call(queryEnvironmentList);
       yield put({
         type: 'setEnvironmentList',
         payload: response.data,
       });
     },
-    * saveEnvironment(action, {call, put}) {
+
+    *saveEnvironment(action, { call }) {
       yield call(saveEnvironment, action.payload);
     },
-    * saveEnvironmentList(action, {put}) {
+    *saveEnvironmentList(action, { put }) {
       yield put({
         type: 'setEnvironmentList',
         payload: action.payload,
-      })
-    }
+      });
+    },
   },
 
   reducers: {
