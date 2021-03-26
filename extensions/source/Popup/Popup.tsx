@@ -1,8 +1,9 @@
-import { Button, Card, Input } from 'antd';
 import * as React from 'react';
+import { Button, Card, Input } from 'antd';
+import { SettingOutlined } from '@ant-design/icons';
+import { browser } from 'webextension-polyfill-ts';
 import axios from 'axios';
-import './Popup.scss';
-import { browser } from "webextension-polyfill-ts";
+import './styles.less';
 
 interface AppProps {
 }
@@ -19,10 +20,10 @@ export default class Popup extends React.Component<AppProps, AppState> {
   constructor(props: AppProps, state: AppState) {
     super(props, state);
   }
-
+  __webpack_nonce__ = "";
   componentDidMount() {
     // Example of how to send a message to eventPage.ts.
-    browser.runtime.sendMessage({ popupMounted: true });
+    // browser.runtime.sendMessage({ popupMounted: true });
 
     this.setState({
       allowedDomains: [],
@@ -32,49 +33,51 @@ export default class Popup extends React.Component<AppProps, AppState> {
       loading: false,
     });
   }
+  async commitCookies() {
+    let cookieStores = await browser.cookies.getAllCookieStores();
+    // console.log(cookieStores);
+    cookieStores.forEach(async store => {
+      let cookies = await browser.cookies.getAll({ storeId: store.id });
+      const data = cookies.filter(c => {
+        if (c.domain.match('aliyun')) {
+          if (c.domain == '.aliyun.com' || c.domain == 'developer.aliyun.com') {
+            return true
+          }
+          return false
+        }
+        for (let domain of this.state.allowedDomains) {
+          if (c.domain.match(domain)) {
+            return true
+          }
+        }
+        return false
+      });
 
-  async onGetLoginInfo() {
+      axios.post(this.state.url + '/cookies', data)
+        .then(() => {
+          this.setState({ fetched: true });
+        })
+        .finally(() => {
+          this.setState({ loading: false });
+        });
+    });
+  }
+  onGetLoginInfo() {
     this.setState({
       loading: true
     });
 
-    const response = await axios.get(this.state.url + '/platforms');
-    const platforms = response.data.data;
-    this.setState({
-      allowedDomains: platforms.map((d: any) => d.name)
-    });
-
-    let cookieStores = browser.cookies.getAllCookieStores();
-    cookieStores.then(cookieStores => {
-      // console.log(cookieStores);
-      cookieStores.forEach(store => {
-        let cookies = browser.cookies.getAll({ storeId: store.id });
-        cookies.then(cookies => {
-          const data = cookies.filter(c => {
-            if (c.domain.match('aliyun')) {
-              if (c.domain == '.aliyun.com' || c.domain == 'developer.aliyun.com') {
-                return true
-              }
-              return false
-            }
-            for (let domain of this.state.allowedDomains) {
-              if (c.domain.match(domain)) {
-                return true
-              }
-            }
-            return false
-          });
-
-          axios.post(this.state.url + '/cookies', data)
-            .then(() => {
-              this.setState({ fetched: true });
-            })
-            .finally(() => {
-              this.setState({ loading: false });
-            });
-        })
-      });
-    })
+    axios.get(this.state.url + '/platforms')
+      .then((response) => {
+        const platforms = response.data.data;
+        this.setState({
+          allowedDomains: platforms.map((d: any) => d.name)
+        });
+        this.commitCookies()
+      })
+      .catch(function (error) {
+        console.error(error);
+      })
   }
 
   onConfig() {
@@ -94,7 +97,7 @@ export default class Popup extends React.Component<AppProps, AppState> {
     let btn = (
       <Button type="primary"
         onClick={this.onGetLoginInfo.bind(this)}>
-        一键获取登陆信息
+        一键获取登陆
       </Button>
     );
     if (this.state && this.state.loading) {
@@ -122,7 +125,7 @@ export default class Popup extends React.Component<AppProps, AppState> {
       <Card className="artipub-container">
         <h2>
           ArtiPub登陆助手
-          <Button type="primary" shape="circle" icon="tool" className="config-btn"
+          <Button type="primary" shape="circle" icon={<SettingOutlined />} className="config-btn"
             onClick={this.onConfig.bind(this)} />
         </h2>
         {input}

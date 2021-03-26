@@ -1,0 +1,44 @@
+{
+  "manifest_version": 2,
+  "name": "ArtiPub",
+  "version": "0.0.0",
+  "icons": {
+    "16": "assets/icons/favicon-16.png",
+    "32": "assets/icons/favicon-32.png",
+    "48": "assets/icons/favicon-48.png",
+    "128": "assets/icons/favicon-128.png"
+  },
+  "description": "ArtiPub登陆助手，获取掘金、SegmentFault、CSDN、知乎等技术平台的登陆信息",
+  "homepage_url": "https://github.com/abhijithvijayan/web-extension-starter",
+  "short_name": "ArtiPub",
+  "permissions": [
+    "cookies",
+    "storage",
+    "http://*/*",
+    "https://*/*"
+  ],
+  "__prod__content_security_policy": "script-src 'self'; object-src 'self'",
+  "__chrome|firefox__author": "crawlab-team",
+  "__opera__developer": {
+    "name": "crawlab-team"
+  },
+  "__firefox__applications": {
+    "gecko": {
+      "id": "{27c4a3e3-82ef-418a-9ce0-fa9a7807fa2b}"
+    }
+  },
+  "__chrome__minimum_chrome_version": "49",
+  "__opera__minimum_opera_version": "36",
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "assets/icons/favicon-16.png",
+      "32": "assets/icons/favicon-32.png",
+      "48": "assets/icons/favicon-48.png",
+      "128": "assets/icons/favicon-128.png"
+    },
+    "default_title": "ArtiPub登陆助手",
+    "__chrome|opera__chrome_style": false,
+    "__firefox__browser_style": false
+  }
+}
