@@ -18,6 +18,7 @@ export interface Loading {
     setting?: boolean;
     user?: boolean;
     article?: boolean;
+    login?: boolean;
   };
 }
 
@@ -30,6 +31,7 @@ export interface ConnectState {
   platform: PlatformModelState;
   task: TaskModelState;
   environment: EnvironmentModelState;
+  login: StateType;
 }
 
 

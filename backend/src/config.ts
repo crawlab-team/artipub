@@ -5,6 +5,9 @@ const addr = mongodbContainerAddr ? mongodbContainerAddr[1] : '127.0.0.1';
 const mongodbContainerPort = Object.entries(process.env).find((entry) => entry[0].endsWith('_TCP_PORT'));
 const port = mongodbContainerPort ? mongodbContainerPort[1] : '27017';
 
+export const SECRET = 'artipub';
+export const TOKEN = 'apt';
+
 export default {
   HOST: '0.0.0.0',
   PORT: 3000,

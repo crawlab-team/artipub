@@ -1,5 +1,6 @@
 import { defineConfig } from 'umi';;
 import defaultSettings from './defaultSettings'; // https://umijs.org/config/
+import routes from './routes';
 
 export default defineConfig({
   hash: true,
@@ -8,7 +9,7 @@ export default defineConfig({
     hmr: true,
   },
   history: {
-    type: 'hash',
+    type: 'browser',
   },
   locale: {
     // default zh-CN
@@ -23,88 +24,7 @@ export default defineConfig({
   targets: {
     ie: 11,
   },
-  routes: [
-    {
-      path: '/articles/edit/:id',
-      name: 'article-edit',
-      authority: ['admin', 'user'],
-      icon: 'read',
-      hideInMenu: true,
-      component: './ArticleEdit/ArticleEdit',
-    },
-    {
-      path: '/articles/new',
-      name: 'article-new',
-      authority: ['admin', 'user'],
-      icon: 'read',
-      hideInMenu: true,
-      component: './ArticleEdit/ArticleEdit',
-    },
-    {
-      path: '/paste',
-      name: 'paste',
-      authority: ['admin', 'user'],
-      icon: 'read',
-      hideInMenu: true,
-      component: './Paste/Paste',
-    },
-    {
-      path: '/demo',
-      name: 'demo',
-      authority: ['admin', 'user'],
-      icon: 'read',
-      hideInMenu: true,
-      component: './Demo/Demo',
-    },
-    {
-      path: '/',
-      component: '../layouts/BasicLayout',
-      Routes: ['src/pages/Authorized'],
-      authority: ['admin', 'user'],
-      routes: [
-        // {
-        //   path: '/',
-        //   name: 'welcome',
-        //   icon: 'smile',
-        //   component: './Welcome',
-        // },
-        {
-          path: '/',
-          redirect: '/platforms',
-        },
-        {
-          path: '/platforms',
-          name: 'platforms',
-          icon: 'cloud',
-          component: './PlatformList/PlatformList',
-        },
-        {
-          path: '/articles',
-          name: 'articles',
-          icon: 'read',
-          component: './ArticleList/ArticleList',
-        },
-        {
-          path: '/helper',
-          name: 'helper',
-          icon: 'key',
-          component: './Helper/Helper',
-        },
-        {
-          path: '/environments',
-          name: 'environments',
-          icon: 'setting',
-          component: './Environment/EnvironmentList',
-        },
-        {
-          component: './404',
-        },
-      ],
-    },
-    {
-      component: './404',
-    },
-  ],
+  routes,
   theme: {
     // ...darkTheme,
     'primary-color': defaultSettings.primaryColor,

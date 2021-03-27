@@ -1,11 +1,14 @@
 import PCR = require( 'puppeteer-chromium-resolver');
-const ObjectId = require('bson').ObjectId;
+const { ObjectId }= require('bson');
 import models from '../models'
 import constants from '../constants'
 import config from './config'
 import logger from '../logger'
 import type { Page } from 'puppeteer-core';
+import type {Types} from 'mongoose'
 import axios from 'axios';
+
+const { UserPlatform } = models;
 
 class BaseSpider {
   taskId: any;
@@ -183,7 +186,7 @@ class BaseSpider {
    * 设置Cookie
    */
   async setCookies() {
-    const cookies = await models.Cookie.find({ domain: this.getCookieDomainCondition() });
+    const cookies = await models.Cookie.find({ domain: BaseSpider.getCookieDomainCondition(this.platform.name) });
     for (let i = 0; i < cookies.length; i++) {
       const c = cookies[i];
       await this.page.setCookie({
@@ -197,8 +200,8 @@ class BaseSpider {
   /**
    * 获取可给axios 使用的cookie
    */
-  async getCookiesForAxios() {
-    const cookies = await models.Cookie.find({ domain: this.getCookieDomainCondition() });
+  static async getCookiesForAxios(platformName, userId: Types.ObjectId) {
+    const cookies = await models.Cookie.find({ domain: BaseSpider.getCookieDomainCondition(platformName), userId,});
     let cookieStr = '';
     for (let i = 0; i < cookies.length; i++) {
       const c = cookies[i];
@@ -210,8 +213,8 @@ class BaseSpider {
   /**
    * 域查询条件
    */
-  getCookieDomainCondition() {
-    return { $regex: this.platform.name };
+  static getCookieDomainCondition(platformName) {
+    return { $regex: platformName };
   }
 
   /**
@@ -418,28 +421,32 @@ class BaseSpider {
   /**
    * 检查Cookie是否能正常登陆
    */
-  async checkCookieStatus() {
+  static async checkCookieStatus(platform, userId: Types.ObjectId) {
     // platform
-    this.platform = await models.Platform.findOne({ _id: ObjectId(this.platformId) });
+    let userPlatform = await UserPlatform.findOne({ platformId: platform._id, userId});
+
+    if (!userPlatform) {
+      userPlatform = new UserPlatform({platform: platform._id, user: userId})
+    }
 
     //百家号不支持 cookie，页面埋了token，只携带cookie 还是未登陆态，页面请求后会将token失效
-    if (this.platform.name === constants.platform.BAIJIAHAO) {
-      this.platform.loggedIn = false;
-      await this.platform.save();
+    if (platform.name === constants.platform.BAIJIAHAO) {
+      userPlatform.loggedIn = false;
+      await userPlatform.save();
       return;
     }
 
-    const cookie = await this.getCookiesForAxios();
+    const cookie = await this.getCookiesForAxios(platform.name, userId);
     if (!cookie) {
-      this.platform.loggedIn = false;
-      await this.platform.save();
+      userPlatform.loggedIn = false;
+      await userPlatform.save();
       return;
     }
-    let url = this.platform.url
-    if (this.platform.name === constants.platform.CSDN) {
+    let url = platform.url
+    if (platform.name === constants.platform.CSDN) {
       url = "https://me.csdn.net/api/user/getUserPrivacy"
     }
-    if (this.platform.name === constants.platform.ALIYUN) {
+    if (platform.name === constants.platform.ALIYUN) {
       url = "https://developer.aliyun.com/developer/api/my/user/getUser"
     }
     axios.get(url, {
@@ -450,32 +457,32 @@ class BaseSpider {
       .then(async res => {
         logger.info(url);
         let text = res.data;
-        if (this.platform.name === constants.platform.TOUTIAO) {
-          this.platform.loggedIn = !text.includes('login-button');
-        } else if (this.platform.name === constants.platform.CSDN) {
+        if (platform.name === constants.platform.TOUTIAO) {
+          userPlatform.loggedIn = !text.includes('login-button');
+        } else if (platform.name === constants.platform.CSDN) {
           text = text.message
-          this.platform.loggedIn = text.includes('成功');
-        } else if (this.platform.name === constants.platform.JIANSHU) {
-          this.platform.loggedIn = text.includes('current_user');
-        } else if ([constants.platform.CNBLOGS, constants.platform.B_51CTO].includes(this.platform.name)) {
-          this.platform.loggedIn = text.includes('我的博客');
-        } else if (this.platform.name === constants.platform.SEGMENTFAULT) {
-          this.platform.loggedIn = text.includes('user_id');
+          userPlatform.loggedIn = text.includes('成功');
+        } else if (platform.name === constants.platform.JIANSHU) {
+          userPlatform.loggedIn = text.includes('current_user');
+        } else if ([constants.platform.CNBLOGS, constants.platform.B_51CTO].includes(userPlatform.name)) {
+          userPlatform.loggedIn = text.includes('我的博客');
+        } else if (platform.name === constants.platform.SEGMENTFAULT) {
+          userPlatform.loggedIn = text.includes('user_id');
         }
-        else if (this.platform.name === constants.platform.OSCHINA) {
-          this.platform.loggedIn = text.includes('g_user_name');
+        else if (platform.name === constants.platform.OSCHINA) {
+          userPlatform.loggedIn = text.includes('g_user_name');
         }
-        else if (this.platform.name === constants.platform.V2EX) {
-          this.platform.loggedIn = text.includes('登出');
+        else if (platform.name === constants.platform.V2EX) {
+          userPlatform.loggedIn = text.includes('登出');
         }
-        else if (this.platform.name === constants.platform.ALIYUN) {
-          this.platform.loggedIn = text.data != null
+        else if (platform.name === constants.platform.ALIYUN) {
+          userPlatform.loggedIn = text.data != null
         }
         else {
-          this.platform.loggedIn = !text.includes('登录');
+          userPlatform.loggedIn = !text.includes('登录');
         }
-        logger.info(this.platform.loggedIn);
-        await this.platform.save();
+        logger.info(userPlatform.loggedIn);
+        await userPlatform.save();
       })
       .catch(error => {
         logger.error(`${url} 登录态校验异常`);

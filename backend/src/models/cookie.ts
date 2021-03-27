@@ -1,6 +1,8 @@
-const mongoose = require('mongoose')
+import mongoose = require('mongoose')
+const ObjectId = require('bson').ObjectId
 
 const cookieSchema = new mongoose.Schema({
+    user: ObjectId,
     /** The domain of the cookie (e.g. "www.google.com", "example.com"). */
     domain: String,
     /** The name of the cookie. */

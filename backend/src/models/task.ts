@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+import mongoose = require('mongoose')
 const ObjectId = require('bson').ObjectId
 
 const taskSchema = new mongoose.Schema({
