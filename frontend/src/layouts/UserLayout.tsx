@@ -45,14 +45,14 @@ const UserLayout: React.SFC<UserLayoutProps> = props => {
             <div className={styles.header}>
               <Link to="/">
                 <img alt="logo" className={styles.logo} src={logo} />
-                <span className={styles.title}>Ant Design</span>
+                <span className={styles.title}>ArtiPub</span>
               </Link>
             </div>
-            <div className={styles.desc}>Ant Design 是西湖区最具影响力的 Web 设计规范</div>
+            <div className={styles.desc}>内容创作者的搬运工，一处书写，随处可见</div>
           </div>
           {children}
         </div>
-        <DefaultFooter />
+        <DefaultFooter links={[]} copyright={false}/>
       </div>
     </DocumentTitle>
   );
