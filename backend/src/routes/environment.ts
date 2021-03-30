@@ -12,8 +12,6 @@ const getEnvList = async (req, res) => {
 //       _id: req.body._id,
 //       value: req.body.value,
 //       label: req.body.label,
-//       updateTs: new Date(),
-//       createTs: new Date(),
 //     })
 //     env = await env.save()
 //     await res.json({

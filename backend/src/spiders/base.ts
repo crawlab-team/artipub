@@ -201,7 +201,7 @@ class BaseSpider {
    * 获取可给axios 使用的cookie
    */
   static async getCookiesForAxios(platformName, userId: Types.ObjectId) {
-    const cookies = await models.Cookie.find({ domain: BaseSpider.getCookieDomainCondition(platformName), userId,});
+    const cookies = await models.Cookie.find({ domain: BaseSpider.getCookieDomainCondition(platformName), user: userId,});
     let cookieStr = '';
     for (let i = 0; i < cookies.length; i++) {
       const c = cookies[i];
@@ -423,7 +423,7 @@ class BaseSpider {
    */
   static async checkCookieStatus(platform, userId: Types.ObjectId) {
     // platform
-    let userPlatform = await UserPlatform.findOne({ platformId: platform._id, userId});
+    let userPlatform = await UserPlatform.findOne({ platform: platform._id, user: userId});
 
     if (!userPlatform) {
       userPlatform = new UserPlatform({platform: platform._id, user: userId})
@@ -436,7 +436,7 @@ class BaseSpider {
       return;
     }
 
-    const cookie = await this.getCookiesForAxios(platform.name, userId);
+    const cookie = await BaseSpider.getCookiesForAxios(platform.name, userId);
     if (!cookie) {
       userPlatform.loggedIn = false;
       await userPlatform.save();

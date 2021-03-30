@@ -6,12 +6,14 @@ const userPlatformSchema = new mongoose.Schema({
   platform: { type: ObjectId, ref: 'platforms'},
   username: String,
   password: String,
-  createTs: Date,
-  updateTs: Date,
   loggedIn: Boolean,
    // 前端字段
    cookieStatus: String,
+}, {
+  timestamps: true
 })
+
+userPlatformSchema.index({ user: 1, platform: 1 }, {unique: true})
 
 const UserPlatform = mongoose.model('user_platforms', userPlatformSchema)
 

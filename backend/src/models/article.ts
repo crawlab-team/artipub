@@ -8,11 +8,11 @@ const articleSchema = new mongoose.Schema({
     content: String,
     contentHtml: String,
     platformIds: Array,
-    createTs: Date,
-    updateTs: Date,
     readNum: Number,
     likeNum: Number,
     commentNum: Number,
+}, {
+    timestamps: true
 })
 
 const Article = mongoose.model('articles', articleSchema)

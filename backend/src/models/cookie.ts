@@ -21,6 +21,8 @@ const cookieSchema = new mongoose.Schema({
     httpOnly: Boolean,
     /** True if the cookie is marked as Secure (i.e. its scope is limited to secure channels, typically HTTPS). */
     secure: Boolean,
+}, {
+    timestamps: true
 })
 
 const Cookie = mongoose.model('cookies', cookieSchema)

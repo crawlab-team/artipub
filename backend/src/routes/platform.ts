@@ -14,10 +14,15 @@ const getCookieStatus = async (platform: any, userId) => {
   return constants.cookieStatus.EXISTS
 }
 
+const getLoginStatus = async (platform: any, userId) => {
+  const platformState = await models.UserPlatform.findOne({ user: userId, platform: platform._id })
+  return platformState?.loggedIn;
+}
+
 const getPlatformList = async (req, res) => {
   const platforms = await Platform.find();
     for (let platform of platforms) {
-      platform.cookieStatus = await getCookieStatus(platform, req.user._id)
+      platform.loggedIn = await getLoginStatus(platform, req.user._id)
     }
     await Result.success(res, platforms)
   };
@@ -27,7 +32,7 @@ const getPlatform = async (req, res) => {
     await Result.success(res, platform)
   };
 const addPlatform = async (req, res) => {
-    let Platform = new models.Platform({
+        let Platform = new models.Platform({
       name: req.body.name,
       label: req.body.label,
       editorType: req.body.editorType,
@@ -36,8 +41,6 @@ const addPlatform = async (req, res) => {
       enableLogin: req.body.enableLogin,
       username: req.body.username,
       password: req.body.password,
-      createTs: new Date(),
-      updateTs: new Date()
     })
     Platform = await Platform.save()
     await Result.success(res, Platform)
@@ -137,7 +140,7 @@ const importPlatformArticles = async (req, res) => {
     return;
   };
 const checkPlatformCookieStatus = async (req, res) => {
-  const userId = ObjectId(req.user.id);
+  const userId = req.user._id;
   const platforms = await Platform.find()
   for (let i = 0; i < platforms.length; i++) {
     const platform = platforms[i]

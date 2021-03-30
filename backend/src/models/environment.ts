@@ -6,8 +6,8 @@ const environmentSchema = new mongoose.Schema({
   user: ObjectId,
   label: String,  // label
   value: String,  // value
-  updateTs: Date,
-  createTs: Date,
+}, {
+  timestamps: true
 })
 
 const Environment = mongoose.model('environments', environmentSchema)

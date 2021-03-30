@@ -2,16 +2,24 @@ import mongoose = require('mongoose');
 const pwdLM = require('passport-local-mongoose');
 const passport = require('passport');
 
-const UserSchema = new mongoose.Schema({
-  registerDate: Date,
-  email: {
-    required: true,
-    type: String,
-    unique: true,
+const UserSchema = new mongoose.Schema(
+  {
+    email: {
+      required: true,
+      type: String,
+      unique: true,
+    },
+  },
+  {
+    timestamps: true,
   }
-})
+);
 
-UserSchema.plugin(pwdLM);
+UserSchema.plugin(pwdLM, {
+  lastLoginField: 'lastLogin',
+  limitAttempts: true,
+  maxAttempts: 4,
+});
 
 const User = mongoose.model('user', UserSchema);
 

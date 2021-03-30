@@ -30,8 +30,6 @@ const addTasks = async (req, res) => {
           articleId: ObjectId(_task.articleId),
           platformId: ObjectId(_task.platformId),
           status: constants.status.NOT_STARTED,
-          createTs: new Date(),
-          updateTs: new Date(),
           checked: _task.checked,
           authType: _task.authType,
 
@@ -51,8 +49,6 @@ const addTask = async (req, res) => {
       articleId: ObjectId(req.body.articleId),
       platformId: ObjectId(req.body.platformId),
       status: constants.status.NOT_STARTED,
-      createTs: new Date(),
-      updateTs: new Date(),
 
       // 配置信息
       category: req.body.category,

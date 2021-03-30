@@ -10,7 +10,8 @@ const { User } = models;
 const register = async (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
-    User.register({ username, active: true}, password, (err, user) => {
+    const email = req.body.email;
+    User.register({ username, email}, password, (err, user) => {
       if (err) {
         return Result.error(res, '注册失败')
       }
@@ -22,7 +23,9 @@ const login = (req, res, next) => {
 
 
     const body = { username: req.user.username, id: req.user.id };
-    const token = jwt.sign({ ...body }, SECRET)
+  const token = jwt.sign({ ...body }, SECRET, {
+      expiresIn: '1d'
+    })
     res.cookie(TOKEN, token, { maxAge: 60 * 60 * 24 * 1000, domain: req.hostname });
 
     return Result.success(res)

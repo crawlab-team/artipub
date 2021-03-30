@@ -2,7 +2,7 @@ import { stringify } from 'querystring';
 import type { Reducer, Effect } from 'umi';
 import { history } from 'umi';
 
-import { fakeAccountLogin } from '@/services/login';
+import { loginApi, registerApi } from '@/services/login';
 import { setAuthority } from '@/utils/authority';
 import { getPageQuery } from '@/utils/utils';
 import { message } from 'antd';
@@ -19,6 +19,7 @@ export type LoginModelType = {
   effects: {
     login: Effect;
     logout: Effect;
+    register: Effect;
   };
   reducers: {
     changeLoginStatus: Reducer<StateType>;
@@ -35,7 +36,7 @@ const Model: LoginModelType = {
 
   effects: {
     *login({ payload }, { call, put }) {
-      const response = yield call(fakeAccountLogin, payload);
+      const response = yield call(loginApi, payload);
       yield put({
         type: 'changeLoginStatus',
         payload: response,
@@ -59,6 +60,15 @@ const Model: LoginModelType = {
           }
         }
         history.replace(redirect || '/');
+      }
+    },
+    *register({ payload }, { put, call }) {
+      const result = yield call(registerApi, payload)
+      const { status } = result;
+      if (status === 'ok') {
+        message.success('注册成功，请前往登录')
+      } else {
+        message.error('');
       }
     },
 

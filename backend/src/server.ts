@@ -1,10 +1,9 @@
 import express = require ( 'express')
-import mongoose = require ( 'mongoose')
 import cookieParser = require('cookie-parser');
 import morgan = require ( 'morgan')
 import passport = require('passport')
 import expressJwt = require('express-jwt');
-// import ensureLoggedIn from  './lib/auth/ensureLoggedIn'
+import mongoose = require('mongoose')
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -16,9 +15,6 @@ import logger from './logger'
 const {ObjectId} = require('bson')
 // express实例
 const app = express()
-
-// 环境变量
-logger.info(process.env)
 
 // mongodb连接
 mongoose.Promise = global.Promise
@@ -32,6 +28,9 @@ if (config.MONGO_USERNAME) {
     { useNewUrlParser: true, useUnifiedTopology: true }
   );
 }
+mongoose.Model.on('index', function(err) {
+  if (err) logger.error(err);
+});
 
 app.use(express.json({
   limit: '5mb'

@@ -8,11 +8,9 @@ const platformSchema = new mongoose.Schema({
   url: String,
   enableImport: Boolean,
   enableLogin: Boolean,
-  createTs: Date,
-  updateTs: Date,
   loggedIn: Boolean,
-
- 
+}, {
+  timestamps: true
 })
 
 const Platform = mongoose.model('platforms', platformSchema)

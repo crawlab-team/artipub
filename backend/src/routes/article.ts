@@ -41,8 +41,6 @@ const addArticle = async (req, res) => {
       content: req.body.content,
       contentHtml: req.body.contentHtml,
       platformIds: [],
-      createTs: new Date(),
-      updateTs: new Date(),
     })
     article = await article.save()
     await Result.success(res, article)
@@ -101,8 +99,6 @@ const addArticleTask = async (req, res) => {
       articleId: ObjectId(req.params.id),
       platformId: ObjectId(req.body.platformId),
       status: constants.status.NOT_STARTED,
-      createTs: new Date(),
-      updateTs: new Date(),
       category: req.body.category,
       tag: req.body.tag,
     })
