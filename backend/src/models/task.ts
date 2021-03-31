@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+import mongoose = require('mongoose')
 const ObjectId = require('bson').ObjectId
 
 const taskSchema = new mongoose.Schema({
@@ -6,8 +6,6 @@ const taskSchema = new mongoose.Schema({
   platformId: ObjectId,
   status: String,
   url: String,
-  createTs: Date,
-  updateTs: Date,
   error: String,
   checked: Boolean,
   ready: Boolean,
@@ -24,6 +22,8 @@ const taskSchema = new mongoose.Schema({
 
   // 前端数据（不用设置）
   platform: Object,
+}, {
+  timestamps: true
 })
 
 const Task = mongoose.model('tasks', taskSchema)

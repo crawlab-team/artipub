@@ -1,11 +1,11 @@
-const mongoose = require('mongoose')
+import mongoose = require('mongoose')
 
 const tokenSchema = new mongoose.Schema({
   accessToken: String,
   platformName: String,
   expiresTs: Date,
-  createTs: Date,
-  updateTs: Date,
+}, {
+  timestamps: true
 })
 
 const Token = mongoose.model('tokens', tokenSchema)

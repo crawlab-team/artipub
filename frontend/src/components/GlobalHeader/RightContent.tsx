@@ -1,7 +1,8 @@
 import { GithubOutlined } from '@ant-design/icons';
 import { Tooltip } from 'antd';
 import React from 'react';
-import {  ConnectState } from "@/models/connect";
+import Avatar from './AvatarDropdown';
+import type {  ConnectState } from "@/models/connect";
 import { ConnectProps, connect } from 'umi'
 
 import styles from './index.less';
@@ -12,7 +13,7 @@ export interface GlobalHeaderRightProps extends ConnectProps {
   layout: 'sidemenu' | 'topmenu';
 }
 
-const GlobalHeaderRight: React.SFC<GlobalHeaderRightProps> = props => {
+const GlobalHeaderRight: React.FC<GlobalHeaderRightProps> = props => {
   const { theme, layout } = props;
   let className = styles.right;
 
@@ -27,6 +28,7 @@ const GlobalHeaderRight: React.SFC<GlobalHeaderRightProps> = props => {
           <GithubOutlined className={styles.github} />
         </a>
       </Tooltip>
+      <Avatar menu/>
     </div>
   );
 };

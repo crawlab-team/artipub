@@ -1,7 +1,7 @@
 import { Effect } from 'dva';
 import { Reducer } from 'redux';
 
-import { query as queryUsers } from "@/services/user";
+import { query as queryUsers, queryCurrent } from "@/services/user";
 
 export interface CurrentUser {
   avatar?: string;
@@ -17,19 +17,23 @@ export interface CurrentUser {
 }
 
 export interface UserModelState {
-  currentUser?: CurrentUser;
+  currentUser: CurrentUser;
+  isLogin: boolean;
 }
+
 
 export interface UserModelType {
   namespace: 'user';
   state: UserModelState;
   effects: {
     fetch: Effect;
-    // fetchCurrent: Effect;
+    fetchCurrent: Effect;
+    fetchLoginState: Effect;
   };
   reducers: {
     saveCurrentUser: Reducer<UserModelState>;
     changeNotifyCount: Reducer<UserModelState>;
+    updateLoginState: Reducer<UserModelState>;
   };
 }
 
@@ -38,6 +42,7 @@ const UserModel: UserModelType = {
 
   state: {
     currentUser: {},
+    isLogin: false,
   },
 
   effects: {
@@ -48,26 +53,37 @@ const UserModel: UserModelType = {
         payload: response,
       });
     },
-    // *fetchCurrent(_, { call, put }) {
-    //   const response = yield call(queryCurrent);
-    //   yield put({
-    //     type: 'saveCurrentUser',
-    //     payload: response,
-    //   });
-    // },
+    *fetchCurrent(_, { call, put }) {
+      const response = yield call(queryCurrent);
+      yield put({
+        type: 'saveCurrentUser',
+        payload: response,
+      });
+    },
+    *fetchLoginState(_, { call, put }) {
+      const isLogin = document.cookie.split(';').some((c) => c.split('=')[0] === 'apt')
+      yield put({
+        type: 'updateLoginState',
+        payload: isLogin
+      });
+    }
   },
 
   reducers: {
-    saveCurrentUser(state, action) {
+    saveCurrentUser(state = {currentUser: {}, isLogin: false}, action) {
       return {
         ...state,
         currentUser: action.payload || {},
       };
     },
+    updateLoginState(state = {currentUser: {}, isLogin: false}, action) {
+      return {
+        ...state,
+        isLogin: action.payload
+        }
+    },
     changeNotifyCount(
-      state = {
-        currentUser: {},
-      },
+      state = {currentUser: {}, isLogin: false},
       action,
     ) {
       return {

@@ -25,7 +25,7 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
 
   const isEdit = (): Boolean => {
     return (
-      !!location.hash.match(/edit/) ||
+      !!location.pathname.match(/edit/) ||
       (!!article.currentArticle && !!article.currentArticle._id)
     );
   };
@@ -34,7 +34,7 @@ const ArticleEdit: React.FC<ArticleEditProps> = props => {
     if (dispatch) {
       if (isEdit()) {
         // 如果为编辑文章
-        const arr = location.hash.split('/');
+        const arr = location.pathname.split('/');
         dispatch({
           type: 'article/fetchArticle',
           payload: {

@@ -386,8 +386,8 @@ const ArticleList: React.FC<ArticleListProps> = props => {
     },
     {
       title: '创建时间',
-      dataIndex: 'createTs',
-      key: 'createTs',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
       width: '180px',
       render: text => moment(text).format('YYYY-MM-DD HH:mm:ss'),
     },

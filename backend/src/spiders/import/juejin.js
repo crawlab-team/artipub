@@ -93,8 +93,6 @@ class JuejinImportSpider extends BaseImportSpider {
         title: siteArticle.title,
         content: content,
         contentHtml: this.converter.makeHtml(content),
-        createTs: new Date(),
-        updateTs: new Date()
       })
       article = await article.save()
 
@@ -105,8 +103,6 @@ class JuejinImportSpider extends BaseImportSpider {
         url: siteArticle.url,
         status: constants.status.FINISHED,
         checked: true,
-        createTs: new Date(),
-        updateTs: new Date(),
         authType: constants.authType.COOKIES,
         readNum: siteArticle.readNum,
         likeNum: siteArticle.likeNum,

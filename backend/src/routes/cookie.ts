@@ -1,7 +1,9 @@
 import models from '../models'
+import * as Result from '../utils/result'
+import { Router } from 'express'
+const router = Router();
 
-export default {
-  addCookies: async (req, res) => {
+const addCookies = async (req, res) => {
     const cookies = req.body
     for (let i = 0; i < cookies.length; i++) {
       const c = cookies[i]
@@ -9,6 +11,7 @@ export default {
         continue
       }
       let cookie = await models.Cookie.findOne({
+        user: req.user._id,
         domain: c.domain,
         name: c.name
       })
@@ -21,12 +24,13 @@ export default {
         }
       } else {
         // 不存在该cookie，新增
-        cookie = new models.Cookie({ ...c })
+        cookie = new models.Cookie({ ...c, user: req.user._id })
       }
       await cookie.save()
     }
-    res.json({
-      status: 'ok'
-    })
-  },
-}
+   Result.success(res);
+  };
+
+router.post('/', addCookies)
+
+export = { router, basePath: '/cookies', };

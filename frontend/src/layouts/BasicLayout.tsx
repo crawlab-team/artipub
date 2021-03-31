@@ -9,16 +9,29 @@ import ProLayout, {
   BasicLayoutProps as ProLayoutProps,
   Settings,
 } from '@ant-design/pro-layout';
-import React, {useEffect} from 'react';
+import React,  { useEffect, useMemo, useRef } from 'react';
 import { Link, connect, setLocale, useIntl } from 'umi';
 import Authorized from '@/utils/Authorized';
 import RightContent from '@/components/GlobalHeader/RightContent';
 import {ConnectState, Dispatch} from '@/models/connect';
 import {isAntDesignPro} from '@/utils/utils';
+import { getMatchMenu } from '@umijs/route-utils'
 import logo from '../assets/logo.png';
 import style from './BasicLayout.less';
-import {Row} from "antd";
+import {Row, Result, Button} from "antd";
 
+const noMatch = (
+  <Result
+    status={403}
+    title="403"
+    subTitle="Sorry, you are not authorized to access this page."
+    extra={
+      <Button type="primary">
+        <Link to="/user/login">Go Login</Link>
+      </Button>
+    }
+  />
+)
 
 export interface BasicLayoutProps extends ProLayoutProps {
   breadcrumbNameMap: {
@@ -50,13 +63,13 @@ const footer = (
   <div className={style.footer}>
     <Row className={style.info}>
       <span className={style.name}>ArtiPub</span>
-      <span className={style.slogan}>让你的文章随处可阅</span>
+      <span className={style.slogan}>内容创作者的搬运工，一处书写，随处可见</span>
       <a className={style.github} href="https://github.com/crawlab-team/artipub" target="_blank">
         <img src="https://img.shields.io/github/stars/crawlab-team/artipub?logo=github"/>
       </a>
     </Row>
     <Row className={style.copyright}>
-      Copyright (c) 2019, Crawlab Team All rights reserved.
+      Copyright (c) 2021, Crawlab Team All rights reserved.
     </Row>
   </div>
 );
@@ -97,13 +110,12 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
   useEffect(() => {
     if (dispatch) {
       dispatch({
-        type: 'user/fetchCurrent',
-      });
-      dispatch({
         type: 'settings/getSetting',
       });
     }
   }, []);
+
+  const menuDataRef = useRef<MenuDataItem[]>([]);
 
   /**
    * init variables
@@ -114,6 +126,15 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
       type: 'global/changeLayoutCollapsed',
       payload,
     });
+
+    // get children authority
+    const authorized = useMemo(
+      () =>
+        getMatchMenu(location.pathname || '/', menuDataRef.current).pop() || {
+          authority: 'admin',
+        },
+      [location.pathname],
+    )
 
   // set locale default as zh-CN
   setLocale('zh-CN');
@@ -154,7 +175,9 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
       {...props}
       {...settings}
     >
-      {children}
+       <Authorized authority={authorized!.authority} noMatch={noMatch}>
+        {children}
+      </Authorized>
     </ProLayout>
   );
 };

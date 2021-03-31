@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+import mongoose = require('mongoose')
 
 const platformSchema = new mongoose.Schema({
   name: String,
@@ -8,14 +8,9 @@ const platformSchema = new mongoose.Schema({
   url: String,
   enableImport: Boolean,
   enableLogin: Boolean,
-  username: String,
-  password: String,
-  createTs: Date,
-  updateTs: Date,
   loggedIn: Boolean,
-
-  // 前端字段
-  cookieStatus: String,
+}, {
+  timestamps: true
 })
 
 const Platform = mongoose.model('platforms', platformSchema)

@@ -21,3 +21,14 @@ declare module 'puppeteer-chromium-resolver' {
   export  =  PCR;
 }
 
+interface Success {
+  status: string,
+  data?: object | undefined | object[]
+}
+
+interface Failure {
+  status: string,
+  error: object | string,
+}
+
+type Result = Success | Failure;

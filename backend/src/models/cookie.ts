@@ -1,6 +1,8 @@
-const mongoose = require('mongoose')
+import mongoose = require('mongoose')
+const ObjectId = require('bson').ObjectId
 
 const cookieSchema = new mongoose.Schema({
+    user: ObjectId,
     /** The domain of the cookie (e.g. "www.google.com", "example.com"). */
     domain: String,
     /** The name of the cookie. */
@@ -19,6 +21,8 @@ const cookieSchema = new mongoose.Schema({
     httpOnly: Boolean,
     /** True if the cookie is marked as Secure (i.e. its scope is limited to secure channels, typically HTTPS). */
     secure: Boolean,
+}, {
+    timestamps: true
 })
 
 const Cookie = mongoose.model('cookies', cookieSchema)

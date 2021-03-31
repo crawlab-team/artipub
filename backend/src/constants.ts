@@ -30,7 +30,6 @@ export default {
     RICH_TEXT: 'rich-text'
   },
   environment: {
-    UPDATE_STATS_CRON: 'update_stats_cron',
     ENABLE_CHROME_DEBUG: 'enable_chrome_debug',
     WECHAT_APP_ID: 'wechat_app_id',
     WECHAT_APP_SECRET: 'wechat_app_secret',
