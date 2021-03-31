@@ -85,17 +85,11 @@ const Login: React.FC<LoginProps> = (props) => {
         <Tabs activeKey={type} onChange={setType}>
           <Tabs.TabPane
             key="account"
-            tab={intl.formatMessage({
-              id: 'pages.login.accountLogin.tab',
-              defaultMessage: '登录',
-            })}
+            tab='登录'
           />
           <Tabs.TabPane
             key="register"
-            tab={intl.formatMessage({
-              id: 'pages.login.phoneLogin.tab',
-              defaultMessage: '注册',
-            })}
+            tab='注册'
           />
         </Tabs>
 
@@ -115,10 +109,7 @@ const Login: React.FC<LoginProps> = (props) => {
                 size: 'large',
                 prefix: <UserOutlined className={styles.prefixIcon} />,
               }}
-              placeholder={intl.formatMessage({
-                id: 'pages.login.username.placeholder',
-                defaultMessage: '用户名',
-              })}
+              placeholder='用户名'
               rules={[
                 {
                   required: true,
@@ -137,10 +128,7 @@ const Login: React.FC<LoginProps> = (props) => {
                 size: 'large',
                 prefix: <LockOutlined className={styles.prefixIcon} />,
               }}
-              placeholder={intl.formatMessage({
-                id: 'pages.login.password.placeholder',
-                defaultMessage: '密码',
-              })}
+              placeholder='密码'
               rules={[
                 {
                   required: true,
@@ -167,10 +155,7 @@ const Login: React.FC<LoginProps> = (props) => {
                 prefix: <MailOutlined className={styles.prefixIcon} />,
               }}
               name="email"
-              placeholder={intl.formatMessage({
-                id: 'pages.login.phoneNumber.placeholder',
-                defaultMessage: '邮箱',
-              })}
+              placeholder='邮箱'
               rules={[
                 {
                   required: true,
@@ -198,10 +183,7 @@ const Login: React.FC<LoginProps> = (props) => {
                 prefix: <UserOutlined className={styles.prefixIcon} />,
               }}
               name="username"
-              placeholder={intl.formatMessage({
-                id: 'pages.login.phoneNumber.placeholder',
-                defaultMessage: '用户名',
-              })}
+              placeholder='用户名'
               rules={[
                 {
                   required: true,
@@ -220,10 +202,7 @@ const Login: React.FC<LoginProps> = (props) => {
                 size: 'large',
                 prefix: <LockOutlined className={styles.prefixIcon} />,
               }}
-              placeholder={intl.formatMessage({
-                id: 'pages.login.password.placeholder',
-                defaultMessage: '密码',
-              })}
+              placeholder='密码'
               rules={[
                 {
                   required: true,
@@ -242,10 +221,7 @@ const Login: React.FC<LoginProps> = (props) => {
                 size: 'large',
                 prefix: <LockOutlined className={styles.prefixIcon} />,
               }}
-              placeholder={intl.formatMessage({
-                id: 'pages.login.password.placeholder',
-                defaultMessage: '确认密码',
-              })}
+              placeholder='确认密码'
               rules={[
                 {
                   required: true,

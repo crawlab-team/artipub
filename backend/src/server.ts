@@ -91,7 +91,7 @@ app.use((err, req, res, next) => {
     const status = err.status || 500;
     res.status(status).json({
       code: -1,
-      error: err
+      error: err || '系统未知异常，请联系管理页'
     })
   }
 })

@@ -133,22 +133,17 @@ export default {
   // 环境变量
   environments: [
     {
-      _id: constants.environment.UPDATE_STATS_CRON,
-      label: '更新文章统计数据频率',
-      value: '0 0/30 * * * *'
-    },
-    {
-      _id: constants.environment.ENABLE_CHROME_DEBUG,
+      name: constants.environment.ENABLE_CHROME_DEBUG,
       label: 'Chrome浏览器调试模式',
       value: 'N'
     },
     {
-      _id: constants.environment.WECHAT_APP_ID,
+      name: constants.environment.WECHAT_APP_ID,
       label: '微信公众号APP ID',
       value: ''
     },
     {
-      _id: constants.environment.WECHAT_APP_SECRET,
+      name: constants.environment.WECHAT_APP_SECRET,
       label: '微信公众号APP SECRET',
       value: ''
     }

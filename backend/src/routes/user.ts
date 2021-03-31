@@ -1,11 +1,12 @@
 import models from '../models';
 import * as Result from '../utils/result'
+import data from '../data'
 import { Router } from 'express';
 import {SECRET, TOKEN} from '../config'
 const router = Router();
 const passport = require('passport');
 import jwt = require('jsonwebtoken');
-const { User } = models;
+const { User, Environment } = models;
 
 const register = async (req, res) => {
     const username = req.body.username;
@@ -15,6 +16,10 @@ const register = async (req, res) => {
       if (err) {
         return Result.error(res, '注册失败')
       }
+
+      //@ts-ignore
+      const userEnvs = data.environments.map(t =>  ({...t, user: user._id}));
+      Environment.insertMany(userEnvs)
 
       return Result.success(res)
     });
@@ -35,8 +40,8 @@ const login = (req, res, next) => {
 router.post('/login', passport.authenticate('local', {
     session: false,
     assignProperty: 'user',
-    failWithError: true,
-  }), login);
+    // failWithError: true,
+}), login);
 router.post('/signup', register)
 export = { router, basePath: '/users', };
 

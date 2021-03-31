@@ -8,7 +8,7 @@ export const success = (res: Response, data ?: any) => {
 };
 
 export const error = (res: Response, error: (Error & {status ?: number}) | string, status ?: number) => {
-  const resStatus = status || (typeof error === 'string' ? false : error.status) || 500;
+  const resStatus = status || (typeof error === 'string' ? false : error.status) || 200;
   return res.status(resStatus).json({
      status: 'fail',
      error: error

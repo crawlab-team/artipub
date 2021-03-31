@@ -16,7 +16,7 @@ const EnvironmentList: React.FC<EnvironmentListProps> = props => {
   const {dispatch, environment} = props;
 
   const getValue = (d: Environment) => {
-    if (d._id === constants.environment.UPDATE_STATS_CRON) {
+    if (d.name === constants.environment.UPDATE_STATS_CRON) {
       return (
         <Select
           value={d.value}
@@ -32,7 +32,7 @@ const EnvironmentList: React.FC<EnvironmentListProps> = props => {
           <Select.Option value="0 0 0 * * *">每天</Select.Option>
         </Select>
       )
-    } else if (d._id === constants.environment.ENABLE_CHROME_DEBUG) {
+    } else if (d.name === constants.environment.ENABLE_CHROME_DEBUG) {
       return (
         <Select
           value={d.value}

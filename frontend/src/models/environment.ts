@@ -3,9 +3,10 @@ import {Reducer} from 'redux';
 import { queryEnvironmentList, saveEnvironment } from "@/services/environment";
 
 export interface Environment {
-  _id?: string;
+  _id: string;
+  name: string;
   value?: string;
-  label?: string;
+  label: string;
 }
 
 export interface EnvironmentModelState {

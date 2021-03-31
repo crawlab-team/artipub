@@ -22,25 +22,6 @@ const init = async () => {
     }
   }
 
-  // 初始化环境变量数据
-  for (let i = 0; i < data.environments.length; i++) {
-    const environment = data.environments[i]
-    let environmentDb = await models.Environment.findOne({ _id: environment._id })
-    if (!environmentDb) {
-      environmentDb = new models.Environment(environment)
-      await environmentDb.save()
-    } else {
-      // do nothing
-      // for (let key in environment) {
-      //   if (environment.hasOwnProperty(key)) {
-      //     if (environment[key]) {
-      //       environmentDb[key] = environment[key]
-      //     }
-      //   }
-      // }
-      // await environmentDb.save()
-    }
-  }
   // 删除juejin.im域的cookie
   await models.Cookie.deleteMany({ domain: { $regex: '.juejin.im' } });
 }
