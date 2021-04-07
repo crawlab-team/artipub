@@ -6,7 +6,8 @@ import logger from '../logger'
 class JuejinSpider extends BaseSpider {
 
   async inputContent(article, editorSel) {
-    const footerContent = `\n\n> 本篇文章由一文多发平台[ArtiPub](https://github.com/crawlab-team/artipub)自动发布`
+    // const footerContent = `\n\n> 本篇文章由一文多发平台[ArtiPub](https://github.com/crawlab-team/artipub)自动发布`
+    const footerContent = `\n\n`
     const content = article.content + footerContent
     const el = document.querySelector('.CodeMirror')
     //@ts-ignore

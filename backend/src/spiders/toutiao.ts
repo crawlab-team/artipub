@@ -3,7 +3,8 @@ import logger from '../logger'
 
 class ToutiaoSpider extends BaseSpider {
   async inputContent(article, editorSel) {
-    const footerContent = `<br><b>本篇文章由一文多发平台ArtiPub自动发布</b>. https://github.com/crawlab-team/artipub`
+    // const footerContent = `<br><b>本篇文章由一文多发平台ArtiPub自动发布</b>. https://github.com/crawlab-team/artipub`
+    const footerContent = `<br>`
     const content = article.contentHtml + footerContent
     const el = document.querySelector(editorSel.content)
     el.focus()
