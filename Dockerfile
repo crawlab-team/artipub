@@ -1,4 +1,4 @@
-FROM jelastic/nodejs:14.16.0-npm AS frontend
+FROM jelastic/nodejs:15.14.0-npm AS frontend
 
 WORKDIR /app
 ADD ./frontend /app
