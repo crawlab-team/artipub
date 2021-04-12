@@ -2,7 +2,7 @@ FROM jelastic/nodejs:15.14.0-npm AS frontend
 
 WORKDIR /app
 ADD ./frontend /app
-RUN npm install
+RUN npm install --registry=https://registry.npm.taobao.org
 RUN npm run build
 
 FROM jelastic/nodejs:14.16.0-npm
