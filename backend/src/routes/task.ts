@@ -29,6 +29,7 @@ const addTasks = async (req, res) => {
         task = new models.Task({
           articleId: ObjectId(_task.articleId),
           platformId: ObjectId(_task.platformId),
+          user: req.user._id,
           status: constants.status.NOT_STARTED,
           checked: _task.checked,
           authType: _task.authType,
@@ -38,7 +39,7 @@ const addTasks = async (req, res) => {
           tag: _task.tag,
           pubType: _task.pubType,
           title: _task.title,
-        })
+        });
       }
       task = await task.save()
     }
@@ -48,6 +49,7 @@ const addTask = async (req, res) => {
     let task = new models.Task({
       articleId: ObjectId(req.body.articleId),
       platformId: ObjectId(req.body.platformId),
+      user: req.user._id,
       status: constants.status.NOT_STARTED,
 
       // 配置信息
@@ -70,7 +72,7 @@ const editTask = async (req, res) => {
     return;
   };
 const deleteTask = async (req, res) => {
-    let task = await models.Task.findOne({ _id: ObjectId(req.params.id) })
+    let task = await models.Task.findOne({ _id: ObjectId(req.params.id), user: req.user._id})
     if (!task) {
       return Result.notFound(res);
     }
