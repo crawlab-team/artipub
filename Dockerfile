@@ -5,7 +5,7 @@ ADD ./frontend /app
 RUN npm install --registry=https://registry.npm.taobao.org
 RUN npm run build
 
-FROM jelastic/nodejs:14.16.0-npm
+FROM jelastic/nodejs:15.14.0-npm
 RUN yum install -y nginx && yum clean all
 COPY --from=frontend /app/dist /frontend
 WORKDIR /app
