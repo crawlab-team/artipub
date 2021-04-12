@@ -4,6 +4,7 @@ const ObjectId = require('bson').ObjectId
 const taskSchema = new mongoose.Schema({
   articleId: ObjectId,
   platformId: ObjectId,
+  user: ObjectId,
   status: String,
   url: String,
   error: String,

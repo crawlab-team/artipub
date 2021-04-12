@@ -64,7 +64,8 @@ class BaseSpider {
     });
 
     // 是否开启chrome浏览器调试
-    const enableChromeDebugEnv = await models.Environment.findOne({ _id: constants.environment.ENABLE_CHROME_DEBUG });
+    const enableChromeDebugEnv = await models.Environment.findOne({ user: this.task.user, name: constants.environment.ENABLE_CHROME_DEBUG });
+    // @ts-ignore
     const enableChromeDebug = enableChromeDebugEnv.value;
 
     // 浏览器
