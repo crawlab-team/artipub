@@ -1,20 +1,34 @@
-import mongoose = require('mongoose')
-const {ObjectId} = require('bson')
+import { model, Schema,  } from "mongoose";
+import type {Document, ObjectId as IObjectId} from "mongoose";
+const { ObjectId } = require("bson");
 
-const userPlatformSchema = new mongoose.Schema({
-  user: { type: ObjectId, ref: 'users'},
-  platform: { type: ObjectId, ref: 'platforms'},
-  username: String,
-  password: String,
-  loggedIn: Boolean,
-   // 前端字段
-   cookieStatus: String,
-}, {
-  timestamps: true
-})
+export interface IUserPlatform extends Document, Timestamp {
+  user: IObjectId;
+  platform: IObjectId;
+  username: string;
+  password: string;
+  loggedIn: boolean;
+  cookieStatus: string;
+}
 
-userPlatformSchema.index({ user: 1, platform: 1 }, {unique: true})
+const userPlatformSchema = new Schema(
+  {
+    user: { type: ObjectId, ref: "users" },
+    platform: { type: ObjectId, ref: "platforms" },
+    username: String,
+    password: String,
+    loggedIn: Boolean,
+    // 前端字段
+    cookieStatus: String,
+  },
+  {
+    timestamps: true,
+  }
+);
 
-const UserPlatform = mongoose.model('user_platforms', userPlatformSchema)
+userPlatformSchema.index({ user: 1, platform: 1 }, { unique: true });
 
-export = UserPlatform
+export const UserPlatform = model<IUserPlatform>(
+  "user_platforms",
+  userPlatformSchema
+);

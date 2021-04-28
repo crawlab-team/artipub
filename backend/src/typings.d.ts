@@ -31,4 +31,9 @@ interface Failure {
   error: object | string,
 }
 
+interface Timestamp {
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 type Result = Success | Failure;

@@ -1,32 +1,54 @@
-import mongoose = require('mongoose')
-const ObjectId = require('bson').ObjectId
+import { model, Schema,  } from "mongoose";
+import type {Document, ObjectId as IObjectId} from 'mongoose'
+import type { IPlatform } from "./platform"
+const ObjectId = require("bson").ObjectId;
 
-const taskSchema = new mongoose.Schema({
-  articleId: ObjectId,
-  platformId: ObjectId,
-  user: ObjectId,
-  status: String,
-  url: String,
-  error: String,
-  checked: Boolean,
-  ready: Boolean,
-  authType: String,
-  readNum: Number,
-  likeNum: Number,
-  commentNum: Number,
+export interface ITask extends Document, Timestamp {
+  articleId: IObjectId;
+  platformId: IObjectId;
+  status: string;
+  url: string;
+  error: string;
+  checked: boolean;
+  ready: boolean;
+  authType: string;
+  readNum: number;
+  likeNum: number;
+  commentNum: number;
 
-  // 配置信息
-  category: String, // 类别: juejin
-  tag: String, // 标签: juejin (单选), segmentfault (逗号分割)
-  pubType: String, // 发布形式: csdn (单选)
-  title: String, // 标题
+  category?: string;
+  tags?: string;
+  pubType?: string;
+  title?: string;
+  platform?: IPlatform;
+}
 
-  // 前端数据（不用设置）
-  platform: Object,
-}, {
-  timestamps: true
-})
+const taskSchema = new Schema(
+  {
+    articleId: ObjectId,
+    platformId: ObjectId,
+    status: String,
+    url: String,
+    error: String,
+    checked: Boolean,
+    ready: Boolean,
+    authType: String,
+    readNum: Number,
+    likeNum: Number,
+    commentNum: Number,
 
-const Task = mongoose.model('tasks', taskSchema)
+    // 配置信息
+    category: String, // 类别: juejin
+    tag: String, // 标签: juejin (单选), segmentfault (逗号分割)
+    pubType: String, // 发布形式: csdn (单选)
+    title: String, // 标题
 
-export = Task
+    // 前端数据（不用设置）
+    platform: Object,
+  },
+  {
+    timestamps: true,
+  }
+);
+
+export const Task = model<ITask>("tasks", taskSchema);

@@ -1,15 +1,15 @@
 import { Router } from 'express'
-import models from '../models'
+import {Article, IPlatform, Platform, Task} from '../models'
 import * as Result from '../utils/result'
 import constants from '../constants'
 const ObjectId = require('bson').ObjectId
 const router = Router();
 
 const getArticleList = async (req, res) => {
-    const articles = await models.Article.find({user: req.user._id}).sort({ _id: -1 })
+    const articles = await Article.find({user: req.user._id}).sort({ _id: -1 })
     for (let i = 0; i < articles.length; i++) {
-      const article = articles[i]
-      article.tasks = await models.Task.find({ articleId: article._id })
+      const article = articles[i] 
+      article.tasks = await Task.find({ articleId: article._id })
       const arr = ['readNum', 'likeNum', 'commentNum']
       arr.forEach(key => {
         article[key] = 0
@@ -21,21 +21,21 @@ const getArticleList = async (req, res) => {
     await Result.success(res, articles)
   };
 const getArticle = async (req, res) => {
-    const article = await models.Article.findOne({ _id: ObjectId(req.params.id) , user: req.user._id})
-    article.tasks = await models.Task.find({ articleId: article._id })
+    const article = await Article.findOne({ _id: ObjectId(req.params.id) , user: req.user._id})
+    article!.tasks = await Task.find({ articleId: article!._id })
     await Result.success(res, article)
   };
 const getArticleTaskList = async (req, res) => {
-    const article = await models.Article.findOne({ _id: ObjectId(req.params.id) , user: req.user._id})
-    const tasks = await models.Task.find({ articleId: article._id })
+    const article = await Article.findOne({ _id: ObjectId(req.params.id) , user: req.user._id})
+    const tasks = await Task.find({ articleId: article!._id })
     for (let i = 0; i < tasks.length; i++) {
-      tasks[i].platform = await models.Platform.findOne({ _id: tasks[i].platformId })
+      tasks[i].platform = <IPlatform>await Platform.findOne({ _id: tasks[i].platformId })
     }
     await Result.success(res, tasks)
   };
 const addArticle = async (req, res) => {
     // 创建文章
-    let article = new models.Article({
+    let article = new Article({
       user: req.user._id,
       title: req.body.title,
       content: req.body.content,
@@ -46,31 +46,30 @@ const addArticle = async (req, res) => {
     await Result.success(res, article)
   };
 const editArticle = async (req, res) => {
-    let article = await models.Article.findOne({ _id: ObjectId(req.params.id) , user: req.user._id})
+    let article = await Article.findOne({ _id: ObjectId(req.params.id) , user: req.user._id})
     if (!article) {
       return Result.error(res, 'not found', 404)
     }
     article.title = req.body.title
     article.content = req.body.content
     article.contentHtml = req.body.contentHtml
-    article.updateTs = new Date()
     article = await article.save()
     return await Result.success(res, article)
   };
 const deleteArticle = async (req, res) => {
-    let article = await models.Article.findOne({ _id: ObjectId(req.params.id) , user: req.user._id})
+    let article = await Article.findOne({ _id: ObjectId(req.params.id) , user: req.user._id})
     if (!article) {
       return Result.notFound(res)
     }
-    await models.Article.remove({ _id: ObjectId(req.params.id) , user: req.user._id})
+    await Article.remove({ _id: ObjectId(req.params.id) , user: req.user._id})
     return await Result.success(res)
   };
 const publishArticle = async (req, res) => {
-    let article = await models.Article.findOne({ _id: ObjectId(req.params.id) , user: req.user._id})
+    let article = await Article.findOne({ _id: ObjectId(req.params.id) , user: req.user._id})
     if (!article) {
       return Result.error(res, 'not found', 404)
     }
-    const tasks = await models.Task.find({
+    const tasks = await Task.find({
       articleId: article._id,
       status: {
         $in: [
@@ -83,19 +82,18 @@ const publishArticle = async (req, res) => {
     for (let task of tasks) {
       task.status = constants.status.NOT_STARTED
       task.ready = true
-      task.updateTs = new Date()
       await task.save()
     }
 
     return await Result.success(res)
   };
 const addArticleTask = async (req, res) => {
-  let article = await models.Article.findOne({ _id: ObjectId(req.params.id) , user: req.user._id})
+  let article = await Article.findOne({ _id: ObjectId(req.params.id) , user: req.user._id})
   if (!article) {
     return Result.error(res, 'not found', 404)
   }
 
-    let task = new models.Task({
+    let task = new Task({
       articleId: ObjectId(req.params.id),
       platformId: ObjectId(req.body.platformId),
       status: constants.status.NOT_STARTED,

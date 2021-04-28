@@ -3,13 +3,10 @@ import constants from "../constants"
 import logger from "../logger"
 
 class BaiJiaHaoSpider extends BaseSpider {
-  async inputContent(article, editorSel) {
-    // const footerContent = `<br><b>本篇文章由一文多发平台<a href="https://github.com/crawlab-team/artipub" target="_blank">ArtiPub</a>自动发布</b>`;
-    const footerContent = "";
-    const content = article.contentHtml + footerContent;
+  async inputContent(realContent, editorSel) {
     //@ts-ignore
     const ue = UE.getEditor(editorSel.content);
-    ue.setContent(content);
+    ue.setContent(realContent);
   }
 
   async afterInputEditor() {

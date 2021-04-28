@@ -1,14 +1,12 @@
 import PCR = require( 'puppeteer-chromium-resolver');
 const { ObjectId }= require('bson');
-import models from '../models'
+import { UserPlatform, Template, Task, Article, Platform, Environment,} from '../models'
 import constants from '../constants'
 import config from './config'
 import logger from '../logger'
 import type { Page } from 'puppeteer-core';
 import type {Types} from 'mongoose'
 import axios from 'axios';
-
-const { UserPlatform } = models;
 
 class BaseSpider {
   taskId: any;
@@ -36,19 +34,19 @@ class BaseSpider {
 
   async init() {
     // 任务
-    this.task = await models.Task.findOne({ _id: ObjectId(this.taskId) });
+    this.task = await Task.findOne({ _id: ObjectId(this.taskId) });
     if (!this.task) {
       throw new Error(`task (ID: ${this.taskId}) cannot be found`);
     }
 
     // 文章
-    this.article = await models.Article.findOne({ _id: this.task.articleId });
+    this.article = await Article.findOne({ _id: this.task.articleId });
     if (!this.article) {
       throw new Error(`article (ID: ${this.task.articleId.toString()}) cannot be found`);
     }
 
     // 平台
-    this.platform = await models.Platform.findOne({ _id: this.task.platformId });
+    this.platform = await Platform.findOne({ _id: this.task.platformId });
     if (!this.platform) {
       throw new Error(`platform (ID: ${this.task.platformId.toString()}) cannot be found`);
     }
@@ -64,9 +62,9 @@ class BaseSpider {
     });
 
     // 是否开启chrome浏览器调试
-    const enableChromeDebugEnv = await models.Environment.findOne({ user: this.task.user, name: constants.environment.ENABLE_CHROME_DEBUG });
-    // @ts-ignore
-    const enableChromeDebug = enableChromeDebugEnv.value;
+    const enableChromeDebugEnv = await Environment.findOne({ _id: constants.environment.ENABLE_CHROME_DEBUG });
+
+    const enableChromeDebug = enableChromeDebugEnv!.value;
 
     // 浏览器
     this.browser = await this.pcr.puppeteer.launch({
@@ -110,7 +108,7 @@ class BaseSpider {
 
   async initForCookieStatus() {
     // platform
-    this.platform = await models.Platform.findOne({ _id: ObjectId(this.platformId) });
+    this.platform = await Platform.findOne({ _id: ObjectId(this.platformId) });
 
     // PCR
     this.pcr = await PCR({
@@ -123,8 +121,8 @@ class BaseSpider {
     });
 
     // 是否开启chrome浏览器调试
-    const enableChromeDebugEnv = await models.Environment.findOne({ _id: constants.environment.ENABLE_CHROME_DEBUG });
-    const enableChromeDebug = enableChromeDebugEnv.value;
+    const enableChromeDebugEnv = await Environment.findOne({ _id: constants.environment.ENABLE_CHROME_DEBUG });
+    const enableChromeDebug = enableChromeDebugEnv!.value;
 
     // 浏览器
     this.browser = await this.pcr.puppeteer.launch({
@@ -150,6 +148,14 @@ class BaseSpider {
     //   width: 2400,
     //   height: 1600,
     // });
+  }
+
+  /**
+   * 返回拼接头尾部模版后，实际发到平台的最终内容
+   * @returns 
+   */
+  getFinalContent(): string {
+    return '';
   }
 
   /**
@@ -255,7 +261,7 @@ class BaseSpider {
   /**
    * 输入文章内容
    */
-  async inputContent(article: { content: string | undefined; }, editorSel: { content: string; }) {
+  async inputContent(realContent: string, editorSel: { content: string; }) {
     const el = document.querySelector(editorSel.content) as HTMLPreElement;
     el.focus();
     try {
@@ -274,7 +280,7 @@ class BaseSpider {
       // do nothing
     }
     document.execCommand('delete', false);
-    document.execCommand('insertText', false, article.content);
+    document.execCommand('insertText', false, realContent);
   }
 
   /**
@@ -384,7 +390,7 @@ class BaseSpider {
    */
   async afterFetchStats() {
     // 统计文章总阅读、点赞、评论数
-    const tasks = await models.Task.find({ articleId: this.article._id });
+    const tasks = await Task.find({ articleId: this.article._id });
     let readNum = 0;
     let likeNum = 0;
     let commentNum = 0;

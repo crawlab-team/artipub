@@ -81,6 +81,12 @@ export default [
                 component: './ArticleList/ArticleList',
               },
               {
+                path: '/templates',
+                name: 'templates',
+                icon: 'read',
+                component: './ArticleList/ArticleList',
+              },
+              {
                 path: '/helper',
                 name: 'helper',
                 icon: 'key',

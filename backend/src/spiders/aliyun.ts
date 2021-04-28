@@ -3,14 +3,12 @@ import constants from '../constants'
 import logger from '../logger'
 class AliyunSpider extends BaseSpider {
 
-  async inputContent(article, editorSel) {
-    const footerContent = `\n\n> 本篇文章由一文多发平台[ArtiPub](https://github.com/crawlab-team/artipub)自动发布`
-    const content = article.content + footerContent
+  async inputContent(realContent, editorSel) {
     const el = document.querySelector('.textarea') as HTMLInputElement
     el.focus()
     el.select()
     document.execCommand('delete', false)
-    document.execCommand('insertText', false, content)
+    document.execCommand('insertText', false, realContent)
   }
 
   async inputFooter(article, editorSel) {

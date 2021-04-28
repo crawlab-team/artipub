@@ -1,7 +1,22 @@
-import mongoose = require('mongoose')
-const ObjectId = require('bson').ObjectId
+import { model, Schema,  } from "mongoose";
+import type {Document, ObjectId as IObjectId} from 'mongoose';
+const ObjectId = require("bson").ObjectId;
 
-const cookieSchema = new mongoose.Schema({
+export interface ICookie extends Document, Timestamp{
+  user: IObjectId;
+  domain: string;
+  name: string;
+  value: string;
+  session: boolean;
+  hostOnly: boolean;
+  expirationDate: number;
+  path: string;
+  httpOnly: boolean;
+  secure: boolean;
+}
+
+const cookieSchema = new Schema(
+  {
     user: ObjectId,
     /** The domain of the cookie (e.g. "www.google.com", "example.com"). */
     domain: String,
@@ -21,10 +36,10 @@ const cookieSchema = new mongoose.Schema({
     httpOnly: Boolean,
     /** True if the cookie is marked as Secure (i.e. its scope is limited to secure channels, typically HTTPS). */
     secure: Boolean,
-}, {
-    timestamps: true
-})
+  },
+  {
+    timestamps: true,
+  }
+);
 
-const Cookie = mongoose.model('cookies', cookieSchema)
-
-export = Cookie
+export const Cookie = model<ICookie>("cookies", cookieSchema);
