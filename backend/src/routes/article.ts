@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import {Article, IPlatform, Platform, Task} from '../models'
+import {Article, IPlatform, Platform, Task} from '@/models'
 import * as Result from '../utils/result'
 import constants from '../constants'
 const ObjectId = require('bson').ObjectId

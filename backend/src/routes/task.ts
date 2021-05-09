@@ -1,23 +1,23 @@
-import models from '../models'
 import * as Result from '../utils/result'
 import constants from '../constants'
 import { Router } from 'express';
+import { Task } from '@/models';
 const router = Router();
 const ObjectId = require('bson').ObjectId
 
 const getTaskList = async (req, res) => {
-    const tasks = await models.Task.find()
+    const tasks = await Task.find()
     await Result.success(res, tasks)
   };
 const getTask = async (req, res) => {
-    const task = await models.Task.findOne({ _id: ObjectId(req.params.id) })
+    const task = await Task.findOne({ _id: ObjectId(req.params.id) })
     await Result.success(res, task)
   };
 const addTasks = async (req, res) => {
     for (let _task of req.body) {
       let task
       if (_task._id) {
-        task = await models.Task.findOne({ _id: ObjectId(_task._id) })
+        task = await Task.findOne({ _id: ObjectId(_task._id) })
         task.category = _task.category
         task.tag = _task.tag
         task.pubType = _task.pubType
@@ -26,7 +26,7 @@ const addTasks = async (req, res) => {
         task.authType = _task.authType
         task.title = _task.title
       } else {
-        task = new models.Task({
+        task = new Task({
           articleId: ObjectId(_task.articleId),
           platformId: ObjectId(_task.platformId),
           user: req.user._id,
@@ -46,7 +46,7 @@ const addTasks = async (req, res) => {
   await Result.success(res);
   };
 const addTask = async (req, res) => {
-    let task = new models.Task({
+    let task = new Task({
       articleId: ObjectId(req.body.articleId),
       platformId: ObjectId(req.body.platformId),
       user: req.user._id,
@@ -60,23 +60,23 @@ const addTask = async (req, res) => {
     await Result.success(res, task)
   };
 const editTask = async (req, res) => {
-    let task = await models.Task.findOne({ _id: ObjectId(req.params.id) })
+    let task = await Task.findOne({ _id: ObjectId(req.params.id) })
     if (!task) {
       return Result.notFound(res)
     }
     task.category = req.body.category
+    //@ts-ignore
     task.tag = req.body.tag
-    task.updateTs = new Date()
     task = await task.save()
     await Result.success(res, task)
     return;
   };
 const deleteTask = async (req, res) => {
-    let task = await models.Task.findOne({ _id: ObjectId(req.params.id), user: req.user._id})
+    let task = await Task.findOne({ _id: ObjectId(req.params.id), user: req.user._id})
     if (!task) {
       return Result.notFound(res);
     }
-    await models.Task.remove({ _id: ObjectId(req.params.id) })
+    await Task.remove({ _id: ObjectId(req.params.id) })
   await Result.success(res, req.body);
   return;
   };

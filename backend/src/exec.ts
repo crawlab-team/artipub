@@ -4,8 +4,8 @@ const mongoose = require('mongoose')
 const CronJob = require('cron').CronJob
 const AsyncLock = require('async-lock')
 import constants from './constants'
-import models from './models'
 import logger from './logger'
+import { Task } from './models'
 const ArticlePublisher = require('./lib/ArticlePublisher')
 const StatsFetcher = require('./lib/StatsFetcher')
 
@@ -27,7 +27,7 @@ class Runner {
     const taskCronJob = new CronJob('* * * * * *', () => {
       if (!taskLock.isBusy()) {
         taskLock.acquire('key', async () => {
-          let task = await models.Task.findOne({
+          let task = await Task.findOne({
             status: constants.status.NOT_STARTED,
             ready: true,
             checked: true
@@ -52,7 +52,7 @@ class Runner {
     const statsCronJob = new CronJob(updateStatsCron, () => {
       if (!statsLock.isBusy()) {
         statsLock.acquire('key', async () => {
-          const tasks = await models.Task.find({
+          const tasks = await Task.find({
             url: {
               $ne: '',
               $exists: true

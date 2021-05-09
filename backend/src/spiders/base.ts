@@ -1,6 +1,15 @@
 import PCR = require( 'puppeteer-chromium-resolver');
 const { ObjectId }= require('bson');
-import { UserPlatform, Template, Task, Article, Platform, Environment,} from '../models'
+import {
+  UserPlatform,
+  Template,
+  Task,
+  Article,
+  Platform,
+  Environment,
+  IUserPlatform,
+  Cookie,
+} from "@/models";
 import constants from '../constants'
 import config from './config'
 import logger from '../logger'
@@ -193,7 +202,9 @@ class BaseSpider {
    * 设置Cookie
    */
   async setCookies() {
-    const cookies = await models.Cookie.find({ domain: BaseSpider.getCookieDomainCondition(this.platform.name) });
+    const cookies = await Cookie.find({
+      domain: BaseSpider.getCookieDomainCondition(this.platform.name),
+    });
     for (let i = 0; i < cookies.length; i++) {
       const c = cookies[i];
       await this.page.setCookie({
@@ -208,7 +219,10 @@ class BaseSpider {
    * 获取可给axios 使用的cookie
    */
   static async getCookiesForAxios(platformName, userId: Types.ObjectId) {
-    const cookies = await models.Cookie.find({ domain: BaseSpider.getCookieDomainCondition(platformName), user: userId,});
+    const cookies = await Cookie.find({
+      domain: BaseSpider.getCookieDomainCondition(platformName),
+      user: userId,
+    });
     let cookieStr = '';
     for (let i = 0; i < cookies.length; i++) {
       const c = cookies[i];
@@ -430,7 +444,10 @@ class BaseSpider {
    */
   static async checkCookieStatus(platform, userId: Types.ObjectId) {
     // platform
-    let userPlatform = await UserPlatform.findOne({ platform: platform._id, user: userId});
+    let userPlatform = (await UserPlatform.findOne({
+      platform: platform._id,
+      user: userId,
+    })) as IUserPlatform;
 
     if (!userPlatform) {
       userPlatform = new UserPlatform({platform: platform._id, user: userId})
@@ -471,7 +488,7 @@ class BaseSpider {
           userPlatform.loggedIn = text.includes('成功');
         } else if (platform.name === constants.platform.JIANSHU) {
           userPlatform.loggedIn = text.includes('current_user');
-        } else if ([constants.platform.CNBLOGS, constants.platform.B_51CTO].includes(userPlatform.name)) {
+        } else if ([constants.platform.CNBLOGS, constants.platform.B_51CTO].includes(platform.name)) {
           userPlatform.loggedIn = text.includes('我的博客');
         } else if (platform.name === constants.platform.SEGMENTFAULT) {
           userPlatform.loggedIn = text.includes('user_id');

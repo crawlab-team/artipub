@@ -1,6 +1,6 @@
 const PCR = require('puppeteer-chromium-resolver')
 const showdown = require('showdown')
-const models = require('../../models')
+const models = require('../@/models')
 const BaseSpider = require('../base')
 const globalConfig = require('../../config')
 const config = require('../config')
