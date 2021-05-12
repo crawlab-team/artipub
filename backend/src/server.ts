@@ -1,5 +1,3 @@
-require("module-alias/register");
-
 import express = require("express");
 import cookieParser = require("cookie-parser");
 import morgan = require("morgan");
