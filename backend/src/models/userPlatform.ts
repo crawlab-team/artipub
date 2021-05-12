@@ -1,10 +1,10 @@
-import { model, Schema,  } from "mongoose";
+import { model, Schema, Types  } from "mongoose";
 import type {Document, ObjectId as IObjectId} from "mongoose";
 const { ObjectId } = require("bson");
 
 export interface IUserPlatform extends Document, Timestamp {
-  user: IObjectId;
-  platform: IObjectId;
+  user: Types.ObjectId;
+  platform: Types.ObjectId;
   username: string;
   password: string;
   loggedIn: boolean;

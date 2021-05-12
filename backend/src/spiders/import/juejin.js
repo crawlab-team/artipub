@@ -2,7 +2,7 @@ const ObjectId = require('bson').ObjectId
 const os = require('os')
 const clipboardy = require('clipboardy')
 const BaseImportSpider = require('./base')
-const models = require('../../models')
+const models = require('../@/models')
 const constants = require('../../constants')
 const logger = require('../../logger')
 

@@ -1,4 +1,3 @@
-import models from '../models';
 import * as Result from '../utils/result'
 import data from '../data'
 import { Router } from 'express';
@@ -6,12 +5,13 @@ import {SECRET, TOKEN} from '../config'
 const router = Router();
 const passport = require('passport');
 import jwt = require('jsonwebtoken');
-const { User, Environment } = models;
+import { User, Environment } from '@/models';
 
 const register = async (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
     const email = req.body.email;
+    //@ts-ignore
     User.register({ username, email}, password, (err, user) => {
       if (err) {
         return Result.error(res, '注册失败')

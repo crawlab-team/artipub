@@ -1,9 +1,9 @@
-import { model, Schema,  } from "mongoose";
-import type {Document, ObjectId as IObjectId} from 'mongoose';
+import { model, Schema, Types,  } from "mongoose";
+import type {Document, } from 'mongoose';
 const ObjectId = require("bson").ObjectId;
 
 export interface ICookie extends Document, Timestamp{
-  user: IObjectId;
+  user: Types.ObjectId;
   domain: string;
   name: string;
   value: string;

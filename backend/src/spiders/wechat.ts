@@ -5,7 +5,7 @@ const fs = require('fs');
 const cheerio = require('cheerio');
 import BaseSpider = require('./base');
 import constants from '../constants';
-import models from '../models'
+import models from "@/models";
 import config from './config';
 import logger from '../logger';
 const path = require('path');

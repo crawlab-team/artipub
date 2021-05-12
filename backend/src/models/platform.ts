@@ -1,5 +1,5 @@
 import { model, Schema,  } from "mongoose";
-import type {Document, ObjectId as IObjectId} from "mongoose";
+import type {Document} from "mongoose";
 
 export interface IPlatform extends Document, Timestamp {
   name: string;

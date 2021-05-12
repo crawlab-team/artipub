@@ -1,7 +1,7 @@
-import models from '../models'
 import logger from '../logger'
 import constants from '../constants'
 import BaseExecutor = require ( './BaseExecutor' )
+import { Task } from '@/models'
 
 class ArticlePublisher extends BaseExecutor {
   async run() {
@@ -27,7 +27,7 @@ class ArticlePublisher extends BaseExecutor {
         await this.spider.run()
 
         // 检查URL结果
-        task = await models.Task.findOne({ _id: task._id })
+        task = await Task.findOne({ _id: task._id })
         if (task.url) {
           // URL保存成功
           task.status = constants.status.FINISHED

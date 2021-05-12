@@ -1,4 +1,4 @@
-import models from './models'
+import {Cookie, Platform} from './models'
 import data from './data'
 
 // 数据库初始化
@@ -6,9 +6,9 @@ const init = async () => {
   // 初始化平台数据
   for (let i = 0; i < data.platforms.length; i++) {
     const platform = data.platforms[i]
-    let platformDb = await models.Platform.findOne({ name: platform.name })
+    let platformDb = await Platform.findOne({ name: platform.name })
     if (!platformDb) {
-      platformDb = new models.Platform(platform)
+      platformDb = new Platform(platform)
       await platformDb.save()
     } else {
       for (let key in platform) {
@@ -23,7 +23,7 @@ const init = async () => {
   }
 
   // 删除juejin.im域的cookie
-  await models.Cookie.deleteMany({ domain: { $regex: '.juejin.im' } });
+  await Cookie.deleteMany({ domain: { $regex: '.juejin.im' } });
 }
 
 export default init
