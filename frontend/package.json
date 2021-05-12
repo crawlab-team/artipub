@@ -52,7 +52,7 @@
     "@antv/data-set": "^0.10.2",
     "@types/codemirror": "0.0.76",
     "@types/showdown": "^1.9.3",
-    "antd": "^4.0.0",
+    "antd": "^4.15.5",
     "classnames": "^2.2.6",
     "codemirror": "^5.48.2",
     "commander": "^7.1.0",
