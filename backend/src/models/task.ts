@@ -1,14 +1,16 @@
-import { model, Schema,  } from "mongoose";
+import { model, Schema, Types  } from "mongoose";
 import type {Document, ObjectId as IObjectId} from 'mongoose'
 import type { IPlatform } from "./platform"
+import { JSONObject, Serializable } from "puppeteer-core";
 const ObjectId = require("bson").ObjectId;
 
 export interface ITask extends Document, Timestamp {
-  articleId: IObjectId;
-  platformId: IObjectId;
+  articleId: Types.ObjectId;
+  platformId: Types.ObjectId;
+  user: Types.ObjectId;
   status: string;
   url: string;
-  error: string;
+  error: string | null;
   checked: boolean;
   ready: boolean;
   authType: string;
@@ -17,7 +19,7 @@ export interface ITask extends Document, Timestamp {
   commentNum: number;
 
   category?: string;
-  tags?: string;
+  tag?: string;
   pubType?: string;
   title?: string;
   platform?: IPlatform;
@@ -25,8 +27,9 @@ export interface ITask extends Document, Timestamp {
 
 const taskSchema = new Schema(
   {
-    articleId: ObjectId,
-    platformId: ObjectId,
+    articleId: { type: ObjectId, ref: 'article' },
+    platformId: { type: ObjectId, ref: 'platform' },
+    user: { type: ObjectId, ref: 'user' },
     status: String,
     url: String,
     error: String,
@@ -51,4 +54,4 @@ const taskSchema = new Schema(
   }
 );
 
-export const Task = model<ITask>("tasks", taskSchema);
+export const Task = model<ITask>("task", taskSchema, 'task');

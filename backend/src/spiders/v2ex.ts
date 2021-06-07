@@ -1,7 +1,7 @@
-import BaseSpider = require('./base')
+import BaseSpider from './base'
 import constants from '../constants'
 
-class V2exSpider extends BaseSpider {
+export default class V2exSpider extends BaseSpider {
   async inputContent(article, editorSel) {
     const footerContent = `\n\n> 本篇文章由一文多发平台[ArtiPub](https://github.com/crawlab-team/artipub)自动发布`
     const content = article.content + footerContent
@@ -17,7 +17,7 @@ class V2exSpider extends BaseSpider {
     await this.page.evaluate((task) => {
       const el = document.querySelector('#nodes') as HTMLInputElement
       el.value = task.category
-    }, this.task)
+    }, this.task as any)
     await this.page.waitForTimeout(3000)
   }
 
@@ -34,7 +34,6 @@ class V2exSpider extends BaseSpider {
   async afterPublish() {
     this.task.url = await this.page.url().replace('#reply0', '')
     if (!this.task.url.match(/\/t\/\d+/)) return
-    this.task.updateTs = new Date()
     this.task.status = constants.status.FINISHED
     await this.task.save()
   }
@@ -42,5 +41,3 @@ class V2exSpider extends BaseSpider {
   async fetchStats() {
   }
 }
-
-export = V2exSpider

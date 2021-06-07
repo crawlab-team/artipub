@@ -1,9 +1,9 @@
-import { model, Schema,  } from "mongoose";
+import { model, Schema, Types,  } from "mongoose";
 import type {Document, ObjectId as IObjectId} from "mongoose";
 const ObjectId = require("bson").ObjectId;
 
 export interface ITemplate extends Document, Timestamp {
-  user: IObjectId;
+  user: Types.ObjectId;
   name: string;
   content: string;
   contentHtml: string;
@@ -21,4 +21,4 @@ const templateSchema = new Schema(
   }
 );
 
-export const Template = model<ITemplate>("template", templateSchema);
+export const Template = model<ITemplate>("template", templateSchema, 'template');

@@ -9,20 +9,24 @@ import {
   Environment,
   IUserPlatform,
   Cookie,
+  IPlatform,
+  ITask,
+  IAritcle,
 } from "@/models";
 import constants from '../constants'
 import config from './config'
 import logger from '../logger'
-import type { Page } from 'puppeteer-core';
+import type { Page, Serializable } from 'puppeteer-core';
 import type {Types} from 'mongoose'
 import axios from 'axios';
 
-class BaseSpider {
-  taskId: any;
-  platformId: any;
-  task: any;
-  article: any;
-  platform: any;
+export default class BaseSpider {
+  taskId: Types.ObjectId;
+  platformId: Types.ObjectId;
+  task: ITask;
+  platform: IPlatform;
+  article: IAritcle;
+  userPlatform: IUserPlatform;
   browser: any;
   pcr: ReturnType<typeof PCR>;
   page: Page;
@@ -43,22 +47,25 @@ class BaseSpider {
 
   async init() {
     // 任务
-    this.task = await Task.findOne({ _id: ObjectId(this.taskId) });
+    this.task = await Task.findOne({ _id: ObjectId(this.taskId) }) as ITask;
     if (!this.task) {
       throw new Error(`task (ID: ${this.taskId}) cannot be found`);
     }
 
     // 文章
-    this.article = await Article.findOne({ _id: this.task.articleId });
+    this.article = await Article.findOne({ _id: this.task.articleId }) as IAritcle;
     if (!this.article) {
       throw new Error(`article (ID: ${this.task.articleId.toString()}) cannot be found`);
     }
 
     // 平台
-    this.platform = await Platform.findOne({ _id: this.task.platformId });
-    if (!this.platform) {
+    this.userPlatform = await UserPlatform.findOne({ platform: this.task.platformId, user: this.task.user })
+                                          .populate({path: 'platform'}).exec() as IUserPlatform;
+    if (!this.userPlatform) {
       throw new Error(`platform (ID: ${this.task.platformId.toString()}) cannot be found`);
     }
+
+    this.platform = this.userPlatform.platform as IPlatform;
 
     // PCR
     this.pcr = await PCR({
@@ -71,7 +78,7 @@ class BaseSpider {
     });
 
     // 是否开启chrome浏览器调试
-    const enableChromeDebugEnv = await Environment.findOne({ _id: constants.environment.ENABLE_CHROME_DEBUG });
+    const enableChromeDebugEnv = await Environment.findOne({ name: constants.environment.ENABLE_CHROME_DEBUG, user: this.task.user });
 
     const enableChromeDebug = enableChromeDebugEnv!.value;
 
@@ -114,51 +121,7 @@ class BaseSpider {
       richText: `<br><b>本篇文章由一文多发平台<a href="https://github.com/crawlab-team/artipub" target="_blank">ArtiPub</a>自动发布</b>`,
     };
   }
-
-  async initForCookieStatus() {
-    // platform
-    this.platform = await Platform.findOne({ _id: ObjectId(this.platformId) });
-
-    // PCR
-    this.pcr = await PCR({
-      revision: '',
-      detectionPath: '',
-      folderName: '.chromium-browser-snapshots',
-      hosts: ['https://storage.googleapis.com', 'https://npm.taobao.org/mirrors'],
-      retry: 3,
-      silent: false,
-    });
-
-    // 是否开启chrome浏览器调试
-    const enableChromeDebugEnv = await Environment.findOne({ _id: constants.environment.ENABLE_CHROME_DEBUG });
-    const enableChromeDebug = enableChromeDebugEnv!.value;
-
-    // 浏览器
-    this.browser = await this.pcr.puppeteer.launch({
-      executablePath: this.pcr.executablePath,
-      //设置超时时间
-      timeout: 120000,
-      //如果是访问https页面 此属性会忽略https错误
-      ignoreHTTPSErrors: true,
-      // 打开开发者工具, 当此值为true时, headless总为false
-      devtools: false,
-      // 关闭headless模式, 不会打开浏览器
-      headless: enableChromeDebug !== 'Y',
-      args: [
-        '--no-sandbox',
-      ],
-    });
-
-    // 页面
-    this.page = await this.browser.newPage();
-
-    // // 设置屏幕大小
-    // await this.page.setViewport({
-    //   width: 2400,
-    //   height: 1600,
-    // });
-  }
-
+ 
   /**
    * 返回拼接头尾部模版后，实际发到平台的最终内容
    * @returns 
@@ -180,8 +143,8 @@ class BaseSpider {
         const elUsername = await this.page.$(this.loginSel.username);
         const elPassword = await this.page.$(this.loginSel.password);
         const elSubmit = await this.page.$(this.loginSel.submit);
-        await elUsername!.type(this.platform.username);
-        await elPassword!.type(this.platform.password);
+        await elUsername!.type(this.userPlatform.username);
+        await elPassword!.type(this.userPlatform.password);
         await elSubmit!.click();
         await this.page.waitForTimeout(3000);
         break;
@@ -264,7 +227,7 @@ class BaseSpider {
   /**
    * 输入文章标题
    */
-  async inputTitle(article, editorSel, task) {
+  async inputTitle(article, editorSel, task: {title: string}) {
     const el = document.querySelector(editorSel.title);
     el.focus();
     el.select();
@@ -314,15 +277,20 @@ class BaseSpider {
   async inputEditor() {
     logger.info(`input editor title`);
     // 输入标题
-    await this.page.evaluate(this.inputTitle, this.article, this.editorSel, this.task);
+    await this.page.evaluate(
+      this.inputTitle,
+      this.article as any,
+      this.editorSel,
+      this.task as any
+    );
 
     // 输入内容
     logger.info(`input editor  content`);
-    await this.page.evaluate(this.inputContent, this.article, this.editorSel);
+    await this.page.evaluate(this.inputContent, this.article as any, this.editorSel);
     await this.page.waitForTimeout(3000);
 
     // 输入脚注
-    await this.page.evaluate(this.inputFooter, this.article, this.editorSel);
+    await this.page.evaluate(this.inputFooter, this.article as any, this.editorSel);
     await this.page.waitForTimeout(3000);
 
     // 后续处理
@@ -442,7 +410,7 @@ class BaseSpider {
   /**
    * 检查Cookie是否能正常登陆
    */
-  static async checkCookieStatus(platform, userId: Types.ObjectId) {
+  static async checkCookieStatus(platform: IPlatform, userId: Types.ObjectId) {
     // platform
     let userPlatform = (await UserPlatform.findOne({
       platform: platform._id,
@@ -477,6 +445,7 @@ class BaseSpider {
         headers: {
           'Cookie': cookie,
         },
+        timeout: 5000,
       })
       .then(async res => {
         logger.info(url);
@@ -487,13 +456,10 @@ class BaseSpider {
           text = text.message
           userPlatform.loggedIn = text.includes('成功');
         } else if (platform.name === constants.platform.JIANSHU) {
-          userPlatform.loggedIn = text.includes('current_user');
+          userPlatform.loggedIn = text.includes('我的主页');
         } else if ([constants.platform.CNBLOGS, constants.platform.B_51CTO].includes(platform.name)) {
           userPlatform.loggedIn = text.includes('我的博客');
-        } else if (platform.name === constants.platform.SEGMENTFAULT) {
-          userPlatform.loggedIn = text.includes('user_id');
-        }
-        else if (platform.name === constants.platform.OSCHINA) {
+        } else if (platform.name === constants.platform.OSCHINA) {
           userPlatform.loggedIn = text.includes('g_user_name');
         }
         else if (platform.name === constants.platform.V2EX) {
@@ -515,5 +481,3 @@ class BaseSpider {
 
   }
 }
-
-export = BaseSpider;

@@ -1,6 +1,6 @@
-import BaseSpider = require('./base')
+import BaseSpider from './base'
 
-class OschinaSpider extends BaseSpider {
+export default class OschinaSpider extends BaseSpider {
   async goToEditor() {
     // 导航至首页
     await this.page.goto('https://oschina.net')
@@ -84,7 +84,7 @@ class OschinaSpider extends BaseSpider {
       //     return
       //   }
       // }
-    }, this.task)
+    }, this.task as any)
     await this.page.waitForTimeout(3000)
   }
 
@@ -94,7 +94,16 @@ class OschinaSpider extends BaseSpider {
       const el = document.querySelector(editorSel.publish)
       el.click()
     }, this.editorSel)
-    await this.page.waitForTimeout(20000)
+    await this.page.waitForTimeout(10000)
+
+    //如果有自荐弹框点击自荐
+    await this.page.evaluate(() => {
+      const el = document.querySelector('.modal.active .button:nth-child(2)');
+      //@ts-ignore
+      el?.click();
+    });
+
+    await this.page.waitForTimeout(10000);
 
     // 后续处理
     await this.afterPublish()
@@ -106,7 +115,6 @@ class OschinaSpider extends BaseSpider {
       return
     }
     this.task.url = url
-    this.task.updateTs = new Date()
     await this.task.save()
   }
 
@@ -136,5 +144,3 @@ class OschinaSpider extends BaseSpider {
     await this.page.waitForTimeout(3000)
   }
 }
-
-export = OschinaSpider

@@ -31,7 +31,7 @@ const login = (req, res, next) => {
   const token = jwt.sign({ ...body }, SECRET, {
       expiresIn: '1d'
     })
-    res.cookie(TOKEN, token, { maxAge: 60 * 60 * 24 * 1000, domain: req.hostname });
+    res.cookie(TOKEN, token, { maxAge: 60 * 60 * 24 * 1000, domain: req.hostname});
 
     return Result.success(res)
 
@@ -43,6 +43,6 @@ router.post('/login', passport.authenticate('local', {
     // failWithError: true,
 }), login);
 router.post('/signup', register)
-export = { router, basePath: '/users', };
+export = { router, basePath: '/users' };
 
 

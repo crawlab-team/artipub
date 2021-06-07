@@ -1,7 +1,7 @@
-import BaseSpider = require("./base");
+import BaseSpider from "./base";
 import constants from "../constants"
 
-class DevTouTiaoSpider extends BaseSpider {
+export default class DevTouTiaoSpider extends BaseSpider {
   async inputContent(article, editorSel) {
     // const footerContent = `<br><b>本篇文章由一文多发平台<a href="https://github.com/crawlab-team/artipub" target="_blank">ArtiPub</a>自动发布</b>`;
     const footerContent = "";
@@ -31,14 +31,11 @@ class DevTouTiaoSpider extends BaseSpider {
     ]);
 
     const articleLink = await this.page.$('.posts .post:nth-child(1) .title a');
-    const url = await (await articleLink!.getProperty('href')).jsonValue();
+    const url = await (await articleLink!.getProperty('href')).jsonValue() as string;
 
     this.task.url = url;
-    this.task.updateTs = new Date();
     this.task.status = constants.status.FINISHED;
     this.task.error = null;
     await this.task.save();
   }
 }
-
-export = DevTouTiaoSpider;

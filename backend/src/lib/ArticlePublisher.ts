@@ -1,9 +1,9 @@
 import logger from '../logger'
 import constants from '../constants'
-import BaseExecutor = require ( './BaseExecutor' )
-import { Task } from '@/models'
+import BaseExecutor from './BaseExecutor'
+import { ITask, Task } from '@/models'
 
-class ArticlePublisher extends BaseExecutor {
+export default class ArticlePublisher extends BaseExecutor {
   async run() {
     let task = this.task
 
@@ -20,30 +20,26 @@ class ArticlePublisher extends BaseExecutor {
       try {
         // 更新任务状态
         task.status = constants.status.PROCESSING
-        task.updateTs = new Date()
         await task.save()
 
         // 运行爬虫
         await this.spider.run()
 
         // 检查URL结果
-        task = await Task.findOne({ _id: task._id })
+        task = await Task.findOne({ _id: task._id }) as ITask;
         if (task.url) {
           // URL保存成功
           task.status = constants.status.FINISHED
-          task.updateTs = new Date()
           await task.save()
         } else {
           // URL保存失败
           task.status = constants.status.ERROR
           task.error = '文章URL未保存成功'
-          task.updateTs = new Date()
           await task.save()
         }
       } catch (e) {
         task.status = constants.status.ERROR
         task.error = e.toString()
-        task.updateTs = new Date()
         await task.save()
         logger.error(e)
       }finally{
@@ -56,5 +52,3 @@ class ArticlePublisher extends BaseExecutor {
     }
   }
 }
-
-export = ArticlePublisher

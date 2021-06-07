@@ -3,7 +3,7 @@ export * from './template';
 export * from './task';
 export * from './platform';
 export * from './userPlatform';
-export * from './cookie';
+export * from './cookies';
 export * from './environment';
 export * from './token';
 export * from './user';

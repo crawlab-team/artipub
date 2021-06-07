@@ -28,4 +28,4 @@ const platformSchema = new Schema(
   }
 );
 
-export const Platform = model<IPlatform>("platforms", platformSchema);
+export const Platform = model<IPlatform>("platform", platformSchema, 'platform');

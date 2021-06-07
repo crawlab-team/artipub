@@ -19,7 +19,8 @@ const app = express();
 // mongodb连接
 mongoose.Promise = global.Promise;
 if (config.MONGO_USERNAME) {
-  const mongoUrl = `mongodb://${config.MONGO_USERNAME}:${config.MONGO_PASSWORD}@${config.MONGO_HOST}:${config.MONGO_PORT}/${config.MONGO_DB}?authSource=${config.MONGO_AUTH_DB}`;
+  // const mongoUrl = `mongodb://${config.MONGO_USERNAME}:${config.MONGO_PASSWORD}@${config.MONGO_HOST}:${config.MONGO_PORT}/${config.MONGO_DB}?authSource=${config.MONGO_AUTH_DB}`;
+  const mongoUrl = `mongodb+srv://yuanhong:yuanhong123@cluster0.x6qdu.mongodb.net/artipub?retryWrites=true&w=majority`;
   mongoose.connect(mongoUrl, {
     useNewUrlParser: true,
     useUnifiedTopology: true,

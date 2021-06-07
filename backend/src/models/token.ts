@@ -18,4 +18,4 @@ const tokenSchema = new Schema(
   }
 );
 
-export const Token = model<IToken>("tokens", tokenSchema);
+export const Token = model<IToken>("token", tokenSchema, 'token');

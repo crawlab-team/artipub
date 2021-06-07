@@ -82,7 +82,7 @@ class JuejinImportSpider extends BaseImportSpider {
       await article.save()
 
       // 保存任务
-      const task = await models.Task.findOne({ platformId: this.platform._id, articleId: article._id })
+      const task = await models.Task.findOne({ platformId: this.userPlatform._id, articleId: article._id })
       task.url = siteArticle.url
       task.status = constants.status.FINISHED
       task.updateTs = new Date()
@@ -98,7 +98,7 @@ class JuejinImportSpider extends BaseImportSpider {
 
       // 保存任务
       let task = new models.Task({
-        platformId: this.platform._id,
+        platformId: this.userPlatform._id,
         articleId: article._id,
         url: siteArticle.url,
         status: constants.status.FINISHED,

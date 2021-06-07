@@ -1,13 +1,13 @@
 import constants from '../constants'
-import BaseSpider = require('./base')
+import BaseSpider from './base'
 
-class JianshuSpider extends BaseSpider {
+export default class JianshuSpider extends BaseSpider {
   /**
    * 输入编辑器
    */
   async inputEditor() {
     // 输入标题
-    await this.page.evaluate(this.inputTitle, this.article, this.editorSel, this.task)
+    await this.page.evaluate(this.inputTitle, this.article as any, this.editorSel, this.task as any)
     await this.page.waitForTimeout(3000)
 
     // 按tab键切换
@@ -15,11 +15,11 @@ class JianshuSpider extends BaseSpider {
     await this.page.waitForTimeout(1000)
 
     // 输入内容
-    await this.page.evaluate(this.inputContent, this.article, this.editorSel)
+    await this.page.evaluate(this.inputContent, this.article as any, this.editorSel)
     await this.page.waitForTimeout(3000)
 
     // 输入脚注
-    await this.page.evaluate(this.inputFooter, this.article, this.editorSel)
+    await this.page.evaluate(this.inputFooter, this.article as any, this.editorSel)
 
     // 敲入空值防止内容为空
     const elContent = await this.page.$(this.editorSel.content);
@@ -73,9 +73,8 @@ class JianshuSpider extends BaseSpider {
         }
       }
       return;
-    })
+    }) as string;
     if (!this.task.url) return
-    this.task.updateTs = new Date()
     this.task.status = constants.status.FINISHED
     await this.task.save()
   }
@@ -84,5 +83,3 @@ class JianshuSpider extends BaseSpider {
     // TODO: implement this method
   }
 }
-
-export = JianshuSpider

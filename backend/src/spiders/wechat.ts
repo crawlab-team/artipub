@@ -1,16 +1,16 @@
 //@ts-nocheck
-const request = require('request-promise-native');
+import request from 'request-promise-native';
 const ObjectId = require('bson').ObjectId;
-const fs = require('fs');
-const cheerio = require('cheerio');
-import BaseSpider = require('./base');
+import fs from 'fs';
+import cheerio from 'cheerio';
+import BaseSpider from './base';
 import constants from '../constants';
 import models from "@/models";
 import config from './config';
 import logger from '../logger';
-const path = require('path');
+import path from 'path';
 
-class WechatSpider extends BaseSpider {
+export default class WechatSpider extends BaseSpider {
   async init() {
     // 任务
     this.task = await models.Task.findOne({ _id: ObjectId(this.taskId) });
@@ -25,8 +25,8 @@ class WechatSpider extends BaseSpider {
     }
 
     // 平台
-    this.platform = await models.Platform.findOne({ _id: this.task.platformId });
-    if (!this.platform) {
+    this.userPlatform = await models.Platform.findOne({ _id: this.task.platformId });
+    if (!this.userPlatform) {
       throw new Error(`platform (ID: ${this.task.platformId.toString()}) cannot be found`);
     }
 
@@ -175,5 +175,3 @@ class WechatSpider extends BaseSpider {
     this.mediaUrl = data.url;
   }
 }
-
-export = WechatSpider;

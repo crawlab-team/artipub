@@ -1,4 +1,5 @@
 import constants from './constants';
+import EnvVarEnum from '@/enum/envVarEnum';
 export default {
   // 平台
   platforms: [
@@ -133,19 +134,29 @@ export default {
   // 环境变量
   environments: [
     {
-      name: constants.environment.ENABLE_CHROME_DEBUG,
+      name: EnvVarEnum.ENABLE_CHROME_DEBUG,
       label: 'Chrome浏览器调试模式',
       value: 'N'
     },
     {
-      name: constants.environment.WECHAT_APP_ID,
+      name: EnvVarEnum.WECHAT_APP_ID,
       label: '微信公众号APP ID',
       value: ''
     },
     {
-      name: constants.environment.WECHAT_APP_SECRET,
+      name: EnvVarEnum.WECHAT_APP_SECRET,
       label: '微信公众号APP SECRET',
       value: ''
-    }
+    },
+    {
+      name: EnvVarEnum.HEAD_TEMPLATE_ID,
+      label: '头部模版',
+      value: ''
+    },
+    {
+      name: EnvVarEnum.TAIL_TEMPLATE_ID,
+      label: '尾部模版',
+      value: ''
+    },
   ]
 }

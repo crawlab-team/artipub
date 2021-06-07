@@ -1,16 +1,16 @@
-import { model, Schema, Model, } from "mongoose";
+import { model, Schema, Model, Types, } from "mongoose";
 import type {Document, ObjectId as IObjectId} from 'mongoose'
 import type { ITask} from './task'
 const ObjectId = require("bson").ObjectId;
 
 export interface IAritcle extends Document, Timestamp, Record<'tasks', ITask[]> {
-    user: IObjectId;
-    headerTpl: IObjectId;
-    footerTpl: IObjectId;
+    user: Types.ObjectId;
+  headerTpl: Types.ObjectId;
+    tailTpl: IObjectId;
     title: string;
     content: string;
     contentHtml: string;
-    platformIds: IObjectId[];
+  platformIds: IObjectId[];
     readNum: number;
     likeNum: number;
     commentNum: number;
@@ -18,13 +18,13 @@ export interface IAritcle extends Document, Timestamp, Record<'tasks', ITask[]> 
 
 const articleSchema: Schema = new Schema(
   {
-    user: ObjectId,
-    headerTpl: ObjectId,
-    footerTpl: ObjectId,
+    user: { type: ObjectId, ref: "user" },
+    headerTpl: { type: ObjectId, ref: "template" },
+    tailTpl: { type: ObjectId, ref: "template" },
     title: String,
     content: String,
     contentHtml: String,
-    platformIds: Array,
+    platformIds: { type: Array, ref: "platforms" },
     readNum: Number,
     likeNum: Number,
     commentNum: Number,
@@ -37,4 +37,4 @@ const articleSchema: Schema = new Schema(
 export interface IAritcleModel extends Model<IAritcle> {
 }
 
-export const Article = model<IAritcle>("articles", articleSchema) as IAritcleModel;
+export const Article = model<IAritcle>("article", articleSchema, 'article') as IAritcleModel;

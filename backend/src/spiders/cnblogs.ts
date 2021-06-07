@@ -1,8 +1,8 @@
-import BaseSpider = require('./base')
+import BaseSpider from './base'
 import constants from '../constants'
 import logger from '../logger'
 
-class CnblogsSpider extends BaseSpider {
+export default class CnblogsSpider extends BaseSpider {
 
   // async inputContent(article, editorSel) {
   //   const footerContent = `<br><b>本篇文章由一文多发平台<a href="https://github.com/crawlab-team/artipub" target="_blank">ArtiPub</a>自动发布</b>`
@@ -38,10 +38,9 @@ class CnblogsSpider extends BaseSpider {
   async afterPublish() {
     this.task.url = await this.page.evaluate(() => {
       return document.querySelector('.link-post-title')!.getAttribute('href')?.substring(2);
-    })
+    }) as string;
     logger.info(this.task.url)
     if (!this.task.url) return
-    this.task.updateTs = new Date()
     this.task.status = constants.status.FINISHED
     await this.task.save()
   }
@@ -72,5 +71,3 @@ class CnblogsSpider extends BaseSpider {
     await this.page.waitForTimeout(3000)
   }
 }
-
-export = CnblogsSpider

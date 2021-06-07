@@ -1,9 +1,9 @@
 //@ts-nocheck
-import BaseSpider = require('./base')
+import BaseSpider from './base'
 import constants from '../constants'
 import logger from '../logger'
 
-class JuejinSpider extends BaseSpider {
+export default class JuejinSpider extends BaseSpider {
 
   async inputContent(article, editorSel) {
     const footerContent = `\n\n> 本篇文章由一文多发平台[ArtiPub](https://github.com/crawlab-team/artipub)自动发布`
@@ -36,16 +36,19 @@ class JuejinSpider extends BaseSpider {
     }, this.task)
 
     // 选择标签
-    const elTagButton = await this.page.$('.add-btn-item')
-    await elTagButton.click()
-    const elTagInput = await this.page.$('.tag-input > input')
+    await this.page.click(
+      ".tag-input > .byte-select > .byte-select__wrap > .byte-select__content-wrap > .byte-select__placeholder"
+    );
+
     logger.info(this.task.tag)
-    await elTagInput.type(this.task.tag)
-    await this.page.waitForSelector('.suggested-tag-list > .tag:nth-child(1)');
-    await this.page.evaluate(() => {
-      //@ts-ignore
-      document.querySelector('.suggested-tag-list > .tag:nth-child(1)').click()
-    })
+    await this.page.keyboard.type(this.task.tag, { delay: 100 }); // Types slower, like a user
+
+    await this.page.waitForSelector(
+      "body > .byte-select-dropdown > .byte-select-dropdown__wrap > .byte-select-option--hover"
+    );
+    await this.page.click(
+      "body > .byte-select-dropdown > .byte-select-dropdown__wrap > .byte-select-option--hover"
+    );
     //要等会才能点按钮, 选择完标签后，发布按钮会变成disabled,然后又马上变回可以点击
     await this.page.waitForTimeout(1000)
   }
@@ -55,7 +58,7 @@ class JuejinSpider extends BaseSpider {
       const el = document.querySelector('a.title')
       return 'https://juejin.cn' + el.getAttribute('href')
     })
-    this.task.updateTs = new Date()
+    this.task.updatedAt = new Date()
     this.task.error = null;
     this.task.status = constants.status.FINISHED
     await this.task.save()
@@ -85,5 +88,3 @@ class JuejinSpider extends BaseSpider {
     await this.page.waitForTimeout(3000)
   }
 }
-
-module.exports = JuejinSpider

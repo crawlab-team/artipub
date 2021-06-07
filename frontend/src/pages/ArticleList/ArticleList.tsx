@@ -388,21 +388,21 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       title: '创建时间',
       dataIndex: 'createdAt',
       key: 'createdAt',
-      width: '180px',
+      width: 'auto',
       render: text => moment(text).format('YYYY-MM-DD HH:mm:ss'),
     },
     {
       title: '更新时间',
-      dataIndex: 'updateTs',
-      key: 'updateTs',
-      width: '180px',
+      dataIndex: 'updatedAt',
+      key: 'updatedAt',
+      width: 'auto',
       render: text => moment(text).format('YYYY-MM-DD HH:mm:ss'),
     },
     {
       title: '数据统计',
       dataIndex: '_id',
       key: '_id',
-      width: '200px',
+      width: 'auto',
       render: (text: string, d: Article) => {
         return getStatsComponent(d);
       },
@@ -411,7 +411,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
       title: '操作',
       dataIndex: 'action',
       key: 'action',
-      width: '200px',
+      width: 'auto',
       render: (text, d) => {
         return (
           <div>

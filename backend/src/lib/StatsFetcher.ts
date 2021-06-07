@@ -1,7 +1,7 @@
-import BaseExecutor = require('./BaseExecutor')
-import logger from '../logger'
+import BaseExecutor from './BaseExecutor'
+import logger from '@/logger'
 
-class StatsFetcher extends BaseExecutor {
+export default class StatsFetcher extends BaseExecutor {
     async run() {
         if (this.spider) {
             try{
@@ -18,5 +18,3 @@ class StatsFetcher extends BaseExecutor {
         }
     }
 }
-
-export = StatsFetcher

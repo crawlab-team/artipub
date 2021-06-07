@@ -1,16 +1,16 @@
-import { model, Schema, } from 'mongoose';
+import { model, Schema, Types, } from 'mongoose';
 import type {Document, ObjectId as IObjectId} from 'mongoose'
 const {ObjectId} = require('bson')
 
 export interface IEnvironment extends Document, Timestamp {
-  user: IObjectId;
+  user: Types.ObjectId;
   name: string;
   label: string;
   value: string;
 }
 
 const environmentSchema = new Schema({
-  user: ObjectId,
+  user: { type: ObjectId, ref: 'user' },
   name: String,
   label: String,  // label
   value: String,  // value
@@ -20,4 +20,4 @@ const environmentSchema = new Schema({
 
 environmentSchema.index({ user: 1, name: 1 }, { unique: true });
 
-export const Environment = model<IEnvironment>('environments', environmentSchema)
+export const Environment = model<IEnvironment>('environment', environmentSchema, 'environment')

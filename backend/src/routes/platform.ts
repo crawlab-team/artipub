@@ -140,7 +140,7 @@ const checkPlatformCookieStatus = async (req, res) => {
   const platforms = await Platform.find()
   for (let i = 0; i < platforms.length; i++) {
     const platform = platforms[i]
-    const Spider = require(`../spiders/${platform.name}`) as typeof BaseSpider
+    const Spider = require(`../spiders/${platform.name}`).default as typeof BaseSpider
     try {
       await Spider.checkCookieStatus(platform, userId)
     } catch (e) {

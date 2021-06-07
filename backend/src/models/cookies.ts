@@ -17,7 +17,7 @@ export interface ICookie extends Document, Timestamp{
 
 const cookieSchema = new Schema(
   {
-    user: ObjectId,
+    user: {type: ObjectId, ref: 'user'},
     /** The domain of the cookie (e.g. "www.google.com", "example.com"). */
     domain: String,
     /** The name of the cookie. */
@@ -42,4 +42,4 @@ const cookieSchema = new Schema(
   }
 );
 
-export const Cookie = model<ICookie>("cookies", cookieSchema);
+export const Cookie = model<ICookie>("cookies", cookieSchema, 'cookies');

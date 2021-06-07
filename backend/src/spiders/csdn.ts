@@ -1,8 +1,8 @@
-const fs = require('fs')
-const path = require('path')
-import BaseSpider = require('./base');
+import * as fs from 'fs'
+import * as path from 'path'
+import BaseSpider from './base';
 
-class CsdnSpider extends BaseSpider {
+export default class CsdnSpider extends BaseSpider {
 
 
   async afterGoToEditor() {
@@ -68,15 +68,14 @@ class CsdnSpider extends BaseSpider {
     await this.page.evaluate(task => {
       const el = document.querySelector('#' + task.pubType) as HTMLInputElement;
       el.click();
-    }, this.task);
+    }, this.task as any);
   }
 
   async afterPublish() {
     this.task.url = await this.page.evaluate(() => {
       const el = document.querySelector('.toarticle');
       return el!.getAttribute('href');
-    });
-    this.task.updateTs = new Date();
+    }) as string;
     await this.task.save();
   }
 
@@ -104,5 +103,3 @@ class CsdnSpider extends BaseSpider {
     await this.page.waitForTimeout(3000);
   }
 }
-
-export = CsdnSpider;

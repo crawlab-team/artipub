@@ -1,10 +1,9 @@
-import BaseSpider = require("./base");
-import constants from "../constants"
-import logger from "../logger"
+import BaseSpider from "./base";
+import constants from "@/constants"
+import logger from "@/logger"
 
-class BaiJiaHaoSpider extends BaseSpider {
+export default class BaiJiaHaoSpider extends BaseSpider {
   async inputContent(realContent, editorSel) {
-    //@ts-ignore
     const ue = UE.getEditor(editorSel.content);
     ue.setContent(realContent);
   }
@@ -50,7 +49,7 @@ class BaiJiaHaoSpider extends BaseSpider {
             document.querySelector(loginSel.submit).click();
           },
           this.loginSel,
-          this.platform
+          this.userPlatform.platform as any
         );
 
 
@@ -84,12 +83,11 @@ class BaiJiaHaoSpider extends BaseSpider {
         }
 
         await this.page.evaluate(
-          (loginSel, platform) => {
+          (loginSel) => {
             document.querySelector(loginSel.submit).disabled = false;
             document.querySelector(loginSel.submit).click();
           },
           this.loginSel,
-          this.platform
         );
 
         // await this.page.waitForTimeout(1000);
@@ -128,14 +126,11 @@ class BaiJiaHaoSpider extends BaseSpider {
     );
     await this.page.waitForTimeout(2000);
     const article = await this.page.$(".client_pages_content a:nth-child(1)");
-    const url = await (await article!.getProperty("href")).jsonValue();
+    const url = await (await article!.getProperty("href")).jsonValue() as string;
 
     this.task.url = url;
-    this.task.updateTs = new Date();
     this.task.status = constants.status.FINISHED;
     this.task.error = null;
     await this.task.save();
   }
 }
-
-export = BaiJiaHaoSpider;
