@@ -40,7 +40,7 @@ http://121.41.169.182:8000/
 ### git clone 备用地址
 如若github clone网络过慢，可使用如下同步更新的国内仓库。
 - https://gitee.com/tanliyuan/artipub.git
-- [腾讯CODING](http://t.hk.uy/rtg): https://e.coding.net/tanliyuan/artipub/Artipub.git
+- [<span style="color:red"><strong>腾讯CODING</strong></span>](http://t.hk.uy/rtg): https://e.coding.net/tanliyuan/artipub/Artipub.git
   
 ## 预览截图
 
