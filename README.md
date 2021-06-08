@@ -20,7 +20,7 @@ http://121.41.169.182:8000/
 
 > ⚠️⚠️⚠️ **目前使用的是免费MongoDB服务，只有512M空间，会不定期删除内容，请自行做好文章备份。**
 
-由于各个平台会不定期更新文章发布页面，所以部分平台可能会失效，没有那么及时更新支持。
+由于各个平台会不定期更新文章发布页面，所以部分平台可能会失效，没有那么及时更新支持。请勿发布垃圾文章，否则账号可能会被对应平台封禁。
 ## 支持平台
 
 - [x] [掘金](https://juejin.cn)
@@ -40,7 +40,7 @@ http://121.41.169.182:8000/
 ### git clone 备用地址
 如若github clone网络过慢，可使用如下同步更新的国内仓库。
 - https://gitee.com/tanliyuan/artipub.git
-- [<span style="color:red"><strong>腾讯CODING</strong></span>](http://t.hk.uy/rtg): https://e.coding.net/tanliyuan/artipub/Artipub.git
+- ![CODING](https://via.placeholder.com/13/f03c15/000000?text=+)[<span><strong>腾讯CODING</strong></span>](http://t.hk.uy/rtg): https://e.coding.net/tanliyuan/artipub/Artipub.git
   
 ## 预览截图
 
