@@ -54,4 +54,6 @@ const taskSchema = new Schema(
   }
 );
 
+taskSchema.index({ user: 1, articleId: 1, platformId: 1 }, { unique: true });
+
 export const Task = model<ITask>("task", taskSchema, 'task');

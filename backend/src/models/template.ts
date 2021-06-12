@@ -21,4 +21,6 @@ const templateSchema = new Schema(
   }
 );
 
+templateSchema.index({ user: 1 }, { unique: false });
+
 export const Template = model<ITemplate>("template", templateSchema, 'template');

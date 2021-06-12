@@ -5,11 +5,11 @@
   "main": "server.js",
   "scripts": {
     "dev": "ts-node -r tsconfig-paths/register --files ./src/server.ts",
-    "dev:live": "ts-node-dev -r tsconfig-paths/register --files ./src/server.ts",
+    "dev:live": "cross-env NODE_ENV=dev ts-node-dev -r tsconfig-paths/register  --files ./src/server.ts",
     "build": "tsc && cp ./tsconfig.json ./dist/",
     "build-nomap": "tsc --sourceMap false && cp ./tsconfig.json ./dist/",
     "prod-pm2": "pm2 start ecosystem.config.js",
-    "prod": "npm run build && TS_NODE_PROJECT=dist/tsconfig.json node -r tsconfig-paths/register ./dist/src/server.js",
+    "prod": "npm run build && cross-env NODE_ENV=production TS_NODE_PROJECT=dist/tsconfig.json node -r tsconfig-paths/register ./dist/src/server.js",
     "prerelease": "npm version prerelease --preid=alpha"
   },
   "author": "Marvin Zhang",
@@ -43,6 +43,8 @@
     "commander": "^7.1.0",
     "cookie-parser": "^1.4.5",
     "cron": "^1.7.1",
+    "cross-env": "^7.0.3",
+    "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "express-jwt": "^6.0.0",
     "log4js": "^5.1.0",

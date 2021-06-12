@@ -18,6 +18,8 @@ const environmentSchema = new Schema({
   timestamps: true
 })
 
+environmentSchema.index({ user: 1, }, { unique: false });
+
 environmentSchema.index({ user: 1, name: 1 }, { unique: true });
 
 export const Environment = model<IEnvironment>('environment', environmentSchema, 'environment')

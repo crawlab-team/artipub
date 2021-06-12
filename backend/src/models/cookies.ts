@@ -42,4 +42,6 @@ const cookieSchema = new Schema(
   }
 );
 
+cookieSchema.index({ user: 1 }, { unique: false });
+
 export const Cookie = model<ICookie>("cookies", cookieSchema, 'cookies');

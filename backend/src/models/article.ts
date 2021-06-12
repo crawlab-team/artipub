@@ -34,6 +34,8 @@ const articleSchema: Schema = new Schema(
   }
 );
 
+articleSchema.index({ user: 1 }, { unique: false });
+
 export interface IAritcleModel extends Model<IAritcle> {
 }
 

@@ -1,5 +1,3 @@
-
-import config from './config'
 import mongoose = require('mongoose')
 const CronJob = require('cron').CronJob
 import AsyncLock = require('async-lock');
@@ -10,13 +8,24 @@ import ArticlePublisher from './lib/ArticlePublisher'
 import StatsFetcher from './lib/StatsFetcher'
 
 // mongodb连接
-mongoose.Promise = global.Promise
-if (config.MONGO_USERNAME) {
-  // mongoose.connect(`mongodb://${config.MONGO_USERNAME}:${config.MONGO_PASSWORD}@${config.MONGO_HOST}:${config.MONGO_PORT}/${config.MONGO_DB}?authSource=${config.MONGO_AUTH_DB}`, { useNewUrlParser: true , useUnifiedTopology: true})
-  mongoose.connect(`mongodb+srv://yuanhong:yuanhong123@cluster0.x6qdu.mongodb.net/artipub?retryWrites=true&w=majority`, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.Promise = global.Promise;
+let mongoUrl = '';
+if (process.env.MONGO_URL) {
+  mongoUrl = process.env.MONGO_URL;
+} else if (process.env.MONGO_USERNAME) {
+  mongoUrl = `mongodb://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}?authSource=${process.env.MONGO_AUTH_DB}`;
 } else {
-  mongoose.connect(`mongodb://${config.MONGO_HOST}:${config.MONGO_PORT}/${config.MONGO_DB}`, { useNewUrlParser: true, useUnifiedTopology: true })
+  mongoUrl = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`;
 }
+mongoose.set("useCreateIndex", true); 
+mongoose.connect(mongoUrl, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+});
+
+mongoose.Model.on("index", function (err) {
+  if (err) logger.error(err);
+});
 
 class Runner {
   constructor() {

@@ -4,11 +4,11 @@
   "description": "Article publishing platform that automatically distributes your articles to various media channels",
   "scripts": {
     "prod": "http-server ./dist",
-    "dev": "umi dev",
-    "build": "umi build",
+    "dev": "cross-env UMI_ENV=dev umi dev",
+    "build:dev": "cross-env UMI_ENV=dev umi build",
+    "build:prod": "cross-env UMI_ENV=prod umi build",
     "prerelease": "npm version prerelease --preid=alpha",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "cross-env UMI_ENV=dev umi dev"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
     "artipub-fe": "cli.js"

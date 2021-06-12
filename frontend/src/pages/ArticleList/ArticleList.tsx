@@ -58,10 +58,11 @@ export interface ArticleListProps extends ConnectProps {
   article: ArticleModelState;
   platform: PlatformModelState;
   dispatch: Dispatch;
+  taskLoading: boolean;
 }
 
 const ArticleList: React.FC<ArticleListProps> = props => {
-  const {dispatch, article, platform, task} = props;
+  const {dispatch, article, platform, task, taskLoading} = props;
 
   const onArticleEdit: Function = (d: Article) => {
     return () => {
@@ -889,6 +890,7 @@ const ArticleList: React.FC<ArticleListProps> = props => {
           }
           rowSelection={taskRowSelection}
           columns={taskColumns}
+          loading={taskLoading}
           pagination={false}
         />
       </Modal>
@@ -913,8 +915,11 @@ const ArticleList: React.FC<ArticleListProps> = props => {
   );
 };
 
-export default connect(({article, platform, task}: ConnectState) => ({
-  article,
-  platform,
-  task,
-}))(ArticleList);
+export default connect(
+  ({ article, platform, task, loading }: ConnectState) => ({
+    article,
+    platform,
+    task,
+    taskLoading: loading.effects["task/fetchTaskList"],
+  })
+)(ArticleList);

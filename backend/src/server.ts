@@ -1,3 +1,7 @@
+//配置
+require("dotenv").config({
+  path: process.env.NODE_ENV === "production" ? 'src/config/.env.prod' : 'src/config/.env',
+});
 import express = require("express");
 import cookieParser = require("cookie-parser");
 import morgan = require("morgan");
@@ -15,25 +19,6 @@ import logger from "./logger";
 const { ObjectId } = require("bson");
 // express实例
 const app = express();
-
-// mongodb连接
-mongoose.Promise = global.Promise;
-if (config.MONGO_USERNAME) {
-  // const mongoUrl = `mongodb://${config.MONGO_USERNAME}:${config.MONGO_PASSWORD}@${config.MONGO_HOST}:${config.MONGO_PORT}/${config.MONGO_DB}?authSource=${config.MONGO_AUTH_DB}`;
-  const mongoUrl = `mongodb+srv://yuanhong:yuanhong123@cluster0.x6qdu.mongodb.net/artipub?retryWrites=true&w=majority`;
-  mongoose.connect(mongoUrl, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
-} else {
-  mongoose.connect(
-    `mongodb://${config.MONGO_HOST}:${config.MONGO_PORT}/${config.MONGO_DB}`,
-    { useNewUrlParser: true, useUnifiedTopology: true }
-  );
-}
-mongoose.Model.on("index", function (err) {
-  if (err) logger.error(err);
-});
 
 app.use(
   express.json({

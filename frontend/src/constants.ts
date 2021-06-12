@@ -1,6 +1,4 @@
 export default {
-  //后端地址
-  apiEndpoint: "http://121.41.169.182:3000",
 
   platform: {
     JUEJIN: "juejin",
