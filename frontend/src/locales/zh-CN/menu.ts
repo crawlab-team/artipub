@@ -4,6 +4,7 @@ export default {
   'menu.article-new': '写文章',
   'menu.article-edit': '文章编辑',
   'menu.platforms': '平台管理',
+  'menu.templates': '模版管理',
   'menu.environments': '系统设置',
   'menu.helper': '登陆助手',
   'menu.more-blocks': '更多区块',

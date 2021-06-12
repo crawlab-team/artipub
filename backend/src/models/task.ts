@@ -1,32 +1,59 @@
-import mongoose = require('mongoose')
-const ObjectId = require('bson').ObjectId
+import { model, Schema, Types  } from "mongoose";
+import type {Document, ObjectId as IObjectId} from 'mongoose'
+import type { IPlatform } from "./platform"
+import { JSONObject, Serializable } from "puppeteer-core";
+const ObjectId = require("bson").ObjectId;
 
-const taskSchema = new mongoose.Schema({
-  articleId: ObjectId,
-  platformId: ObjectId,
-  user: ObjectId,
-  status: String,
-  url: String,
-  error: String,
-  checked: Boolean,
-  ready: Boolean,
-  authType: String,
-  readNum: Number,
-  likeNum: Number,
-  commentNum: Number,
+export interface ITask extends Document, Timestamp {
+  articleId: Types.ObjectId;
+  platformId: Types.ObjectId;
+  user: Types.ObjectId;
+  status: string;
+  url: string;
+  error: string | null;
+  checked: boolean;
+  ready: boolean;
+  authType: string;
+  readNum: number;
+  likeNum: number;
+  commentNum: number;
 
-  // 配置信息
-  category: String, // 类别: juejin
-  tag: String, // 标签: juejin (单选), segmentfault (逗号分割)
-  pubType: String, // 发布形式: csdn (单选)
-  title: String, // 标题
+  category?: string;
+  tag?: string;
+  pubType?: string;
+  title?: string;
+  platform?: IPlatform;
+}
 
-  // 前端数据（不用设置）
-  platform: Object,
-}, {
-  timestamps: true
-})
+const taskSchema = new Schema(
+  {
+    articleId: { type: ObjectId, ref: 'article' },
+    platformId: { type: ObjectId, ref: 'platform' },
+    user: { type: ObjectId, ref: 'user' },
+    status: String,
+    url: String,
+    error: String,
+    checked: Boolean,
+    ready: Boolean,
+    authType: String,
+    readNum: Number,
+    likeNum: Number,
+    commentNum: Number,
 
-const Task = mongoose.model('tasks', taskSchema)
+    // 配置信息
+    category: String, // 类别: juejin
+    tag: String, // 标签: juejin (单选), segmentfault (逗号分割)
+    pubType: String, // 发布形式: csdn (单选)
+    title: String, // 标题
 
-export = Task
+    // 前端数据（不用设置）
+    platform: Object,
+  },
+  {
+    timestamps: true,
+  }
+);
+
+taskSchema.index({ user: 1, articleId: 1, platformId: 1 }, { unique: true });
+
+export const Task = model<ITask>("task", taskSchema, 'task');

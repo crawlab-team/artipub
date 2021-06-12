@@ -1,18 +1,31 @@
-import mongoose = require('mongoose')
+import { model, Schema,  } from "mongoose";
+import type {Document} from "mongoose";
 
-const platformSchema = new mongoose.Schema({
-  name: String,
-  label: String,
-  editorType: String,
-  description: String,
-  url: String,
-  enableImport: Boolean,
-  enableLogin: Boolean,
-  loggedIn: Boolean,
-}, {
-  timestamps: true
-})
+export interface IPlatform extends Document, Timestamp {
+  name: string;
+  label: string;
+  editorType: string;
+  description: string;
+  url: string;
+  enableImport: boolean;
+  enableLogin: boolean;
+  loggedIn: boolean;
+}
 
-const Platform = mongoose.model('platforms', platformSchema)
+const platformSchema = new Schema(
+  {
+    name: String,
+    label: String,
+    editorType: String,
+    description: String,
+    url: String,
+    enableImport: Boolean,
+    enableLogin: Boolean,
+    loggedIn: Boolean,
+  },
+  {
+    timestamps: true,
+  }
+);
 
-export = Platform
+export const Platform = model<IPlatform>("platform", platformSchema, 'platform');

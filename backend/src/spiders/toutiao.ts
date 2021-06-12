@@ -1,7 +1,7 @@
-import BaseSpider = require('./base')
+import BaseSpider from './base'
 import logger from '../logger'
 
-class ToutiaoSpider extends BaseSpider {
+export default class ToutiaoSpider extends BaseSpider {
   async inputContent(article, editorSel) {
     const footerContent = `<br><b>本篇文章由一文多发平台ArtiPub自动发布</b>. https://github.com/crawlab-team/artipub`
     const content = article.contentHtml + footerContent
@@ -79,7 +79,6 @@ class ToutiaoSpider extends BaseSpider {
       return url!.match(/pgc_id=(\d+)$/)![1]
     });
     this.task.url = `https://www.toutiao.com/item/${id}`;
-    this.task.updateTs = new Date()
     this.task.error = null;
     await this.task.save()
   }
@@ -87,5 +86,3 @@ class ToutiaoSpider extends BaseSpider {
   async fetchStats() {
   }
 }
-
-export = ToutiaoSpider

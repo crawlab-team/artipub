@@ -1,15 +1,11 @@
-import BaseSpider = require("./base");
-import constants from "../constants"
-import logger from "../logger"
+import BaseSpider from "./base";
+import constants from "@/constants"
+import logger from "@/logger"
 
-class BaiJiaHaoSpider extends BaseSpider {
-  async inputContent(article, editorSel) {
-    // const footerContent = `<br><b>本篇文章由一文多发平台<a href="https://github.com/crawlab-team/artipub" target="_blank">ArtiPub</a>自动发布</b>`;
-    const footerContent = "";
-    const content = article.contentHtml + footerContent;
-    //@ts-ignore
+export default class BaiJiaHaoSpider extends BaseSpider {
+  async inputContent(realContent, editorSel) {
     const ue = UE.getEditor(editorSel.content);
-    ue.setContent(content);
+    ue.setContent(realContent);
   }
 
   async afterInputEditor() {
@@ -53,7 +49,7 @@ class BaiJiaHaoSpider extends BaseSpider {
             document.querySelector(loginSel.submit).click();
           },
           this.loginSel,
-          this.platform
+          this.userPlatform.platform as any
         );
 
 
@@ -87,12 +83,11 @@ class BaiJiaHaoSpider extends BaseSpider {
         }
 
         await this.page.evaluate(
-          (loginSel, platform) => {
+          (loginSel) => {
             document.querySelector(loginSel.submit).disabled = false;
             document.querySelector(loginSel.submit).click();
           },
           this.loginSel,
-          this.platform
         );
 
         // await this.page.waitForTimeout(1000);
@@ -131,14 +126,11 @@ class BaiJiaHaoSpider extends BaseSpider {
     );
     await this.page.waitForTimeout(2000);
     const article = await this.page.$(".client_pages_content a:nth-child(1)");
-    const url = await (await article!.getProperty("href")).jsonValue();
+    const url = await (await article!.getProperty("href")).jsonValue() as string;
 
     this.task.url = url;
-    this.task.updateTs = new Date();
     this.task.status = constants.status.FINISHED;
     this.task.error = null;
     await this.task.save();
   }
 }
-
-export = BaiJiaHaoSpider;

@@ -1,10 +1,9 @@
-export default {
-  Article: require('./article'),
-  Task: require('./task'),
-  Platform: require('./platform'),
-  UserPlatform: require('./userPlatform'),
-  Cookie: require('./cookie'),
-  Environment: require('./environment'),
-  Token: require('./token'),
-  User: require('./user'),
-}
+export * from './article';
+export * from './template';
+export * from './task';
+export * from './platform';
+export * from './userPlatform';
+export * from './cookies';
+export * from './environment';
+export * from './token';
+export * from './user';

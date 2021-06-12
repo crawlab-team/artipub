@@ -1,21 +1,31 @@
-
-import config from './config'
-const mongoose = require('mongoose')
+import mongoose = require('mongoose')
 const CronJob = require('cron').CronJob
-const AsyncLock = require('async-lock')
+import AsyncLock = require('async-lock');
 import constants from './constants'
-import models from './models'
 import logger from './logger'
-const ArticlePublisher = require('./lib/ArticlePublisher')
-const StatsFetcher = require('./lib/StatsFetcher')
+import { Task } from './models'
+import ArticlePublisher from './lib/ArticlePublisher'
+import StatsFetcher from './lib/StatsFetcher'
 
 // mongodb连接
-mongoose.Promise = global.Promise
-if (config.MONGO_USERNAME) {
-  mongoose.connect(`mongodb://${config.MONGO_USERNAME}:${config.MONGO_PASSWORD}@${config.MONGO_HOST}:${config.MONGO_PORT}/${config.MONGO_DB}?authSource=${config.MONGO_AUTH_DB}`, { useNewUrlParser: true , useUnifiedTopology: true})
+mongoose.Promise = global.Promise;
+let mongoUrl = '';
+if (process.env.MONGO_URL) {
+  mongoUrl = process.env.MONGO_URL;
+} else if (process.env.MONGO_USERNAME) {
+  mongoUrl = `mongodb://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}?authSource=${process.env.MONGO_AUTH_DB}`;
 } else {
-  mongoose.connect(`mongodb://${config.MONGO_HOST}:${config.MONGO_PORT}/${config.MONGO_DB}`, { useNewUrlParser: true, useUnifiedTopology: true })
+  mongoUrl = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB}`;
 }
+mongoose.set("useCreateIndex", true); 
+mongoose.connect(mongoUrl, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+});
+
+mongoose.Model.on("index", function (err) {
+  if (err) logger.error(err);
+});
 
 class Runner {
   constructor() {
@@ -27,7 +37,7 @@ class Runner {
     const taskCronJob = new CronJob('* * * * * *', () => {
       if (!taskLock.isBusy()) {
         taskLock.acquire('key', async () => {
-          let task = await models.Task.findOne({
+          let task = await Task.findOne({
             status: constants.status.NOT_STARTED,
             ready: true,
             checked: true
@@ -52,7 +62,7 @@ class Runner {
     const statsCronJob = new CronJob(updateStatsCron, () => {
       if (!statsLock.isBusy()) {
         statsLock.acquire('key', async () => {
-          const tasks = await models.Task.find({
+          const tasks = await Task.find({
             url: {
               $ne: '',
               $exists: true
@@ -60,7 +70,7 @@ class Runner {
           })
           for (let i = 0; i < tasks.length; i++) {
             logger.info('Stats fetch task started')
-            let task = await tasks[i]
+            let task = tasks[i]
             const executor = new StatsFetcher(task)
             await executor.start()
             logger.info('Stats fetch task ended')

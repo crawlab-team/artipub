@@ -1,7 +1,7 @@
-import BaseSpider = require('./base')
+import BaseSpider from './base'
 import constants from '../constants'
 
-class SegmentfaultSpider extends BaseSpider {
+export default class SegmentfaultSpider extends BaseSpider {
   async inputContent(article, editorSel) {
     //关掉提示 “你的专栏文章正在审核中，请耐心等待"
     let warnWindow = document.querySelector(".btn-secondary") as HTMLButtonElement;
@@ -12,10 +12,7 @@ class SegmentfaultSpider extends BaseSpider {
     const footerContent = "";
     const content = article.content + footerContent;
     const el = document.querySelector(editorSel.content);
-    el.CodeMirror.setValue(content);
-    //输入tab,触发markdown 更新
-    el.CodeMirror.execCommand("goDocEnd");
-    el.CodeMirror.execCommand("insertTab");
+    el.setValue(content);
 
   }
 
@@ -29,7 +26,7 @@ class SegmentfaultSpider extends BaseSpider {
     await this.page.waitForTimeout(3000);
 
     // 输入并选择标签
-    const tags = this.task.tag.split(",");
+    const tags = this.task.tag!.split(",");
     const elTagInput = await this.page.$("#searchTag");
     for (const tag of tags) {
       // 清除已有内容
@@ -71,7 +68,6 @@ class SegmentfaultSpider extends BaseSpider {
 
   async afterPublish() {
     this.task.url = this.page.url();
-    this.task.updateTs = new Date();
     this.task.status = constants.status.FINISHED;
     if (this.task.url.includes("https://segmentfault.com/a/")) {
       await this.task.save();
@@ -106,5 +102,3 @@ class SegmentfaultSpider extends BaseSpider {
     await this.page.waitForTimeout(3000);
   }
 }
-
-export = SegmentfaultSpider

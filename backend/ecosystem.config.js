@@ -2,11 +2,9 @@ const path = require('path');
 module.exports = {
   apps : [{
     cwd: path.resolve(__dirname, "./dist"),
-    script: 'server.js',
+    script: 'npm',
     exec_mode: 'cluster',
-    instances: 2,
-    env: {
-
-    }
+    instances: 1,
+    args: 'run prod',
   }],
 };

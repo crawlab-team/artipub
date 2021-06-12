@@ -1,13 +1,21 @@
-import mongoose = require('mongoose')
+import { model, Schema,  } from "mongoose";
+import type {Document, ObjectId as IObjectId} from 'mongoose'
 
-const tokenSchema = new mongoose.Schema({
-  accessToken: String,
-  platformName: String,
-  expiresTs: Date,
-}, {
-  timestamps: true
-})
+export interface IToken extends Document, Timestamp {
+  accessToken: string;
+  platformName: string;
+  expiresTs: Date;
+}
 
-const Token = mongoose.model('tokens', tokenSchema)
+const tokenSchema = new Schema(
+  {
+    accessToken: String,
+    platformName: String,
+    expiresTs: Date,
+  },
+  {
+    timestamps: true,
+  }
+);
 
-export = Token
+export const Token = model<IToken>("token", tokenSchema, 'token');

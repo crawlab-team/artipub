@@ -1,13 +1,11 @@
-export = {
-  JuejinSpider: require('./juejin'),
-  SegmentfaultSpider: require('./segmentfault'),
-  JianshuSpider: require('./jianshu'),
-  CsdnSpider: require('./csdn'),
-  ZhihuSpider: require('./zhihu'),
-  OschinaSpider: require('./oschina'),
-  ToutiaoSpider: require('./toutiao'),
-  CnblogsSpider: require('./cnblogs'),
-  V2exSpider: require('./v2ex'),
-  WechatSpider: require('./wechat'),
-  AliyunSpider: require('./aliyun'),
-}
+  export * from './juejin';
+  export * from './segmentfault';
+  export * from './jianshu';
+export * from './csdn';
+export * from './zhihu';
+export * from './oschina';
+export * from './toutiao';
+export * from './cnblogs';
+export * from './v2ex';
+export * from './wechat';
+  export * from './aliyun';

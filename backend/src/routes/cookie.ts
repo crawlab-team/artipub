@@ -1,6 +1,6 @@
-import models from '../models'
 import * as Result from '../utils/result'
 import { Router } from 'express'
+import { Cookie } from '@/models';
 const router = Router();
 
 const addCookies = async (req, res) => {
@@ -10,7 +10,7 @@ const addCookies = async (req, res) => {
       if (c.domain == 'aliyun' && c.domain != '.aliyun.com' && c.domain != 'developer.aliyun.com') {
         continue
       }
-      let cookie = await models.Cookie.findOne({
+      let cookie = await Cookie.findOne({
         user: req.user._id,
         domain: c.domain,
         name: c.name
@@ -24,7 +24,7 @@ const addCookies = async (req, res) => {
         }
       } else {
         // 不存在该cookie，新增
-        cookie = new models.Cookie({ ...c, user: req.user._id })
+        cookie = new Cookie({ ...c, user: req.user._id })
       }
       await cookie.save()
     }

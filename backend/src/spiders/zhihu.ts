@@ -1,9 +1,9 @@
-const fs = require('fs')
-const path = require('path')
-import BaseSpider = require('./base')
+import * as fs from 'fs'
+import * as path from 'path'
+import BaseSpider from './base'
 import constants from '../constants'
 
-class ZhihuSpider extends BaseSpider {
+export default class ZhihuSpider extends BaseSpider {
   async afterGoToEditor() {
     // 创建tmp临时文件夹
     const dirPath = path.resolve(path.join(__dirname, '..', 'tmp'))
@@ -88,7 +88,6 @@ class ZhihuSpider extends BaseSpider {
 
   async afterPublish() {
     this.task.url = this.page.url()
-    this.task.updateTs = new Date()
     this.task.status = constants.status.FINISHED
     await this.task.save()
   }
@@ -96,5 +95,3 @@ class ZhihuSpider extends BaseSpider {
   async fetchStats() {
   }
 }
-
-export = ZhihuSpider

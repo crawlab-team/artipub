@@ -1,9 +1,16 @@
-import mongoose = require('mongoose')
+import { model, Schema, Types, } from 'mongoose';
+import type {Document, ObjectId as IObjectId} from 'mongoose'
 const {ObjectId} = require('bson')
 
-const environmentSchema = new mongoose.Schema({
-  _id: ObjectId,  // key
-  user: ObjectId,
+export interface IEnvironment extends Document, Timestamp {
+  user: Types.ObjectId;
+  name: string;
+  label: string;
+  value: string;
+}
+
+const environmentSchema = new Schema({
+  user: { type: ObjectId, ref: 'user' },
   name: String,
   label: String,  // label
   value: String,  // value
@@ -11,8 +18,8 @@ const environmentSchema = new mongoose.Schema({
   timestamps: true
 })
 
+environmentSchema.index({ user: 1, }, { unique: false });
+
 environmentSchema.index({ user: 1, name: 1 }, { unique: true });
 
-const Environment = mongoose.model('environments', environmentSchema)
-
-export = Environment
+export const Environment = model<IEnvironment>('environment', environmentSchema, 'environment')

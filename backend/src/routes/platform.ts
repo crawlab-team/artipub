@@ -1,22 +1,21 @@
 const ObjectId = require('bson').ObjectId
 import constants from '../constants'
 import {Router} from 'express'
-import models from '../models'
 import * as Result from '../utils/result'
 import logger from '../logger'
-import BaseSpider from 'src/spiders/base'
+import BaseSpider from '@/spiders/base'
 const router = Router();
-const { UserPlatform, Platform } = models;
+import { UserPlatform, Platform, Cookie, Task, Article } from  '@/models';
 
-const getCookieStatus = async (platform: any, userId) => {
-  const cookies = await models.Cookie.find({ domain: { $regex: platform.name } , user: userId })
+const getCookieStatus = async (platform: any, userId): Promise<string> => {
+  const cookies = await Cookie.find({ domain: { $regex: platform.name } , user: userId })
   if (!cookies || !cookies.length) return constants.cookieStatus.NO_COOKIE
   return constants.cookieStatus.EXISTS
 }
 
-const getLoginStatus = async (platform: any, userId) => {
-  const platformState = await models.UserPlatform.findOne({ user: userId, platform: platform._id })
-  return platformState?.loggedIn;
+const getLoginStatus = async (platform: any, userId): Promise<boolean> => {
+  const platformState = await UserPlatform.findOne({ user: userId, platform: platform._id })
+  return !!platformState?.loggedIn;
 }
 
 const getPlatformList = async (req, res) => {
@@ -28,11 +27,11 @@ const getPlatformList = async (req, res) => {
   };
 const getPlatform = async (req, res) => {
     const platform = await UserPlatform.findOne({ _id: ObjectId(req.params.id) , user: req.user._id })
-    platform.cookieStatus = await getCookieStatus(platform, req.user._id)
+    platform!.cookieStatus = await getCookieStatus(platform, req.user._id)
     await Result.success(res, platform)
   };
 const addPlatform = async (req, res) => {
-        let Platform = new models.Platform({
+        let platform = new Platform({
       name: req.body.name,
       label: req.body.label,
       editorType: req.body.editorType,
@@ -42,11 +41,11 @@ const addPlatform = async (req, res) => {
       username: req.body.username,
       password: req.body.password,
     })
-    Platform = await Platform.save()
-    await Result.success(res, Platform)
+    platform = await platform.save()
+    await Result.success(res, platform)
   };
 const editPlatform = async (req, res) => {
-    let platform = await models.Platform.findOne({ _id: ObjectId(req.params.id) })
+    let platform = await Platform.findOne({ _id: ObjectId(req.params.id) })
     if (!platform) {
       return await Result.notFound(res)
     }
@@ -56,24 +55,21 @@ const editPlatform = async (req, res) => {
     platform.description = req.body.description
     platform.enableImport = req.body.enableImport
     platform.enableLogin = req.body.enableLogin
-    platform.username = req.body.username
-    platform.password = req.body.password
-    platform.updateTs = new Date()
     platform.save()
     await Result.success(res, platform)
   return;
   };
 const deletePlatform = async (req, res) => {
-    let platform = await models.Platform.findOne({ _id: ObjectId(req.params.id) })
+    let platform = await Platform.findOne({ _id: ObjectId(req.params.id) })
     if (!platform) {
       return Result.notFound(res)
     }
-    await models.Platform.remove({ _id: ObjectId(req.params.id) })
+    await Platform.remove({ _id: ObjectId(req.params.id) })
     return Result.success(res, platform)
   };
 const getPlatformArticles = async (req, res) => {
     // 获取平台
-    const platform = await models.Platform.findOne({ _id: ObjectId(req.params.id) })
+    const platform = await Platform.findOne({ _id: ObjectId(req.params.id) })
 
     // 如果平台不存在，返回404错误
     if (!platform) {
@@ -95,7 +91,7 @@ const getPlatformArticles = async (req, res) => {
       const siteArticle = siteArticles[i]
 
       // 根据title查找数据库中文章
-      const article = await models.Article.findOne({ title: siteArticle.title })
+      const article = await Article.findOne({ title: siteArticle.title })
 
       // 网站文章是否存在
       siteArticles[i].exists = !!article
@@ -104,7 +100,7 @@ const getPlatformArticles = async (req, res) => {
       let task
       if (article) {
         siteArticles[i].articleId = article._id
-        task = await models.Task.findOne({ platformId: platform._id, articleId: article._id })
+        task = await Task.findOne({ platformId: platform._id, articleId: article._id })
       }
 
       // 网站文章是否已关联
@@ -116,7 +112,7 @@ const getPlatformArticles = async (req, res) => {
   };
 const importPlatformArticles = async (req, res) => {
     // 获取平台
-    const platform = await models.Platform.findOne({ _id: ObjectId(req.params.id) })
+    const platform = await Platform.findOne({ _id: ObjectId(req.params.id) })
 
     // 如果平台不存在，返回404错误
     if (!platform) {
@@ -144,7 +140,7 @@ const checkPlatformCookieStatus = async (req, res) => {
   const platforms = await Platform.find()
   for (let i = 0; i < platforms.length; i++) {
     const platform = platforms[i]
-    const Spider = require(`../spiders/${platform.name}`) as typeof BaseSpider
+    const Spider = require(`../spiders/${platform.name}`).default as typeof BaseSpider
     try {
       await Spider.checkCookieStatus(platform, userId)
     } catch (e) {

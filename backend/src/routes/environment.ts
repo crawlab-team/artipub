@@ -1,10 +1,10 @@
-import models from '../models'
 import * as Result from '../utils/result'
 import { Router } from 'express'
+import { Environment } from '@/models';
 const router = Router();
 
 const getEnvList = async (req, res) => {
-    const environments = await models.Environment.find({user: req.user._id})
+    const environments = await Environment.find({user: req.user._id})
     await Result.success(res, environments)
   };
 // const addEnv = async (req, res) => {
@@ -20,7 +20,7 @@ const getEnvList = async (req, res) => {
 //     })
 //   };
 const editEnv = async (req, res) => {
-    let env = await models.Environment.findOne({ _id: req.body._id , user: req.user._id})
+    let env = await Environment.findOne({ _id: req.body._id , user: req.user._id})
     if (!env) {
       return res.json({
         status: 'ok',
@@ -29,7 +29,6 @@ const editEnv = async (req, res) => {
     }
     env.value = req.body.value
     env.label = req.body.label
-    env.updateTs = new Date()
     env = await env.save()
     res.json({
       status: 'ok',

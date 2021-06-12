@@ -9,3 +9,5 @@ package-lock.json
 .umi/
 dist/
 .history
+frontend/config/config.prod.ts
+backend/src/config/.env.prod

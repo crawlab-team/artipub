@@ -1,8 +1,17 @@
-import mongoose = require('mongoose');
-const pwdLM = require('passport-local-mongoose');
-const passport = require('passport');
+import { model, Schema,  } from "mongoose";
+import type {Document, ObjectId as IObjectId} from "mongoose";
+const pwdLM = require("passport-local-mongoose");
+const passport = require("passport");
 
-const UserSchema = new mongoose.Schema(
+export interface IUser extends Document, Timestamp {
+  email: string;
+  username: string;
+  salt: string;
+  hash: string;
+  lastLogin: Date;
+  attempts: number;
+}
+const UserSchema = new Schema(
   {
     email: {
       required: true,
@@ -27,15 +36,11 @@ UserSchema.plugin(pwdLM, {
     IncorrectPasswordError: "账号密码不匹配",
     IncorrectUsernameError: "账号密码不匹配",
     MissingUsernameError: "用户名缺失",
-    UserExistsError: '用户已存在'
+    UserExistsError: "用户已存在",
   },
 });
 
-const User = mongoose.model('user', UserSchema);
+export const User = model<IUser>("user", UserSchema, 'user');
 
 //@ts-ignore
 passport.use(User.createStrategy());
-
-export = User;
-
-

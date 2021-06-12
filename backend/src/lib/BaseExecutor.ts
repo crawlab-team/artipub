@@ -1,26 +1,25 @@
-import models from '../models'
-import logger from '../logger'
+import { IPlatform, ITask, Platform } from "@/models";
+import logger from "@/logger";
+import BaseSpider from "@/spiders/base";
 
-class BaseExecutor {
-  task: any
-  platform: any
-  spider: any
-  constructor(task) {
-    this.task = task
-    this.platform = undefined
-    this.spider = undefined
+export default class BaseExecutor {
+  task: ITask;
+  platform: IPlatform;
+  spider: BaseSpider;
+  constructor(task: ITask) {
+    this.task = task;
   }
 
   async init() {
-    const task = this.task
+    const task = this.task;
 
     // 平台
-    this.platform = await models.Platform.findOne({ _id: task.platformId })
-    const spiderName = this.platform.name
+    this.platform = await Platform.findOne({ _id: task.platformId }) as IPlatform;
+    const spiderName = this.platform.name;
 
-    const Spider = require(`../spiders/${spiderName}`)
-    logger.info(Spider)
-    this.spider = new Spider(task._id)
+    const Spider = await require(`../spiders/${spiderName}`).default;
+    logger.info(Spider);
+    this.spider = new Spider(task._id);
   }
 
   async run() {
@@ -28,9 +27,7 @@ class BaseExecutor {
   }
 
   async start() {
-    await this.init()
-    await this.run()
+    await this.init();
+    await this.run();
   }
 }
-
-export = BaseExecutor

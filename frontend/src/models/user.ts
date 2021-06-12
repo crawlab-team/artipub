@@ -2,10 +2,11 @@ import { Effect } from 'dva';
 import { Reducer } from 'redux';
 
 import { query as queryUsers, queryCurrent } from "@/services/user";
+import { deleteAllCookies } from '@/utils/utils';
 
 export interface CurrentUser {
   avatar?: string;
-  name?: string;
+  username?: string;
   title?: string;
   group?: string;
   signature?: string;
@@ -23,7 +24,7 @@ export interface UserModelState {
 
 
 export interface UserModelType {
-  namespace: 'user';
+  namespace: "user";
   state: UserModelState;
   effects: {
     fetch: Effect;
@@ -34,11 +35,12 @@ export interface UserModelType {
     saveCurrentUser: Reducer<UserModelState>;
     changeNotifyCount: Reducer<UserModelState>;
     updateLoginState: Reducer<UserModelState>;
+    clearLoginStatus: Reducer<UserModelState>;
   };
 }
 
 const UserModel: UserModelType = {
-  namespace: 'user',
+  namespace: "user",
 
   state: {
     currentUser: {},
@@ -49,43 +51,50 @@ const UserModel: UserModelType = {
     *fetch(_, { call, put }) {
       const response = yield call(queryUsers);
       yield put({
-        type: 'save',
+        type: "save",
         payload: response,
       });
     },
     *fetchCurrent(_, { call, put }) {
       const response = yield call(queryCurrent);
       yield put({
-        type: 'saveCurrentUser',
-        payload: response,
+        type: "saveCurrentUser",
+        payload: response.data,
       });
     },
     *fetchLoginState(_, { call, put }) {
-      const isLogin = document.cookie.split(';').some((c) => c.split('=')[0] === 'apt')
+      const isLogin = document.cookie
+        .split(";")
+        .some((c) => c.split("=")[0] === "apt");
       yield put({
-        type: 'updateLoginState',
-        payload: isLogin
+        type: "updateLoginState",
+        payload: isLogin,
       });
-    }
+    },
   },
 
   reducers: {
-    saveCurrentUser(state = {currentUser: {}, isLogin: false}, action) {
+    saveCurrentUser(state = { currentUser: {}, isLogin: false }, action) {
       return {
         ...state,
         currentUser: action.payload || {},
       };
     },
-    updateLoginState(state = {currentUser: {}, isLogin: false}, action) {
+    updateLoginState(state = { currentUser: {}, isLogin: false }, action) {
       return {
         ...state,
-        isLogin: action.payload
-        }
+        isLogin: action.payload,
+      };
     },
-    changeNotifyCount(
-      state = {currentUser: {}, isLogin: false},
-      action,
-    ) {
+    clearLoginStatus(state, action) {
+      deleteAllCookies();
+      return {
+        ...state,
+        currentUser: {},
+        isLogin: false,
+      };
+    },
+    changeNotifyCount(state = { currentUser: {}, isLogin: false }, action) {
       return {
         ...state,
         currentUser: {
