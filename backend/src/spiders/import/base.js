@@ -1,6 +1,6 @@
 const PCR = require('puppeteer-chromium-resolver')
 const showdown = require('showdown')
-const models = require('../../models')
+const models = require('../@/models')
 const BaseSpider = require('../base')
 const globalConfig = require('../../config')
 const config = require('../config')
@@ -21,7 +21,7 @@ class BaseImportSpider extends BaseSpider {
 
   async init() {
     // 平台
-    this.platform = await models.Platform.findOne({ name: this.platformName })
+    this.userPlatform = await models.Platform.findOne({ name: this.platformName })
 
     // PCR
     this.pcr = await PCR({
@@ -60,9 +60,9 @@ class BaseImportSpider extends BaseSpider {
     })
 
     // 配置
-    this.config = config[this.platform.name]
+    this.config = config[this.userPlatform.name]
     if (!config) {
-      throw new Error(`config (platform: ${this.platform.name}) cannot be found`)
+      throw new Error(`config (platform: ${this.userPlatform.name}) cannot be found`)
     }
 
     // 编辑器选择器
@@ -87,7 +87,7 @@ class BaseImportSpider extends BaseSpider {
     await this.init()
     await this.setCookies()
     try {
-      await this.page.goto(this.platform.url, { timeout: 60000 })
+      await this.page.goto(this.userPlatform.url, { timeout: 60000 })
     } catch (e) {
       logger.error(e)
       const pages = await this.browser.pages();

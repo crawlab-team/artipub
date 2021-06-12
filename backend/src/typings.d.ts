@@ -32,8 +32,8 @@ interface Failure {
 }
 
 interface Timestamp {
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 type Result = Success | Failure;

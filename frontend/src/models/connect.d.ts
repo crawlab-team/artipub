@@ -30,6 +30,7 @@ export interface ConnectState {
   article: ArticleModelState;
   platform: PlatformModelState;
   task: TaskModelState;
+  template: TemplateModelState;
   environment: EnvironmentModelState;
   login: StateType;
 }

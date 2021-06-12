@@ -80,12 +80,12 @@ export default [
                 icon: 'read',
                 component: './ArticleList/ArticleList',
               },
-              {
-                path: '/templates',
-                name: 'templates',
-                icon: 'read',
-                component: './ArticleList/ArticleList',
-              },
+              // {
+              //   path: '/templates',
+              //   name: 'templates',
+              //   icon: 'read',
+              //   component: './TemplateList/TemplateList',
+              // },
               {
                 path: '/helper',
                 name: 'helper',

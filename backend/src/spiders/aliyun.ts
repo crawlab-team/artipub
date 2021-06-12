@@ -1,7 +1,7 @@
-import BaseSpider = require('./base')
+import BaseSpider from './base';
 import constants from '../constants'
 import logger from '../logger'
-class AliyunSpider extends BaseSpider {
+export default class AliyunSpider extends BaseSpider {
 
   async inputContent(realContent, editorSel) {
     const el = document.querySelector('.textarea') as HTMLInputElement
@@ -47,7 +47,6 @@ class AliyunSpider extends BaseSpider {
     })
     logger.info(this.task.url)
     if (!this.task.url) return
-    this.task.updateTs = new Date()
     this.task.status = constants.status.FINISHED
     await this.task.save()
   }
@@ -96,5 +95,3 @@ class AliyunSpider extends BaseSpider {
   // }
 
 }
-
-export = AliyunSpider

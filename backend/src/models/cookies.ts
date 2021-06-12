@@ -1,9 +1,9 @@
-import { model, Schema,  } from "mongoose";
-import type {Document, ObjectId as IObjectId} from 'mongoose';
+import { model, Schema, Types,  } from "mongoose";
+import type {Document, } from 'mongoose';
 const ObjectId = require("bson").ObjectId;
 
 export interface ICookie extends Document, Timestamp{
-  user: IObjectId;
+  user: Types.ObjectId;
   domain: string;
   name: string;
   value: string;
@@ -17,7 +17,7 @@ export interface ICookie extends Document, Timestamp{
 
 const cookieSchema = new Schema(
   {
-    user: ObjectId,
+    user: {type: ObjectId, ref: 'user'},
     /** The domain of the cookie (e.g. "www.google.com", "example.com"). */
     domain: String,
     /** The name of the cookie. */
@@ -42,4 +42,6 @@ const cookieSchema = new Schema(
   }
 );
 
-export const Cookie = model<ICookie>("cookies", cookieSchema);
+cookieSchema.index({ user: 1 }, { unique: false });
+
+export const Cookie = model<ICookie>("cookies", cookieSchema, 'cookies');

@@ -1,7 +1,7 @@
-import BaseSpider = require("./base");
+import BaseSpider from "./base";
 import constants from "../constants"
 
-class B51CTOSpider extends BaseSpider {
+export default class B51CTOSpider extends BaseSpider {
   async inputContent(realContent, editorSel) {
     const el = document.querySelector(editorSel.content);
     el.CodeMirror.setValue(realContent);
@@ -14,7 +14,7 @@ class B51CTOSpider extends BaseSpider {
       document.querySelector<HTMLInputElement>('#pid')!.value = '31';
       document.querySelector<HTMLInputElement>('#cate_id')!.value = '8';
       document.querySelector<HTMLInputElement>('#tag')!.value = task.tag;
-    }, this.task);
+    }, this.task as any);
 
   }
 
@@ -22,14 +22,11 @@ class B51CTOSpider extends BaseSpider {
     await this.page.waitForTimeout(4000);
 
     const look = await this.page.$('.look');
-    const url = await (await look!.getProperty('href')).jsonValue();
+    const url = await (await look!.getProperty('href')).jsonValue() as string;
 
     this.task.url = url;
-    this.task.updateTs = new Date();
     this.task.status = constants.status.FINISHED;
     this.task.error = null;
     await this.task.save();
   }
 }
-
-export = B51CTOSpider;

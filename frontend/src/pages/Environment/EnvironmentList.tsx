@@ -5,22 +5,24 @@ import { ConnectState, Dispatch } from "@/models/connect";
 import {connect, ConnectProps} from 'umi';
 import {ColumnProps} from 'antd/lib/table';
 import { Environment, EnvironmentModelState } from "@/models/environment";
+import {TemplateModelState} from "@/models/template";
 import constants from '../../constants';
 
 export interface EnvironmentListProps extends ConnectProps {
   environment: EnvironmentModelState;
+  template: TemplateModelState;
   dispatch: Dispatch;
 }
 
 const EnvironmentList: React.FC<EnvironmentListProps> = props => {
-  const {dispatch, environment} = props;
+  const {dispatch, environment, template} = props;
 
   const getValue = (d: Environment) => {
     if (d.name === constants.environment.UPDATE_STATS_CRON) {
       return (
         <Select
           value={d.value}
-          style={{width: '200px'}}
+          style={{ width: "200px" }}
           onChange={onFieldChange(constants.inputType.SELECT, d)}
         >
           <Select.Option value="0 0/5 * * * *">每5分钟</Select.Option>
@@ -31,28 +33,42 @@ const EnvironmentList: React.FC<EnvironmentListProps> = props => {
           <Select.Option value="0 0 0/12 * * *">每12小时</Select.Option>
           <Select.Option value="0 0 0 * * *">每天</Select.Option>
         </Select>
-      )
+      );
     } else if (d.name === constants.environment.ENABLE_CHROME_DEBUG) {
       return (
         <Select
           value={d.value}
-          style={{width: '200px'}}
+          style={{ width: "200px" }}
           onChange={onFieldChange(constants.inputType.SELECT, d)}
         >
           <Select.Option value="Y">开启</Select.Option>
           <Select.Option value="N">关闭</Select.Option>
         </Select>
       );
+    } else if (
+      d.name === constants.environment.HEAD_TEMPLATE_ID ||
+      d.name === constants.environment.TAIL_TEMPLATE_ID
+    ) {
+      return (
+        <Select
+          value={d.value}
+          style={{ width: "200px" }}
+          onChange={onFieldChange(constants.inputType.SELECT, d)}
+        >
+          {template.templateList.map(t => (<Select.Option value={t.id}>{t.name}</Select.Option>))}
+          
+        </Select>
+      );
     } else {
       return (
         <Input
           value={d.value}
-          style={{width: '200px'}}
+          style={{ width: "200px" }}
           onChange={onFieldChange(constants.inputType.INPUT, d)}
           onBlur={onSave(d)}
           placeholder={d.label}
         />
-      )
+      );
     }
   };
 
@@ -112,6 +128,9 @@ const EnvironmentList: React.FC<EnvironmentListProps> = props => {
       dispatch({
         type: 'environment/fetchEnvironmentList'
       })
+      dispatch({
+        type: 'template/getTemplateList'
+      })
     }
   }, []);
 
@@ -131,6 +150,7 @@ const EnvironmentList: React.FC<EnvironmentListProps> = props => {
   );
 };
 
-export default connect(({environment}: ConnectState) => ({
+export default connect(({environment, template}: ConnectState) => ({
   environment,
+  template,
 }))(EnvironmentList);

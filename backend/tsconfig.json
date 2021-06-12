@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "./dist",
+    "outDir": "./dist/src",
     "module": "commonJs",
     "target": "esnext",
     "lib": ["esnext", "DOM"],
@@ -13,11 +13,14 @@
     "noImplicitReturns": true,
     "noImplicitAny": false,
     "suppressImplicitAnyIndexErrors": true,
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
     "allowJs": true,
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
     "strict": true,
+    "paths": {
+      "@/*": ["./src/*"],
+    }
 
   },
   "exclude": [

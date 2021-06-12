@@ -1,5 +1,5 @@
 import { model, Schema,  } from "mongoose";
-import type {Document, ObjectId as IObjectId} from "mongoose";
+import type {Document} from "mongoose";
 
 export interface IPlatform extends Document, Timestamp {
   name: string;
@@ -28,4 +28,4 @@ const platformSchema = new Schema(
   }
 );
 
-export const Platform = model<IPlatform>("platforms", platformSchema);
+export const Platform = model<IPlatform>("platform", platformSchema, 'platform');
