@@ -1,3 +1,42 @@
+## v2.0.0 (2025-09-15) - ArtiPub AI
+
+#### 🚀 Major Release - Complete Platform Rebuild
+
+**ArtiPub AI**: A revolutionary transformation from browser automation to AI-powered content publishing.
+
+#### ✨ New Features
+- **🤖 AI-Powered Content Optimization**: Complete integration with advanced LLMs (OpenAI, Anthropic) for intelligent content adaptation
+- **🧠 Intelligent Publishing Strategy**: AI analyzes content and determines optimal publishing schedules and platform selection
+- **⚡ Modern Tech Stack**: Complete rebuild with Next.js 15, TypeScript, Tailwind CSS, and shadcn/ui
+- **📊 Real-time Dashboard**: Live publishing task monitoring with detailed insights and progress tracking
+- **🎯 Smart Scheduling**: AI-determined optimal publishing times for maximum engagement
+- **🌟 Modern UI/UX**: Beautiful, responsive interface with dark mode support
+
+#### 🔄 Breaking Changes
+- **Migration from Browser Automation**: Replaced Puppeteer-based automation with AI-powered content processing
+- **New Architecture**: Complete codebase rewrite with modern React patterns and TypeScript
+- **Updated Dependencies**: Latest versions of all major dependencies
+
+#### 🛠 Technology Improvements
+- **Frontend**: Next.js 15 with App Router, React 18, TypeScript
+- **UI Framework**: shadcn/ui components with Tailwind CSS
+- **AI Integration**: Vercel AI SDK with multi-provider support
+- **Performance**: Optimized bundle size and improved loading times
+
+#### 📈 Enhanced Capabilities
+- **Platform Support**: Enhanced support for 知乎, 掘金, CSDN, 简书, SegmentFault, 开源中国
+- **Content Adaptation**: AI automatically adapts content for each platform's audience and requirements
+- **SEO Optimization**: Automatic keyword optimization and metadata generation
+- **Batch Processing**: Simultaneous publishing to multiple platforms
+
+#### 🎯 User Experience
+- **Simplified Workflow**: Streamlined article creation and publishing process
+- **Real-time Feedback**: Live updates on publishing progress and results
+- **Intelligent Recommendations**: AI suggests optimal platforms and timing
+- **Error Handling**: Improved error messages and recovery mechanisms
+
+This release represents a complete paradigm shift from traditional browser automation to intelligent AI-powered content optimization and distribution.
+
 ## v0.1.4 (2019-10-12)
 
 #### Features / Enhancement
