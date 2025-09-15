@@ -1,50 +1,51 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PLATFORMS } from '@/lib/types';
 import { ArticleEditor } from '@/components/article-editor';
 import { PublishingDashboard } from '@/components/publishing-dashboard';
+import { AIFeaturesPage } from '@/components/ai-features-page';
+import { SettingsPage } from '@/components/settings-page';
+import { AdminLayout } from '@/components/layout/admin-layout';
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<'create' | 'dashboard'>('create');
+  const [activeTab, setActiveTab] = useState<string>('create');
 
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card">
-        <div className="max-w-6xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-                ArtiPub AI
-              </h1>
-              <p className="text-muted-foreground mt-1">
-                AI-powered article publishing platform
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant={activeTab === 'create' ? 'default' : 'outline'}
-                onClick={() => setActiveTab('create')}
-              >
-                Create Article
-              </Button>
-              <Button
-                variant={activeTab === 'dashboard' ? 'default' : 'outline'}
-                onClick={() => setActiveTab('dashboard')}
-              >
-                Publishing Dashboard
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+  const getPageTitle = () => {
+    switch (activeTab) {
+      case 'create':
+        return 'Create Article';
+      case 'dashboard':
+        return 'Publishing Dashboard';
+      case 'ai-features':
+        return 'AI Features';
+      case 'settings':
+        return 'Settings';
+      default:
+        return 'ArtiPub AI';
+    }
+  };
 
-      {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-4 py-8">
-        {activeTab === 'create' ? (
+  const getPageSubtitle = () => {
+    switch (activeTab) {
+      case 'create':
+        return 'Write and publish AI-optimized content';
+      case 'dashboard':
+        return 'Monitor your publishing activities';
+      case 'ai-features':
+        return 'Manage AI-powered optimization tools';
+      case 'settings':
+        return 'Configure your account and platforms';
+      default:
+        return 'AI-powered article publishing platform';
+    }
+  };
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'create':
+        return (
           <div className="space-y-8">
             {/* Hero Section */}
             <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-0">
@@ -82,19 +83,26 @@ export default function Home() {
             {/* Article Editor */}
             <ArticleEditor />
           </div>
-        ) : (
-          <PublishingDashboard />
-        )}
-      </main>
+        );
+      case 'dashboard':
+        return <PublishingDashboard />;
+      case 'ai-features':
+        return <AIFeaturesPage />;
+      case 'settings':
+        return <SettingsPage />;
+      default:
+        return <div>Page not found</div>;
+    }
+  };
 
-      {/* Footer */}
-      <footer className="border-t bg-card mt-12">
-        <div className="max-w-6xl mx-auto px-4 py-6 text-center">
-          <p className="text-muted-foreground">
-            ArtiPub AI - Revolutionizing content publishing with artificial intelligence
-          </p>
-        </div>
-      </footer>
-    </div>
+  return (
+    <AdminLayout
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+      title={getPageTitle()}
+      subtitle={getPageSubtitle()}
+    >
+      {renderContent()}
+    </AdminLayout>
   );
 }
