@@ -50,20 +50,20 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
 
   return (
     <div className={cn(
-      "relative bg-card border-r transition-all duration-300 ease-in-out",
+      "relative bg-sidebar border-r border-sidebar-border transition-all duration-300 ease-in-out",
       collapsed ? "w-16" : "w-64"
     )}>
       <div className="flex flex-col h-full">
         {/* Sidebar Header */}
-        <div className="p-4 border-b">
+        <div className="p-4 border-b border-sidebar-border">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-primary to-purple-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
               <Zap className="w-4 h-4 text-white" />
             </div>
             {!collapsed && (
               <div>
-                <h2 className="font-semibold text-lg">ArtiPub AI</h2>
-                <p className="text-xs text-muted-foreground">AI Publishing Platform</p>
+                <h2 className="font-semibold text-lg text-sidebar-foreground">ArtiPub AI</h2>
+                <p className="text-xs text-sidebar-foreground/70">AI Publishing Platform</p>
               </div>
             )}
           </div>
@@ -81,18 +81,18 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
                   key={item.id}
                   variant={isActive ? "secondary" : "ghost"}
                   className={cn(
-                    "w-full justify-start gap-3 h-11",
+                    "w-full justify-start gap-3 h-11 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                     collapsed && "px-3 justify-center",
-                    isActive && "bg-primary/10 text-primary border-r-2 border-primary"
+                    isActive && "bg-sidebar-accent text-sidebar-accent-foreground border-r-2 border-blue-500"
                   )}
                   onClick={() => onTabChange(item.id)}
                   title={collapsed ? item.label : undefined}
                 >
-                  <Icon className={cn("w-4 h-4", isActive && "text-primary")} />
+                  <Icon className={cn("w-4 h-4", isActive && "text-blue-500")} />
                   {!collapsed && (
                     <div className="flex flex-col items-start">
                       <span className="font-medium">{item.label}</span>
-                      <span className="text-xs text-muted-foreground">{item.description}</span>
+                      <span className="text-xs text-sidebar-foreground/70">{item.description}</span>
                     </div>
                   )}
                 </Button>
@@ -102,12 +102,12 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
         </nav>
 
         {/* Collapse Toggle */}
-        <div className="p-4 border-t">
+        <div className="p-4 border-t border-sidebar-border">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setCollapsed(!collapsed)}
-            className="w-full"
+            className="w-full text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
           >
             {collapsed ? (
               <ChevronRight className="w-4 h-4" />

@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { 
   User, 
   Settings, 
@@ -47,13 +48,16 @@ export function Topbar({ title, subtitle, onMenuClick }: TopbarProps) {
           </div>
         </div>
 
-        {/* Right side - Search, Notifications, User Menu */}
+        {/* Right side - Search, Notifications, Theme, User Menu */}
         <div className="flex items-center gap-3">
           {/* Search */}
           <Button variant="ghost" size="sm" className="hidden md:flex">
             <Search className="w-4 h-4 mr-2" />
             Search
           </Button>
+
+          {/* Theme Toggle */}
+          <ThemeToggle />
 
           {/* Notifications */}
           <Button variant="ghost" size="sm" className="relative">

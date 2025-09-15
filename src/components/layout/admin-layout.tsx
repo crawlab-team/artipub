@@ -50,7 +50,7 @@ export function AdminLayout({
         />
 
         {/* Main content */}
-        <main className="flex-1 overflow-auto p-6">
+        <main className="flex-1 overflow-auto p-6 bg-muted/30">
           {children}
         </main>
       </div>
