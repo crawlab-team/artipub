@@ -8,8 +8,7 @@ export function ThemeProvider({
   ...props 
 }: {
   children: React.ReactNode;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  attribute?: any;
+  attribute?: string;
   defaultTheme?: string;
   enableSystem?: boolean;
   disableTransitionOnChange?: boolean;
