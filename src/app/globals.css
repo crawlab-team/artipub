@@ -1,34 +1,55 @@
 @import "tailwindcss";
 
 :root {
+  /* Base colors */
   --background: 0 0% 100%;
   --foreground: 222.2 84% 4.9%;
+  
+  /* Card colors */
   --card: 0 0% 100%;
   --card-foreground: 222.2 84% 4.9%;
+  
+  /* Popover colors */
   --popover: 0 0% 100%;
   --popover-foreground: 222.2 84% 4.9%;
+  
+  /* Primary colors */
   --primary: 221.2 83.2% 53.3%;
   --primary-foreground: 210 40% 98%;
-  --secondary: 210 40% 96%;
+  
+  /* Secondary colors */
+  --secondary: 210 40% 98%;
   --secondary-foreground: 222.2 84% 4.9%;
-  --muted: 210 40% 96%;
+  
+  /* Muted colors */
+  --muted: 210 40% 98%;
   --muted-foreground: 215.4 16.3% 46.9%;
-  --accent: 210 40% 96%;
+  
+  /* Accent colors */
+  --accent: 210 40% 98%;
   --accent-foreground: 222.2 84% 4.9%;
+  
+  /* Destructive colors */
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 210 40% 98%;
+  
+  /* Border and input colors */
   --border: 214.3 31.8% 91.4%;
   --input: 214.3 31.8% 91.4%;
   --ring: 221.2 83.2% 53.3%;
-  --radius: 0.75rem;
-  --sidebar: 222.2 84% 4.9%;
-  --sidebar-foreground: 210 40% 98%;
-  --sidebar-primary: 210 40% 98%;
-  --sidebar-primary-foreground: 222.2 84% 4.9%;
-  --sidebar-accent: 217.2 32.6% 17.5%;
-  --sidebar-accent-foreground: 210 40% 98%;
-  --sidebar-border: 217.2 32.6% 17.5%;
-  --sidebar-ring: 217.2 32.6% 17.5%;
+  
+  /* Layout */
+  --radius: 0.5rem;
+  
+  /* Sidebar colors */
+  --sidebar: 0 0% 100%;
+  --sidebar-foreground: 222.2 84% 4.9%;
+  --sidebar-primary: 221.2 83.2% 53.3%;
+  --sidebar-primary-foreground: 210 40% 98%;
+  --sidebar-accent: 210 40% 98%;
+  --sidebar-accent-foreground: 222.2 84% 4.9%;
+  --sidebar-border: 214.3 31.8% 91.4%;
+  --sidebar-ring: 221.2 83.2% 53.3%;
 }
 
 @theme inline {
@@ -65,33 +86,52 @@
 }
 
 .dark {
+  /* Base colors - proper dark backgrounds */
   --background: 222.2 84% 4.9%;
   --foreground: 210 40% 98%;
+  
+  /* Card colors - consistent dark theme */
   --card: 222.2 84% 4.9%;
   --card-foreground: 210 40% 98%;
+  
+  /* Popover colors */
   --popover: 222.2 84% 4.9%;
   --popover-foreground: 210 40% 98%;
+  
+  /* Primary colors - adjusted for dark theme */
   --primary: 217.2 91.2% 59.8%;
   --primary-foreground: 222.2 84% 4.9%;
+  
+  /* Secondary colors - proper dark theme contrast */
   --secondary: 217.2 32.6% 17.5%;
   --secondary-foreground: 210 40% 98%;
+  
+  /* Muted colors - better dark theme visibility */
   --muted: 217.2 32.6% 17.5%;
   --muted-foreground: 215 20.2% 65.1%;
+  
+  /* Accent colors */
   --accent: 217.2 32.6% 17.5%;
   --accent-foreground: 210 40% 98%;
+  
+  /* Destructive colors */
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 210 40% 98%;
+  
+  /* Border and input colors - consistent with dark theme */
   --border: 217.2 32.6% 17.5%;
   --input: 217.2 32.6% 17.5%;
-  --ring: 224.3 76.3% 94.1%;
+  --ring: 217.2 91.2% 59.8%;
+  
+  /* Sidebar colors - proper dark theme */
   --sidebar: 222.2 84% 4.9%;
   --sidebar-foreground: 210 40% 98%;
-  --sidebar-primary: 210 40% 98%;
+  --sidebar-primary: 217.2 91.2% 59.8%;
   --sidebar-primary-foreground: 222.2 84% 4.9%;
   --sidebar-accent: 217.2 32.6% 17.5%;
   --sidebar-accent-foreground: 210 40% 98%;
   --sidebar-border: 217.2 32.6% 17.5%;
-  --sidebar-ring: 217.2 32.6% 17.5%;
+  --sidebar-ring: 217.2 91.2% 59.8%;
 }
 
 * {
@@ -111,4 +151,130 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Ensure no white backgrounds in dark mode */
+  .dark * {
+    background-color: inherit;
+  }
+  
+  /* Professional input styling */
+  input, textarea, select {
+    @apply bg-background border-border text-foreground;
+  }
+  
+  input:focus, textarea:focus, select:focus {
+    @apply ring-ring border-ring;
+  }
+  
+  /* Consistent card styling */
+  [class*="card"] {
+    @apply bg-card text-card-foreground border-border;
+  }
+  
+  /* Remove excessive shadows for professional look */
+  .shadow-sm {
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  }
+  
+  .shadow {
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  }
+  
+  .shadow-md {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  }
+  
+  /* Dark theme shadow adjustments */
+  .dark .shadow-sm {
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  }
+  
+  .dark .shadow {
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.4);
+  }
+  
+  .dark .shadow-md {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+  }
 }
+  /* Responsive design improvements */
+  
+  /* Mobile-first responsive typography */
+  @media (max-width: 640px) {
+    .container {
+      @apply px-2;
+    }
+    
+    /* Smaller text on mobile */
+    h1 {
+      @apply text-lg;
+    }
+    
+    h2 {
+      @apply text-base;
+    }
+    
+    h3 {
+      @apply text-sm;
+    }
+    
+    /* Better mobile spacing */
+    .space-y-6 > * + * {
+      margin-top: 1rem;
+    }
+    
+    .space-y-4 > * + * {
+      margin-top: 0.75rem;
+    }
+    
+    /* Mobile-friendly buttons */
+    button {
+      min-height: 44px;
+    }
+    
+    /* Better mobile input sizing */
+    input, textarea {
+      @apply text-base;
+    }
+  }
+  
+  /* Tablet adjustments */
+  @media (min-width: 641px) and (max-width: 1024px) {
+    .container {
+      @apply px-3;
+    }
+  }
+  
+  /* Desktop optimizations */
+  @media (min-width: 1025px) {
+    .container {
+      @apply px-4;
+    }
+  }
+  
+  /* High DPI display optimizations */
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    /* Ensure crisp borders on high DPI displays */
+    * {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+  }
+  
+  /* Touch device optimizations */
+  @media (hover: none) and (pointer: coarse) {
+    /* Larger touch targets */
+    button, [role="button"], input[type="checkbox"], input[type="radio"] {
+      min-height: 44px;
+      min-width: 44px;
+    }
+    
+    /* Remove hover effects on touch devices */
+    .hover\:bg-accent:hover {
+      background-color: inherit;
+    }
+    
+    .hover\:border-primary\/50:hover {
+      border-color: inherit;
+    }
+  }

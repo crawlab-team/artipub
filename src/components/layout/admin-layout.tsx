@@ -51,8 +51,8 @@ export function AdminLayout({
           />
 
           {/* Main content */}
-          <main className="flex-1 overflow-auto bg-muted/20">
-            <div className="container mx-auto px-6 py-6">
+          <main className="flex-1 overflow-auto bg-background">
+            <div className="container mx-auto px-4 py-4">
               {children}
             </div>
           </main>

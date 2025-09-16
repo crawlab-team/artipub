@@ -55,8 +55,8 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
     )}>
       {/* Sidebar Header */}
       <div className="flex items-center gap-3 p-4 border-b border-sidebar-border">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600">
-          <Zap className="h-4 w-4 text-white" />
+        <div className="flex h-8 w-8 items-center justify-center rounded bg-primary">
+          <Zap className="h-4 w-4 text-primary-foreground" />
         </div>
         {!collapsed && (
           <div className="flex flex-col">
@@ -78,16 +78,16 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
                 key={item.id}
                 variant={isActive ? "secondary" : "ghost"}
                 className={cn(
-                  "w-full justify-start gap-3 h-11 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors",
+                  "w-full justify-start gap-3 h-10 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors",
                   collapsed && "px-3 justify-center",
-                  isActive && "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm border-r-2 border-blue-500"
+                  isActive && "bg-sidebar-accent text-sidebar-accent-foreground border-r-2 border-primary"
                 )}
                 onClick={() => onTabChange(item.id)}
                 title={collapsed ? item.label : undefined}
               >
                 <Icon className={cn(
                   "h-4 w-4 shrink-0",
-                  isActive && "text-blue-500"
+                  isActive && "text-primary"
                 )} />
                 {!collapsed && (
                   <div className="flex flex-col items-start text-left min-w-0">

@@ -46,32 +46,31 @@ export default function Home() {
     switch (activeTab) {
       case 'create':
         return (
-          <div className="max-w-7xl mx-auto space-y-8">
+          <div className="max-w-6xl mx-auto space-y-6">
             {/* Hero Section */}
-            <Card className="bg-gradient-to-r from-blue-50/80 to-purple-50/80 dark:from-blue-950/20 dark:to-purple-950/20 border border-border">
-              <CardHeader className="text-center pb-6">
-                <CardTitle className="text-2xl font-bold tracking-tight">
-                  🤖 AI-Powered Article Publishing
+            <Card className="bg-muted/30">
+              <CardHeader className="text-center">
+                <CardTitle className="text-xl font-semibold">
+                  AI-Powered Article Publishing
                 </CardTitle>
-                <CardDescription className="text-lg text-muted-foreground">
-                  Let AI optimize your content for maximum engagement across multiple platforms
+                <CardDescription className="text-muted-foreground">
+                  Optimize your content for maximum engagement across multiple platforms
                 </CardDescription>
               </CardHeader>
-              <CardContent className="pt-0">
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                   {PLATFORMS.map((platform) => (
                     <div
                       key={platform.id}
-                      className="flex flex-col items-center p-4 bg-card rounded-lg shadow-sm border border-border hover:shadow-md transition-shadow"
-                      style={{ borderTop: `3px solid ${platform.color}` }}
+                      className="flex flex-col items-center p-3 bg-card rounded border border-border hover:border-primary/50 transition-colors"
                     >
                       <div 
-                        className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-sm"
+                        className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-medium"
                         style={{ backgroundColor: platform.color }}
                       >
                         {platform.displayName.charAt(0)}
                       </div>
-                      <span className="text-xs mt-2 font-medium text-center">
+                      <span className="text-xs mt-2 font-medium text-center text-foreground">
                         {platform.displayName}
                       </span>
                     </div>

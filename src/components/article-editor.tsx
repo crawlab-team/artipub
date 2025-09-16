@@ -73,7 +73,7 @@ export function ArticleEditor() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Enter your article title..."
-              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full p-3 border border-border bg-background text-foreground rounded focus:ring-1 focus:ring-ring focus:border-ring"
             />
           </div>
 
@@ -85,7 +85,7 @@ export function ArticleEditor() {
               onChange={(e) => setContent(e.target.value)}
               placeholder="Write your article content here... (Markdown supported)"
               rows={12}
-              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+              className="w-full p-3 border border-border bg-background text-foreground rounded focus:ring-1 focus:ring-ring focus:border-ring resize-none"
             />
           </div>
 
@@ -96,10 +96,10 @@ export function ArticleEditor() {
               {PLATFORMS.map((platform) => (
                 <div
                   key={platform.id}
-                  className={`p-3 border rounded-lg cursor-pointer transition-all ${
+                  className={`p-3 border rounded cursor-pointer transition-all ${
                     selectedPlatforms.includes(platform.id)
-                      ? 'border-primary bg-primary/5'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-primary bg-primary/10'
+                      : 'border-border hover:border-primary/50'
                   }`}
                   onClick={() => handlePlatformToggle(platform.id)}
                 >
@@ -110,7 +110,7 @@ export function ArticleEditor() {
                     />
                     <span className="font-medium">{platform.displayName}</span>
                   </div>
-                  <div className="text-xs text-gray-500 mt-1">
+                  <div className="text-xs text-muted-foreground mt-1">
                     {platform.supportsMarkdown ? 'Markdown' : 'HTML'} • Max {platform.maxTitleLength} chars
                   </div>
                 </div>
@@ -140,14 +140,14 @@ export function ArticleEditor() {
 
           {/* Publishing Result */}
           {publishingResult && (
-            <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-              <div className="text-green-800">
+            <div className="mt-4 p-4 bg-accent border border-border rounded">
+              <div className="text-accent-foreground font-medium">
                 ✅ Publishing task created successfully!
               </div>
-              <div className="text-sm text-green-600 mt-1">
+              <div className="text-sm text-muted-foreground mt-1">
                 Task ID: {publishingResult}
               </div>
-              <div className="text-sm text-green-600">
+              <div className="text-sm text-muted-foreground">
                 Switch to the Publishing Dashboard to monitor progress.
               </div>
             </div>
@@ -156,24 +156,24 @@ export function ArticleEditor() {
       </Card>
 
       {/* AI Features Info */}
-      <Card className="bg-blue-50 border-blue-200">
-        <CardContent className="pt-6">
-          <h3 className="font-semibold text-blue-900 mb-3">🤖 AI-Powered Features</h3>
-          <div className="grid md:grid-cols-2 gap-4 text-sm text-blue-800">
+      <Card className="bg-muted/50">
+        <CardContent className="pt-4">
+          <h3 className="font-semibold text-foreground mb-3">🤖 AI-Powered Features</h3>
+          <div className="grid md:grid-cols-2 gap-4 text-sm text-muted-foreground">
             <div>
-              <div className="font-medium">Smart Content Optimization</div>
-              <div>AI adapts your content for each platform's audience and format</div>
+              <div className="font-medium text-foreground">Smart Content Optimization</div>
+              <div>AI adapts your content for each platform&apos;s audience and format</div>
             </div>
             <div>
-              <div className="font-medium">Intelligent Scheduling</div>
+              <div className="font-medium text-foreground">Intelligent Scheduling</div>
               <div>AI determines optimal posting times for maximum engagement</div>
             </div>
             <div>
-              <div className="font-medium">SEO Enhancement</div>
+              <div className="font-medium text-foreground">SEO Enhancement</div>
               <div>Automatic keyword optimization and metadata generation</div>
             </div>
             <div>
-              <div className="font-medium">Multi-Platform Publishing</div>
+              <div className="font-medium text-foreground">Multi-Platform Publishing</div>
               <div>Simultaneous publishing to all selected platforms</div>
             </div>
           </div>
