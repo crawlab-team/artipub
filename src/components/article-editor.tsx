@@ -162,7 +162,7 @@ export function ArticleEditor() {
           <div className="grid md:grid-cols-2 gap-4 text-sm text-blue-800">
             <div>
               <div className="font-medium">Smart Content Optimization</div>
-              <div>AI adapts your content for each platform&apos;s audience and format</div>
+              <div>AI adapts your content for each platform's audience and format</div>
             </div>
             <div>
               <div className="font-medium">Intelligent Scheduling</div>
