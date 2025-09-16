@@ -28,8 +28,8 @@ interface TopbarProps {
 
 export function Topbar({ title, subtitle, onMenuClick }: TopbarProps) {
   return (
-    <header className="bg-card border-b px-6 py-4">
-      <div className="flex items-center justify-between">
+    <header className="sticky top-0 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+      <div className="flex h-16 items-center justify-between px-6">
         {/* Left side - Title and Menu */}
         <div className="flex items-center gap-4">
           <Button
@@ -38,10 +38,10 @@ export function Topbar({ title, subtitle, onMenuClick }: TopbarProps) {
             onClick={onMenuClick}
             className="lg:hidden"
           >
-            <Menu className="w-4 h-4" />
+            <Menu className="h-4 w-4" />
           </Button>
-          <div>
-            <h1 className="text-xl font-semibold">{title}</h1>
+          <div className="flex flex-col">
+            <h1 className="text-lg font-semibold tracking-tight">{title}</h1>
             {subtitle && (
               <p className="text-sm text-muted-foreground">{subtitle}</p>
             )}
@@ -49,29 +49,30 @@ export function Topbar({ title, subtitle, onMenuClick }: TopbarProps) {
         </div>
 
         {/* Right side - Search, Notifications, Theme, User Menu */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {/* Search */}
-          <Button variant="ghost" size="sm" className="hidden md:flex">
-            <Search className="w-4 h-4 mr-2" />
-            Search
+          <Button variant="ghost" size="sm" className="hidden md:flex h-9 w-9 p-0">
+            <Search className="h-4 w-4" />
+            <span className="sr-only">Search</span>
           </Button>
 
           {/* Theme Toggle */}
           <ThemeToggle />
 
           {/* Notifications */}
-          <Button variant="ghost" size="sm" className="relative">
-            <Bell className="w-4 h-4" />
-            <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+          <Button variant="ghost" size="sm" className="relative h-9 w-9 p-0">
+            <Bell className="h-4 w-4" />
+            <span className="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full"></span>
+            <span className="sr-only">Notifications</span>
           </Button>
 
           {/* User Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+              <Button variant="ghost" className="relative h-9 w-9 rounded-full p-0">
                 <Avatar className="h-8 w-8">
                   <AvatarImage src="/avatars/01.png" alt="@artipub" />
-                  <AvatarFallback>AP</AvatarFallback>
+                  <AvatarFallback className="bg-primary text-primary-foreground">AP</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>

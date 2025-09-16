@@ -50,75 +50,74 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
 
   return (
     <div className={cn(
-      "relative bg-sidebar border-r border-sidebar-border transition-all duration-300 ease-in-out",
+      "relative flex flex-col h-full bg-sidebar border-r border-sidebar-border transition-all duration-300 ease-in-out",
       collapsed ? "w-16" : "w-64"
     )}>
-      <div className="flex flex-col h-full">
-        {/* Sidebar Header */}
-        <div className="p-4 border-b border-sidebar-border">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
-              <Zap className="w-4 h-4 text-white" />
-            </div>
-            {!collapsed && (
-              <div>
-                <h2 className="font-semibold text-lg text-sidebar-foreground">ArtiPub AI</h2>
-                <p className="text-xs text-sidebar-foreground/70">AI Publishing Platform</p>
-              </div>
-            )}
-          </div>
+      {/* Sidebar Header */}
+      <div className="flex items-center gap-3 p-4 border-b border-sidebar-border">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600">
+          <Zap className="h-4 w-4 text-white" />
         </div>
-
-        {/* Navigation Items */}
-        <nav className="flex-1 p-4">
-          <div className="space-y-2">
-            {navigationItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeTab === item.id;
-              
-              return (
-                <Button
-                  key={item.id}
-                  variant={isActive ? "secondary" : "ghost"}
-                  className={cn(
-                    "w-full justify-start gap-3 h-11 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                    collapsed && "px-3 justify-center",
-                    isActive && "bg-sidebar-accent text-sidebar-accent-foreground border-r-2 border-blue-500"
-                  )}
-                  onClick={() => onTabChange(item.id)}
-                  title={collapsed ? item.label : undefined}
-                >
-                  <Icon className={cn("w-4 h-4", isActive && "text-blue-500")} />
-                  {!collapsed && (
-                    <div className="flex flex-col items-start">
-                      <span className="font-medium">{item.label}</span>
-                      <span className="text-xs text-sidebar-foreground/70">{item.description}</span>
-                    </div>
-                  )}
-                </Button>
-              );
-            })}
+        {!collapsed && (
+          <div className="flex flex-col">
+            <h2 className="text-lg font-semibold text-sidebar-foreground">ArtiPub AI</h2>
+            <p className="text-xs text-sidebar-foreground/70">AI Publishing Platform</p>
           </div>
-        </nav>
+        )}
+      </div>
 
-        {/* Collapse Toggle */}
-        <div className="p-4 border-t border-sidebar-border">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setCollapsed(!collapsed)}
-            className="w-full text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-          >
-            {collapsed ? (
-              <ChevronRight className="w-4 h-4" />
-            ) : (
-              <>
-                <ChevronLeft className="w-4 h-4 mr-2" />
-                Collapse
-              </>
-            )}
-          </Button>
+      {/* Navigation Items */}
+      <nav className="flex-1 p-3">
+        <div className="space-y-1">
+          {navigationItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            
+            return (
+              <Button
+                key={item.id}
+                variant={isActive ? "secondary" : "ghost"}
+                className={cn(
+                  "w-full justify-start gap-3 h-11 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors",
+                  collapsed && "px-3 justify-center",
+                  isActive && "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm border-r-2 border-blue-500"
+                )}
+                onClick={() => onTabChange(item.id)}
+                title={collapsed ? item.label : undefined}
+              >
+                <Icon className={cn(
+                  "h-4 w-4 shrink-0",
+                  isActive && "text-blue-500"
+                )} />
+                {!collapsed && (
+                  <div className="flex flex-col items-start text-left min-w-0">
+                    <span className="font-medium text-sm truncate">{item.label}</span>
+                    <span className="text-xs text-sidebar-foreground/70 truncate">{item.description}</span>
+                  </div>
+                )}
+              </Button>
+            );
+          })}
         </div>
+      </nav>
+
+      {/* Collapse Toggle */}
+      <div className="p-3 border-t border-sidebar-border">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setCollapsed(!collapsed)}
+          className="w-full text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+        >
+          {collapsed ? (
+            <ChevronRight className="h-4 w-4" />
+          ) : (
+            <>
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              Collapse
+            </>
+          )}
+        </Button>
       </div>
     </div>
   );

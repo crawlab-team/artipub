@@ -22,37 +22,41 @@ export function AdminLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-background">
-      {/* Sidebar */}
-      <aside className={`
-        fixed inset-y-0 left-0 z-50 transition-transform duration-300 ease-in-out
-        lg:relative lg:translate-x-0
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-      `}>
-        <Sidebar activeTab={activeTab} onTabChange={onTabChange} />
-      </aside>
+    <div className="min-h-screen bg-background">
+      <div className="flex h-screen">
+        {/* Sidebar */}
+        <aside className={`
+          fixed inset-y-0 left-0 z-50 transition-transform duration-300 ease-in-out
+          lg:relative lg:translate-x-0
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        `}>
+          <Sidebar activeTab={activeTab} onTabChange={onTabChange} />
+        </aside>
 
-      {/* Sidebar overlay for mobile */}
-      {sidebarOpen && (
-        <div 
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
+        {/* Sidebar overlay for mobile */}
+        {sidebarOpen && (
+          <div 
+            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
 
-      {/* Main content area */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Topbar */}
-        <Topbar 
-          title={title} 
-          subtitle={subtitle}
-          onMenuClick={() => setSidebarOpen(!sidebarOpen)}
-        />
+        {/* Main content area */}
+        <div className="flex flex-1 flex-col min-w-0">
+          {/* Topbar */}
+          <Topbar 
+            title={title} 
+            subtitle={subtitle}
+            onMenuClick={() => setSidebarOpen(!sidebarOpen)}
+          />
 
-        {/* Main content */}
-        <main className="flex-1 overflow-auto p-6 bg-muted/30">
-          {children}
-        </main>
+          {/* Main content */}
+          <main className="flex-1 overflow-auto bg-muted/20">
+            <div className="container mx-auto px-6 py-6">
+              {children}
+            </div>
+          </main>
+        </div>
       </div>
     </div>
   );
