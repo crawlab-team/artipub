@@ -22,6 +22,42 @@ The new ArtiPub AI replaces the previous browser automation approach with intell
 - **After**: Uses AI to understand platform requirements and optimize content accordingly
 - **Benefits**: More reliable, faster, and produces better-optimized content
 
+## 🤖 AI-Powered Workflow Management
+
+ArtiPub now features an innovative multi-stage automation workflow system:
+
+### 1. Workflow Specification (Markdown)
+- Describe automation workflows in human-readable markdown format
+- Specifications include platform details, interaction steps, selectors, and validation rules
+- Easy to understand, modify, and version control
+- AI can read and understand the specifications
+
+### 2. AI Code Generation
+- AI automatically generates TypeScript automation code from workflow specifications
+- Follows existing patterns (BaseSpider class) for consistency
+- Includes error handling, logging, and retry logic
+- Reduces manual coding and potential errors
+
+### 3. AI Workflow Guardian
+- Continuously monitors workflow execution
+- Detects failures and analyzes root causes
+- Automatically fixes broken workflows when platform UIs change
+- Updates selectors and retry strategies as needed
+- Maintains audit log of all changes
+
+### 4. Workflow Execution Engine
+- Executes workflows with intelligent retry strategies
+- Handles errors gracefully with fallback options
+- Reports detailed execution status
+- Tracks statistics and performance metrics
+
+### Benefits of Workflow Management System
+- **Maintainability**: Workflows are documented and versioned
+- **Adaptability**: AI automatically adapts to platform changes
+- **Reliability**: Automated error detection and recovery
+- **Scalability**: Easy to add new platforms using templates
+- **Transparency**: All changes are logged and auditable
+
 ## ✨ Key Features
 
 ### AI-Powered Content Optimization
@@ -118,6 +154,79 @@ OPENAI_API_KEY=your_key_here
 
 # Anthropic
 ANTHROPIC_API_KEY=your_key_here
+```
+
+### Workflow Management
+
+ArtiPub uses a specification-driven approach for automation workflows. Workflow specifications are stored in `.kiro/specs/automation-workflow/`.
+
+#### Creating a New Workflow
+
+1. **Create Workflow Specification** (Markdown):
+   ```markdown
+   ### Platform Information
+   - **Platform ID**: myplatform
+   - **Base URL**: https://platform.com
+   - **Editor URL**: https://platform.com/editor
+   
+   ### Workflow Steps
+   
+   #### Step 1: Navigate to Editor
+   - Action: navigate
+   - URL: https://platform.com/editor
+   
+   #### Step 2: Input Title
+   - Action: fill
+   - Selector: input[name="title"]
+   - Value: {{article.title}}
+   ```
+
+2. **Load and Generate Code**:
+   ```typescript
+   import { workflowManagement } from '@/lib/workflow-management';
+   
+   // Load workflow from markdown
+   const workflow = await workflowManagement.loadWorkflowFromMarkdown(
+     'myplatform',
+     markdownContent
+   );
+   
+   // The system automatically generates TypeScript code
+   console.log(workflow.generatedCode.code);
+   ```
+
+3. **Execute Workflow**:
+   ```typescript
+   const result = await workflowManagement.executeWorkflow('myplatform', {
+     article: {
+       id: '123',
+       title: 'My Article',
+       content: 'Article content...'
+     },
+     platform: 'myplatform'
+   });
+   ```
+
+#### Workflow Maintenance
+
+The AI Workflow Guardian automatically:
+- Monitors workflow execution
+- Detects when platform UIs change
+- Updates selectors and recovery strategies
+- Creates new workflow versions with fixes
+- Logs all maintenance actions
+
+#### Version Management
+
+```typescript
+// Get all versions for a platform
+const versions = workflowManagement.getAllVersions('zhihu');
+
+// Rollback to a previous version
+workflowManagement.rollbackToVersion('zhihu', '1.0.0');
+
+// Export workflow as markdown
+const markdown = workflowManagement.exportWorkflowAsMarkdown('zhihu');
 ```
 
 ### Platform Integration
