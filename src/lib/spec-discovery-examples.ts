@@ -60,6 +60,179 @@ export async function example1_AutomaticDiscovery() {
 }
 
 /**
+ * Example 7: Multi-page workflow discovery (NEW)
+ */
+export async function example7_MultiPageDiscovery() {
+  console.log('=== Example 7: Multi-Page Workflow Discovery ===\n');
+
+  const sessionId = await workflowManagement.discoverWorkflow(
+    'https://blog-platform.com/create',
+    {
+      supervisionMode: 'optional',
+      multiPage: true, // Enable multi-page discovery
+      maxPages: 4 // Discover up to 4 pages
+    }
+  );
+
+  console.log(`Multi-page discovery started: ${sessionId}`);
+  console.log('AI will follow navigation across multiple pages...\n');
+
+  await new Promise(resolve => setTimeout(resolve, 7000));
+
+  const session = workflowManagement.getDiscoverySession(sessionId);
+  
+  if (session?.discoveredPages) {
+    console.log(`Discovered ${session.discoveredPages.length} pages:\n`);
+    
+    session.discoveredPages.forEach(page => {
+      console.log(`Page ${page.pageNumber}: ${page.title}`);
+      console.log(`  URL: ${page.url}`);
+      console.log(`  Purpose: ${page.purpose}`);
+      console.log(`  Elements: ${page.elements.length}`);
+      
+      if (page.navigationTo) {
+        console.log(`  Navigation: ${page.navigationTo.trigger} -> ${page.navigationTo.nextPage}`);
+      }
+      
+      if (page.visionDescription) {
+        console.log(`  Vision: ${page.visionDescription}`);
+      }
+      
+      console.log('');
+    });
+    
+    console.log('Workflow flow:');
+    session.discoveredPages.forEach((page, idx) => {
+      console.log(`  ${idx + 1}. ${page.title} (${page.elements.filter(e => e.purpose !== 'navigation').length} actions)`);
+    });
+  }
+  
+  console.log('');
+}
+
+/**
+ * Example 8: Vision AI-enhanced discovery (NEW)
+ */
+export async function example8_VisionAIDiscovery() {
+  console.log('=== Example 8: Vision AI-Enhanced Discovery ===\n');
+
+  const sessionId = await workflowManagement.discoverWorkflow(
+    'https://platform.com/editor',
+    {
+      supervisionMode: 'optional',
+      useVisionAI: true, // Enable vision AI
+      testArticle: {
+        title: 'Vision AI Test',
+        content: 'Testing vision-based element detection'
+      }
+    }
+  );
+
+  console.log(`Vision AI discovery started: ${sessionId}`);
+  console.log('Using vision AI to understand page layout...\n');
+
+  await new Promise(resolve => setTimeout(resolve, 6000));
+
+  const session = workflowManagement.getDiscoverySession(sessionId);
+  
+  if (session?.visionAnalysis && session.visionAnalysis.length > 0) {
+    console.log('Vision AI Analysis Results:\n');
+    
+    session.visionAnalysis.forEach((analysis, idx) => {
+      console.log(`Analysis ${idx + 1}:`);
+      console.log(`  Page: ${analysis.pageUrl}`);
+      console.log(`  Description: ${analysis.description}\n`);
+      
+      console.log(`  Identified ${analysis.identifiedElements.length} elements visually:`);
+      analysis.identifiedElements.forEach(el => {
+        console.log(`    - ${el.type} (${el.purpose})`);
+        console.log(`      Location: (${el.location.x}, ${el.location.y})`);
+        console.log(`      Size: ${el.location.width}x${el.location.height}`);
+        console.log(`      Confidence: ${(el.confidence * 100).toFixed(1)}%`);
+      });
+      
+      console.log(`\n  Suggested Actions:`);
+      analysis.suggestedActions.forEach(action => {
+        console.log(`    - ${action}`);
+      });
+      
+      console.log('');
+    });
+  }
+  
+  // Show elements with visual location data
+  if (session?.discoveredElements) {
+    const elementsWithLocation = session.discoveredElements.filter(e => e.visualLocation);
+    if (elementsWithLocation.length > 0) {
+      console.log(`Elements with visual location data: ${elementsWithLocation.length}`);
+      elementsWithLocation.forEach(e => {
+        console.log(`  ${e.purpose}: Visual location (${e.visualLocation!.x}, ${e.visualLocation!.y})`);
+      });
+    }
+  }
+  
+  console.log('');
+}
+
+/**
+ * Example 9: Combined multi-page + vision AI discovery (NEW)
+ */
+export async function example9_FullFeaturedDiscovery() {
+  console.log('=== Example 9: Full-Featured Discovery (Multi-Page + Vision AI) ===\n');
+
+  const sessionId = await workflowManagement.discoverWorkflow(
+    'https://advanced-cms.com/compose',
+    {
+      supervisionMode: 'optional',
+      useVisionAI: true,      // Vision AI for better detection
+      multiPage: true,         // Multi-page workflow
+      maxPages: 5,            // Up to 5 pages
+      testArticle: {
+        title: 'Complete Discovery Test',
+        content: 'Testing all discovery features together'
+      }
+    }
+  );
+
+  console.log(`Full-featured discovery started: ${sessionId}`);
+  console.log('Using Vision AI + Multi-Page detection...\n');
+
+  await new Promise(resolve => setTimeout(resolve, 8000));
+
+  const session = workflowManagement.getDiscoverySession(sessionId);
+  
+  if (session) {
+    console.log('Discovery Results:\n');
+    console.log(`  Status: ${session.status}`);
+    console.log(`  Pages Discovered: ${session.discoveredPages?.length || 0}`);
+    console.log(`  Total Elements: ${session.discoveredElements?.length || 0}`);
+    console.log(`  Vision Analyses: ${session.visionAnalysis?.length || 0}`);
+    console.log(`  Workflow Steps: ${session.suggestedWorkflow?.steps.length || 0}`);
+    
+    if (session.discoveredPages && session.discoveredPages.length > 1) {
+      console.log('\nMulti-Page Workflow Map:');
+      session.discoveredPages.forEach(page => {
+        console.log(`  ${page.pageNumber}. ${page.title} -> ${page.navigationTo?.nextPage ? 'Next' : 'End'}`);
+      });
+    }
+    
+    if (session.visionAnalysis && session.visionAnalysis.length > 0) {
+      console.log(`\nVision AI provided ${session.visionAnalysis.length} detailed analysis(es)`);
+    }
+    
+    // Export complete specification
+    if (session.status === 'completed') {
+      console.log('\nExporting comprehensive specification...');
+      const markdown = workflowManagement.exportDiscoveredWorkflow(sessionId);
+      console.log(`  Specification size: ${markdown.length} characters`);
+      console.log(`  Includes: Multi-page flow + Vision AI insights`);
+    }
+  }
+  
+  console.log('');
+}
+
+/**
  * Example 2: Discovery with optional human supervision
  */
 export async function example2_SupervisedDiscovery() {
@@ -345,6 +518,9 @@ export async function runSpecDiscoveryExamples() {
     await example4_ExportDiscoveredWorkflow();
     await example5_MonitorDiscoverySessions();
     await example6_CompleteDiscoveryLifecycle();
+    await example7_MultiPageDiscovery();
+    await example8_VisionAIDiscovery();
+    await example9_FullFeaturedDiscovery();
     
     console.log('\n✅ All examples completed successfully!\n');
     console.log('Key Capabilities Demonstrated:');
@@ -355,7 +531,10 @@ export async function runSpecDiscoveryExamples() {
     console.log('  5. Workflow validation with test articles');
     console.log('  6. Export to markdown specifications');
     console.log('  7. Seamless integration with workflow management');
-    console.log('  8. Complete discovery-to-execution lifecycle\n');
+    console.log('  8. Complete discovery-to-execution lifecycle');
+    console.log('  9. Multi-page workflow discovery (NEW)');
+    console.log('  10. Vision AI-enhanced element detection (NEW)');
+    console.log('  11. Combined multi-page + vision AI discovery (NEW)\n');
     
   } catch (error) {
     console.error('Error running examples:', error);

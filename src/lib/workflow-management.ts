@@ -25,6 +25,9 @@ export class WorkflowManagementService {
     platformUrl: string,
     options?: {
       supervisionMode?: 'none' | 'optional' | 'required';
+      useVisionAI?: boolean;
+      multiPage?: boolean;
+      maxPages?: number;
       testArticle?: {
         title: string;
         content: string;
@@ -32,6 +35,14 @@ export class WorkflowManagementService {
     }
   ): Promise<string> {
     console.log(`Starting AI-powered workflow discovery for ${platformUrl}`);
+    
+    if (options?.useVisionAI) {
+      console.log('Vision AI enabled for enhanced element detection');
+    }
+    
+    if (options?.multiPage) {
+      console.log(`Multi-page discovery enabled (max ${options.maxPages || 5} pages)`);
+    }
     
     const sessionId = await specDiscoveryService.startDiscovery(platformUrl, options);
     

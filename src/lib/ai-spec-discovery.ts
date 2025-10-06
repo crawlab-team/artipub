@@ -6,7 +6,7 @@
  * the optimal publishing workflow with optional human supervision.
  */
 
-import { WorkflowSpec, WorkflowStep, WorkflowSelectors, PlatformConfig } from './workflow-types';
+import { WorkflowSpec, WorkflowStep, WorkflowSelectors, PlatformConfig, WorkflowAction } from './workflow-types';
 
 export interface DiscoverySession {
   sessionId: string;
@@ -15,20 +15,62 @@ export interface DiscoverySession {
   progress: number;
   currentStep?: string;
   discoveredElements?: DiscoveredElement[];
+  discoveredPages?: DiscoveredPage[];
   suggestedWorkflow?: WorkflowSpec;
   humanReviewRequired?: boolean;
   errors?: string[];
+  visionAnalysis?: VisionAnalysisResult[];
+}
+
+export interface DiscoveredPage {
+  pageNumber: number;
+  url: string;
+  title: string;
+  purpose: 'editor' | 'settings' | 'preview' | 'publish' | 'confirmation' | 'unknown';
+  elements: DiscoveredElement[];
+  screenshot?: string;
+  visionDescription?: string;
+  navigationTo?: {
+    nextPage?: string;
+    trigger: string; // selector or action that navigates to next page
+  };
+}
+
+export interface VisionAnalysisResult {
+  pageUrl: string;
+  timestamp: Date;
+  description: string;
+  identifiedElements: {
+    type: string;
+    purpose: string;
+    location: {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    };
+    confidence: number;
+  }[];
+  suggestedActions: string[];
+  screenshot: string;
 }
 
 export interface DiscoveredElement {
-  type: 'input' | 'button' | 'editor' | 'dropdown' | 'checkbox';
-  purpose: 'title' | 'content' | 'publish' | 'category' | 'tags' | 'settings' | 'unknown';
+  type: 'input' | 'button' | 'editor' | 'dropdown' | 'checkbox' | 'link' | 'form';
+  purpose: 'title' | 'content' | 'publish' | 'category' | 'tags' | 'settings' | 'navigation' | 'unknown';
   selector: string;
   alternativeSelectors: string[];
   confidence: number;
   label?: string;
   placeholder?: string;
   attributes: Record<string, string>;
+  pageNumber?: number; // Which page this element belongs to
+  visualLocation?: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
 }
 
 export interface SupervisionRequest {
@@ -53,6 +95,9 @@ export class AISpecDiscoveryService {
     platformUrl: string,
     options?: {
       supervisionMode?: 'none' | 'optional' | 'required';
+      useVisionAI?: boolean;
+      multiPage?: boolean;
+      maxPages?: number;
       testArticle?: {
         title: string;
         content: string;
@@ -67,6 +112,8 @@ export class AISpecDiscoveryService {
       status: 'initializing',
       progress: 0,
       discoveredElements: [],
+      discoveredPages: [],
+      visionAnalysis: [],
       humanReviewRequired: options?.supervisionMode === 'required'
     };
 
@@ -85,6 +132,9 @@ export class AISpecDiscoveryService {
     sessionId: string,
     options?: {
       supervisionMode?: 'none' | 'optional' | 'required';
+      useVisionAI?: boolean;
+      multiPage?: boolean;
+      maxPages?: number;
       testArticle?: {
         title: string;
         content: string;
@@ -102,19 +152,60 @@ export class AISpecDiscoveryService {
       
       const platformInfo = await this.analyzePlatform(session.platformUrl);
       
-      // Phase 2: Discover elements
+      // Phase 1.5: Vision AI Analysis (if enabled)
+      if (options?.useVisionAI) {
+        session.currentStep = 'Performing vision AI analysis';
+        session.progress = 15;
+        
+        const visionResults = await this.performVisionAnalysis(session.platformUrl);
+        session.visionAnalysis = visionResults;
+      }
+      
+      // Phase 2: Discover elements (single or multi-page)
       session.status = 'discovering';
       session.currentStep = 'Discovering interactive elements';
       session.progress = 30;
       
-      const elements = await this.discoverElements(session.platformUrl);
-      session.discoveredElements = elements;
+      if (options?.multiPage) {
+        // Multi-page discovery
+        const pages = await this.discoverMultiPageWorkflow(
+          session.platformUrl,
+          options.maxPages || 5,
+          options.useVisionAI || false
+        );
+        session.discoveredPages = pages;
+        
+        // Flatten all elements from all pages
+        session.discoveredElements = pages.flatMap(page => 
+          page.elements.map(el => ({ ...el, pageNumber: page.pageNumber }))
+        );
+      } else {
+        // Single-page discovery (original behavior)
+        const elements = await this.discoverElements(
+          session.platformUrl,
+          options?.useVisionAI || false
+        );
+        session.discoveredElements = elements;
+        
+        // Create a single page entry
+        session.discoveredPages = [{
+          pageNumber: 1,
+          url: session.platformUrl,
+          title: 'Editor Page',
+          purpose: 'editor',
+          elements: elements
+        }];
+      }
       
       // Phase 3: Identify workflow steps
       session.currentStep = 'Identifying workflow steps';
       session.progress = 50;
       
-      const workflow = await this.identifyWorkflowSteps(platformInfo, elements);
+      const workflow = await this.identifyWorkflowSteps(
+        platformInfo,
+        session.discoveredElements,
+        session.discoveredPages
+      );
       
       // Phase 4: Human supervision if needed
       if (options?.supervisionMode !== 'none') {
@@ -122,14 +213,19 @@ export class AISpecDiscoveryService {
         session.progress = 70;
         session.humanReviewRequired = true;
         
-        await this.requestSupervision(sessionId, workflow, elements);
+        await this.requestSupervision(sessionId, workflow, session.discoveredElements);
       }
       
       // Phase 5: Generate specification
       session.currentStep = 'Generating workflow specification';
       session.progress = 90;
       
-      const spec = await this.generateSpecification(platformInfo, workflow, elements);
+      const spec = await this.generateSpecification(
+        platformInfo,
+        workflow,
+        session.discoveredElements,
+        session.discoveredPages
+      );
       session.suggestedWorkflow = spec;
       
       // Phase 6: Validate with test article (if provided)
@@ -187,7 +283,10 @@ export class AISpecDiscoveryService {
   /**
    * Discover interactive elements on the page
    */
-  private async discoverElements(platformUrl: string): Promise<DiscoveredElement[]> {
+  private async discoverElements(
+    platformUrl: string,
+    useVisionAI: boolean = false
+  ): Promise<DiscoveredElement[]> {
     // Simulate AI element discovery
     await new Promise(resolve => setTimeout(resolve, 1500));
     
@@ -260,7 +359,245 @@ export class AISpecDiscoveryService {
       }
     ];
     
+    // If vision AI is enabled, enhance with visual information
+    if (useVisionAI) {
+      elements.forEach(el => {
+        el.visualLocation = {
+          x: Math.random() * 1000,
+          y: Math.random() * 800,
+          width: 200 + Math.random() * 300,
+          height: 30 + Math.random() * 50
+        };
+      });
+    }
+    
     return elements;
+  }
+
+  /**
+   * Perform vision AI analysis on a page
+   */
+  private async performVisionAnalysis(pageUrl: string): Promise<VisionAnalysisResult[]> {
+    // Simulate vision AI processing
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // In production, this would:
+    // 1. Capture screenshot of the page
+    // 2. Send to vision AI (GPT-4 Vision, Claude with vision, etc.)
+    // 3. Get description of UI elements and their purposes
+    // 4. Identify visual relationships and layout
+    // 5. Suggest optimal interaction flow
+    
+    return [{
+      pageUrl,
+      timestamp: new Date(),
+      description: 'The page contains a modern article editor with a clean layout. ' +
+                  'At the top is a title input field, followed by a large content editor area. ' +
+                  'On the right side are metadata fields for tags and categories. ' +
+                  'A prominent "Publish" button is located at the bottom right.',
+      identifiedElements: [
+        {
+          type: 'input',
+          purpose: 'title',
+          location: { x: 50, y: 100, width: 800, height: 40 },
+          confidence: 0.98
+        },
+        {
+          type: 'editor',
+          purpose: 'content',
+          location: { x: 50, y: 160, width: 800, height: 400 },
+          confidence: 0.95
+        },
+        {
+          type: 'button',
+          purpose: 'publish',
+          location: { x: 750, y: 600, width: 100, height: 40 },
+          confidence: 0.93
+        }
+      ],
+      suggestedActions: [
+        'Fill title field first',
+        'Then add content to main editor',
+        'Optionally add tags/categories',
+        'Click publish button to submit'
+      ],
+      screenshot: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+    }];
+  }
+
+  /**
+   * Discover multi-page workflow
+   */
+  private async discoverMultiPageWorkflow(
+    startUrl: string,
+    maxPages: number,
+    useVisionAI: boolean
+  ): Promise<DiscoveredPage[]> {
+    // Simulate multi-page discovery
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // In production, this would:
+    // 1. Start from the initial URL
+    // 2. Discover elements on the current page
+    // 3. Identify navigation elements (Next, Continue, etc.)
+    // 4. Follow navigation to discover subsequent pages
+    // 5. Build a complete multi-page workflow map
+    
+    const pages: DiscoveredPage[] = [];
+    
+    // Page 1: Editor page
+    pages.push({
+      pageNumber: 1,
+      url: startUrl,
+      title: 'Article Editor',
+      purpose: 'editor',
+      elements: [
+        {
+          type: 'input',
+          purpose: 'title',
+          selector: 'input[name="title"]',
+          alternativeSelectors: ['#title', '.title-input'],
+          confidence: 0.95,
+          placeholder: 'Enter article title',
+          attributes: { type: 'text' },
+          pageNumber: 1,
+          visualLocation: useVisionAI ? { x: 50, y: 100, width: 800, height: 40 } : undefined
+        },
+        {
+          type: 'editor',
+          purpose: 'content',
+          selector: '[contenteditable="true"]',
+          alternativeSelectors: ['#editor', '.content-editor'],
+          confidence: 0.92,
+          attributes: { contenteditable: 'true' },
+          pageNumber: 1,
+          visualLocation: useVisionAI ? { x: 50, y: 160, width: 800, height: 400 } : undefined
+        },
+        {
+          type: 'button',
+          purpose: 'navigation',
+          selector: 'button:has-text("Next"), button.next',
+          alternativeSelectors: ['#next-btn', '[data-action="next"]'],
+          confidence: 0.88,
+          label: 'Next',
+          attributes: { type: 'button' },
+          pageNumber: 1
+        }
+      ],
+      navigationTo: {
+        nextPage: `${startUrl}/settings`,
+        trigger: 'button:has-text("Next")'
+      },
+      visionDescription: useVisionAI ? 'Editor page with title and content fields' : undefined
+    });
+    
+    // Page 2: Settings/Metadata page
+    if (maxPages >= 2) {
+      pages.push({
+        pageNumber: 2,
+        url: `${startUrl}/settings`,
+        title: 'Article Settings',
+        purpose: 'settings',
+        elements: [
+          {
+            type: 'input',
+            purpose: 'tags',
+            selector: 'input[name="tags"]',
+            alternativeSelectors: ['#tags', '.tags-input'],
+            confidence: 0.85,
+            placeholder: 'Add tags',
+            attributes: { type: 'text' },
+            pageNumber: 2
+          },
+          {
+            type: 'dropdown',
+            purpose: 'category',
+            selector: 'select[name="category"]',
+            alternativeSelectors: ['#category', '.category-select'],
+            confidence: 0.83,
+            attributes: { type: 'select' },
+            pageNumber: 2
+          },
+          {
+            type: 'button',
+            purpose: 'navigation',
+            selector: 'button:has-text("Preview"), button.preview',
+            alternativeSelectors: ['#preview-btn'],
+            confidence: 0.87,
+            label: 'Preview',
+            attributes: { type: 'button' },
+            pageNumber: 2
+          }
+        ],
+        navigationTo: {
+          nextPage: `${startUrl}/preview`,
+          trigger: 'button:has-text("Preview")'
+        },
+        visionDescription: useVisionAI ? 'Settings page with metadata fields' : undefined
+      });
+    }
+    
+    // Page 3: Preview page
+    if (maxPages >= 3) {
+      pages.push({
+        pageNumber: 3,
+        url: `${startUrl}/preview`,
+        title: 'Preview & Publish',
+        purpose: 'preview',
+        elements: [
+          {
+            type: 'button',
+            purpose: 'publish',
+            selector: 'button:has-text("Publish"), button.publish',
+            alternativeSelectors: ['#publish-btn', '[data-action="publish"]'],
+            confidence: 0.95,
+            label: 'Publish',
+            attributes: { type: 'button' },
+            pageNumber: 3
+          },
+          {
+            type: 'button',
+            purpose: 'navigation',
+            selector: 'button:has-text("Back"), button.back',
+            alternativeSelectors: ['#back-btn'],
+            confidence: 0.80,
+            label: 'Back to Edit',
+            attributes: { type: 'button' },
+            pageNumber: 3
+          }
+        ],
+        navigationTo: {
+          nextPage: `${startUrl}/confirmation`,
+          trigger: 'button:has-text("Publish")'
+        },
+        visionDescription: useVisionAI ? 'Preview page with final publish button' : undefined
+      });
+    }
+    
+    // Page 4: Confirmation page
+    if (maxPages >= 4) {
+      pages.push({
+        pageNumber: 4,
+        url: `${startUrl}/confirmation`,
+        title: 'Published Successfully',
+        purpose: 'confirmation',
+        elements: [
+          {
+            type: 'link',
+            purpose: 'navigation',
+            selector: 'a.article-link, a[href*="/article/"]',
+            alternativeSelectors: ['.published-url'],
+            confidence: 0.90,
+            label: 'View Published Article',
+            attributes: { href: '/article/123' },
+            pageNumber: 4
+          }
+        ],
+        visionDescription: useVisionAI ? 'Success page with link to published article' : undefined
+      });
+    }
+    
+    return pages;
   }
 
   /**
@@ -268,7 +605,8 @@ export class AISpecDiscoveryService {
    */
   private async identifyWorkflowSteps(
     platform: PlatformConfig,
-    elements: DiscoveredElement[]
+    elements: DiscoveredElement[],
+    pages?: DiscoveredPage[]
   ): Promise<WorkflowStep[]> {
     // Simulate AI workflow identification
     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -279,103 +617,198 @@ export class AISpecDiscoveryService {
     // 3. Identify required vs optional steps
     // 4. Detect validation requirements
     // 5. Identify wait conditions and timing
+    // 6. Handle multi-page navigation
     
     const steps: WorkflowStep[] = [];
     let stepNumber = 1;
     
-    // Step 1: Navigate to editor
-    steps.push({
-      stepNumber: stepNumber++,
-      name: 'Navigate to Editor',
-      action: 'navigate',
-      url: platform.editorUrl,
-      timeout: 10000,
-      validation: 'Editor page loaded'
-    });
-    
-    // Step 2: Input title
-    const titleElement = elements.find(e => e.purpose === 'title');
-    if (titleElement) {
+    // If multi-page, build workflow across pages
+    if (pages && pages.length > 1) {
+      for (const page of pages) {
+        // Navigation step to page (except first page)
+        if (page.pageNumber > 1) {
+          const prevPage = pages[page.pageNumber - 2];
+          if (prevPage.navigationTo) {
+            steps.push({
+              stepNumber: stepNumber++,
+              name: `Navigate to ${page.title}`,
+              action: 'click',
+              selector: prevPage.navigationTo.trigger,
+              timeout: 5000,
+              validation: `${page.title} page loaded`
+            });
+            
+            steps.push({
+              stepNumber: stepNumber++,
+              name: `Wait for ${page.title}`,
+              action: 'wait',
+              timeout: 2000
+            });
+          }
+        }
+        
+        // Add steps for elements on this page
+        for (const element of page.elements) {
+          if (element.purpose === 'navigation') continue; // Skip nav elements
+          
+          const stepName = this.getStepNameForElement(element, page);
+          const step: WorkflowStep = {
+            stepNumber: stepNumber++,
+            name: stepName,
+            action: this.getActionForElement(element),
+            selector: element.selector,
+            validation: `${stepName} completed`
+          };
+          
+          if (element.purpose === 'title' || element.purpose === 'content' || element.purpose === 'tags') {
+            step.value = `{{article.${element.purpose}}}`;
+          }
+          
+          if (element.alternativeSelectors.length > 0) {
+            step.fallback = element.alternativeSelectors.map(selector => ({
+              stepNumber: step.stepNumber,
+              name: `${stepName} (fallback)`,
+              action: step.action,
+              selector
+            }));
+          }
+          
+          steps.push(step);
+        }
+      }
+      
+      // Extract published URL (final step)
       steps.push({
         stepNumber: stepNumber++,
-        name: 'Input Article Title',
-        action: 'fill',
-        selector: titleElement.selector,
-        value: '{{article.title}}',
-        validation: 'Title input completed',
-        fallback: titleElement.alternativeSelectors.map(selector => ({
-          stepNumber: stepNumber - 1,
-          name: 'Input Article Title (fallback)',
+        name: 'Extract Published URL',
+        action: 'extract',
+        selector: 'meta[property="og:url"], .article-url, a.permalink, a[href*="/article/"]',
+        validation: 'URL extracted'
+      });
+      
+    } else {
+      // Single-page workflow (original logic)
+      // Step 1: Navigate to editor
+      steps.push({
+        stepNumber: stepNumber++,
+        name: 'Navigate to Editor',
+        action: 'navigate',
+        url: platform.editorUrl,
+        timeout: 10000,
+        validation: 'Editor page loaded'
+      });
+      
+      // Step 2: Input title
+      const titleElement = elements.find(e => e.purpose === 'title');
+      if (titleElement) {
+        steps.push({
+          stepNumber: stepNumber++,
+          name: 'Input Article Title',
           action: 'fill',
-          selector,
-          value: '{{article.title}}'
-        }))
-      });
-    }
-    
-    // Step 3: Input content
-    const contentElement = elements.find(e => e.purpose === 'content');
-    if (contentElement) {
-      steps.push({
-        stepNumber: stepNumber++,
-        name: 'Input Article Content',
-        action: 'fill',
-        selector: contentElement.selector,
-        value: '{{article.content}}',
-        validation: 'Content input completed',
-        fallback: contentElement.alternativeSelectors.map(selector => ({
-          stepNumber: stepNumber - 1,
-          name: 'Input Article Content (fallback)',
+          selector: titleElement.selector,
+          value: '{{article.title}}',
+          validation: 'Title input completed',
+          fallback: titleElement.alternativeSelectors.map(selector => ({
+            stepNumber: stepNumber - 1,
+            name: 'Input Article Title (fallback)',
+            action: 'fill',
+            selector,
+            value: '{{article.title}}'
+          }))
+        });
+      }
+      
+      // Step 3: Input content
+      const contentElement = elements.find(e => e.purpose === 'content');
+      if (contentElement) {
+        steps.push({
+          stepNumber: stepNumber++,
+          name: 'Input Article Content',
           action: 'fill',
-          selector,
-          value: '{{article.content}}'
-        }))
-      });
-    }
-    
-    // Step 4: Input tags (optional)
-    const tagsElement = elements.find(e => e.purpose === 'tags');
-    if (tagsElement && tagsElement.confidence > 0.7) {
-      steps.push({
-        stepNumber: stepNumber++,
-        name: 'Add Tags',
-        action: 'fill',
-        selector: tagsElement.selector,
-        value: '{{article.tags}}',
-        validation: 'Tags added'
-      });
-    }
-    
-    // Step 5: Publish
-    const publishElement = elements.find(e => e.purpose === 'publish');
-    if (publishElement) {
-      steps.push({
-        stepNumber: stepNumber++,
-        name: 'Publish Article',
-        action: 'click',
-        selector: publishElement.selector,
-        timeout: 5000,
-        validation: 'Article published successfully',
-        fallback: publishElement.alternativeSelectors.map(selector => ({
-          stepNumber: stepNumber - 1,
-          name: 'Publish Article (fallback)',
+          selector: contentElement.selector,
+          value: '{{article.content}}',
+          validation: 'Content input completed',
+          fallback: contentElement.alternativeSelectors.map(selector => ({
+            stepNumber: stepNumber - 1,
+            name: 'Input Article Content (fallback)',
+            action: 'fill',
+            selector,
+            value: '{{article.content}}'
+          }))
+        });
+      }
+      
+      // Step 4: Input tags (optional)
+      const tagsElement = elements.find(e => e.purpose === 'tags');
+      if (tagsElement && tagsElement.confidence > 0.7) {
+        steps.push({
+          stepNumber: stepNumber++,
+          name: 'Add Tags',
+          action: 'fill',
+          selector: tagsElement.selector,
+          value: '{{article.tags}}',
+          validation: 'Tags added'
+        });
+      }
+      
+      // Step 5: Publish
+      const publishElement = elements.find(e => e.purpose === 'publish');
+      if (publishElement) {
+        steps.push({
+          stepNumber: stepNumber++,
+          name: 'Publish Article',
           action: 'click',
-          selector,
-          timeout: 5000
-        }))
+          selector: publishElement.selector,
+          timeout: 5000,
+          validation: 'Article published successfully',
+          fallback: publishElement.alternativeSelectors.map(selector => ({
+            stepNumber: stepNumber - 1,
+            name: 'Publish Article (fallback)',
+            action: 'click',
+            selector,
+            timeout: 5000
+          }))
+        });
+      }
+      
+      // Step 6: Extract published URL
+      steps.push({
+        stepNumber: stepNumber++,
+        name: 'Extract Published URL',
+        action: 'extract',
+        selector: 'meta[property="og:url"], .article-url, a.permalink',
+        validation: 'URL extracted'
       });
     }
-    
-    // Step 6: Extract published URL
-    steps.push({
-      stepNumber: stepNumber++,
-      name: 'Extract Published URL',
-      action: 'extract',
-      selector: 'meta[property="og:url"], .article-url, a.permalink',
-      validation: 'URL extracted'
-    });
     
     return steps;
+  }
+
+  /**
+   * Get step name for an element
+   */
+  private getStepNameForElement(element: DiscoveredElement, page: DiscoveredPage): string {
+    const purposeMap: Record<string, string> = {
+      title: 'Input Article Title',
+      content: 'Input Article Content',
+      tags: 'Add Tags',
+      category: 'Select Category',
+      publish: 'Publish Article',
+      settings: 'Configure Settings'
+    };
+    
+    return purposeMap[element.purpose] || `Interact with ${element.type}`;
+  }
+
+  /**
+   * Get action type for an element
+   */
+  private getActionForElement(element: DiscoveredElement): WorkflowAction {
+    if (element.type === 'button') return 'click';
+    if (element.type === 'input' || element.type === 'editor') return 'fill';
+    if (element.type === 'dropdown') return 'select';
+    if (element.type === 'checkbox') return 'click';
+    return 'fill';
   }
 
   /**
@@ -384,7 +817,8 @@ export class AISpecDiscoveryService {
   private async generateSpecification(
     platform: PlatformConfig,
     steps: WorkflowStep[],
-    elements: DiscoveredElement[]
+    elements: DiscoveredElement[],
+    pages?: DiscoveredPage[]
   ): Promise<WorkflowSpec> {
     // Build selectors object
     const selectors: WorkflowSelectors = {
@@ -400,6 +834,15 @@ export class AISpecDiscoveryService {
     if (tagsElement) {
       selectors.editor.tags = tagsElement.selector;
     }
+    
+    const categoryElement = elements.find(e => e.purpose === 'category');
+    if (categoryElement) {
+      selectors.editor.category = categoryElement.selector;
+    }
+    
+    const description = pages && pages.length > 1
+      ? `Auto-discovered multi-page workflow for ${platform.name} (${pages.length} pages)`
+      : `Auto-discovered workflow for ${platform.name}`;
     
     return {
       version: '1.0.0',
@@ -426,6 +869,13 @@ export class AISpecDiscoveryService {
           detection: 'Login page detected',
           recoveryStrategy: 'Throw error - user must authenticate',
           maxRetries: 0
+        },
+        {
+          errorType: 'Navigation failed',
+          detection: 'Page navigation timeout or error',
+          recoveryStrategy: 'Retry navigation with increased timeout',
+          maxRetries: 2,
+          retryDelay: 5000
         }
       ],
       validationRules: [
@@ -446,7 +896,7 @@ export class AISpecDiscoveryService {
         createdAt: new Date(),
         updatedAt: new Date(),
         author: 'AI Spec Discovery',
-        description: `Auto-discovered workflow for ${platform.name}`
+        description
       }
     };
   }
@@ -603,13 +1053,17 @@ export class AISpecDiscoveryService {
     }
     
     const spec = session.suggestedWorkflow;
+    const isMultiPage = session.discoveredPages && session.discoveredPages.length > 1;
+    const hasVisionAI = session.visionAnalysis && session.visionAnalysis.length > 0;
     
-    return `# ${spec.platform.name} Workflow Specification
+    let markdown = `# ${spec.platform.name} Workflow Specification
 
 ## Auto-Discovered Workflow
 **Generated**: ${new Date().toISOString()}
 **Discovery Session**: ${sessionId}
 **Confidence**: ${this.calculateOverallConfidence(session)}%
+**Workflow Type**: ${isMultiPage ? `Multi-Page (${session.discoveredPages?.length} pages)` : 'Single-Page'}
+**Vision AI**: ${hasVisionAI ? 'Enabled' : 'Disabled'}
 
 ### Platform Information
 - **Platform ID**: ${spec.platform.platformId}
@@ -617,53 +1071,103 @@ export class AISpecDiscoveryService {
 - **Editor URL**: ${spec.platform.editorUrl}
 - **Authentication**: ${spec.platform.authType}
 - **Content Format**: ${spec.platform.contentFormat}
-
-### Discovered Elements
-${session.discoveredElements?.map(e => `
-#### ${e.purpose.charAt(0).toUpperCase() + e.purpose.slice(1)} Element
-- **Type**: ${e.type}
-- **Selector**: \`${e.selector}\`
-- **Confidence**: ${(e.confidence * 100).toFixed(1)}%
-- **Alternative Selectors**: ${e.alternativeSelectors.map(s => `\`${s}\``).join(', ')}
-`).join('\n')}
-
-### Workflow Steps
-${spec.steps.map(step => `
-#### Step ${step.stepNumber}: ${step.name}
-- **Action**: ${step.action}
-${step.selector ? `- **Selector**: \`${step.selector}\`` : ''}
-${step.url ? `- **URL**: ${step.url}` : ''}
-${step.value ? `- **Value**: ${step.value}` : ''}
-${step.timeout ? `- **Timeout**: ${step.timeout}ms` : ''}
-${step.validation ? `- **Validation**: ${step.validation}` : ''}
-${step.fallback && step.fallback.length > 0 ? `- **Fallback Selectors**: ${step.fallback.length}` : ''}
-`).join('\n')}
-
-### Selectors
-\`\`\`json
-${JSON.stringify(spec.selectors, null, 2)}
-\`\`\`
-
-### Error Handling
-${spec.errorHandling.map(eh => `
-- **${eh.errorType}**
-  - Detection: ${eh.detection}
-  - Recovery: ${eh.recoveryStrategy}
-  - Max Retries: ${eh.maxRetries}
-  ${eh.retryDelay ? `- Retry Delay: ${eh.retryDelay}ms` : ''}
-`).join('\n')}
-
-### Validation Rules
-${spec.validationRules.map(rule => `
-- **${rule.name}**${rule.required ? ' (Required)' : ''}
-  - ${rule.description}
-  - Check: \`${rule.check}\`
-`).join('\n')}
-
----
-*This workflow was automatically discovered by AI Spec Discovery Service*
-*Human review recommended before production use*
 `;
+
+    // Vision AI analysis section
+    if (hasVisionAI && session.visionAnalysis) {
+      markdown += `\n### Vision AI Analysis\n`;
+      session.visionAnalysis.forEach((analysis, idx) => {
+        markdown += `\n#### Analysis ${idx + 1}\n`;
+        markdown += `**Page**: ${analysis.pageUrl}\n`;
+        markdown += `**Description**: ${analysis.description}\n\n`;
+        markdown += `**Identified Elements**:\n`;
+        analysis.identifiedElements.forEach(el => {
+          markdown += `- ${el.type} (${el.purpose}) - Confidence: ${(el.confidence * 100).toFixed(1)}%\n`;
+          markdown += `  Location: (${el.location.x}, ${el.location.y}) ${el.location.width}x${el.location.height}\n`;
+        });
+        markdown += `\n**Suggested Actions**:\n`;
+        analysis.suggestedActions.forEach(action => {
+          markdown += `- ${action}\n`;
+        });
+      });
+    }
+
+    // Multi-page workflow section
+    if (isMultiPage && session.discoveredPages) {
+      markdown += `\n### Multi-Page Workflow\n`;
+      session.discoveredPages.forEach(page => {
+        markdown += `\n#### Page ${page.pageNumber}: ${page.title}\n`;
+        markdown += `- **URL**: ${page.url}\n`;
+        markdown += `- **Purpose**: ${page.purpose}\n`;
+        if (page.visionDescription) {
+          markdown += `- **Vision Description**: ${page.visionDescription}\n`;
+        }
+        markdown += `- **Elements**: ${page.elements.length}\n`;
+        if (page.navigationTo) {
+          markdown += `- **Next Page**: ${page.navigationTo.nextPage}\n`;
+          markdown += `- **Navigation Trigger**: \`${page.navigationTo.trigger}\`\n`;
+        }
+      });
+    }
+
+    markdown += `\n### Discovered Elements\n`;
+    session.discoveredElements?.forEach(e => {
+      markdown += `\n#### ${e.purpose.charAt(0).toUpperCase() + e.purpose.slice(1)} Element`;
+      if (e.pageNumber) {
+        markdown += ` (Page ${e.pageNumber})`;
+      }
+      markdown += `\n- **Type**: ${e.type}\n`;
+      markdown += `- **Selector**: \`${e.selector}\`\n`;
+      markdown += `- **Confidence**: ${(e.confidence * 100).toFixed(1)}%\n`;
+      markdown += `- **Alternative Selectors**: ${e.alternativeSelectors.map(s => `\`${s}\``).join(', ')}\n`;
+      if (e.visualLocation) {
+        markdown += `- **Visual Location**: (${e.visualLocation.x}, ${e.visualLocation.y}) ${e.visualLocation.width}x${e.visualLocation.height}\n`;
+      }
+    });
+
+    markdown += `\n### Workflow Steps\n`;
+    spec.steps.forEach(step => {
+      markdown += `\n#### Step ${step.stepNumber}: ${step.name}\n`;
+      markdown += `- **Action**: ${step.action}\n`;
+      if (step.selector) markdown += `- **Selector**: \`${step.selector}\`\n`;
+      if (step.url) markdown += `- **URL**: ${step.url}\n`;
+      if (step.value) markdown += `- **Value**: ${step.value}\n`;
+      if (step.timeout) markdown += `- **Timeout**: ${step.timeout}ms\n`;
+      if (step.validation) markdown += `- **Validation**: ${step.validation}\n`;
+      if (step.fallback && step.fallback.length > 0) {
+        markdown += `- **Fallback Selectors**: ${step.fallback.length}\n`;
+      }
+    });
+
+    markdown += `\n### Selectors\n\`\`\`json\n${JSON.stringify(spec.selectors, null, 2)}\n\`\`\`\n`;
+
+    markdown += `\n### Error Handling\n`;
+    spec.errorHandling.forEach(eh => {
+      markdown += `\n- **${eh.errorType}**\n`;
+      markdown += `  - Detection: ${eh.detection}\n`;
+      markdown += `  - Recovery: ${eh.recoveryStrategy}\n`;
+      markdown += `  - Max Retries: ${eh.maxRetries}\n`;
+      if (eh.retryDelay) markdown += `  - Retry Delay: ${eh.retryDelay}ms\n`;
+    });
+
+    markdown += `\n### Validation Rules\n`;
+    spec.validationRules.forEach(rule => {
+      markdown += `\n- **${rule.name}**${rule.required ? ' (Required)' : ''}\n`;
+      markdown += `  - ${rule.description}\n`;
+      markdown += `  - Check: \`${rule.check}\`\n`;
+    });
+
+    markdown += `\n---\n`;
+    markdown += `*This workflow was automatically discovered by AI Spec Discovery Service*\n`;
+    if (hasVisionAI) {
+      markdown += `*Vision AI was used to enhance element detection and workflow understanding*\n`;
+    }
+    if (isMultiPage) {
+      markdown += `*This is a multi-page workflow spanning ${session.discoveredPages?.length} pages*\n`;
+    }
+    markdown += `*Human review recommended before production use*\n`;
+
+    return markdown;
   }
 
   /**

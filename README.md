@@ -29,6 +29,8 @@ ArtiPub now features an innovative multi-stage automation workflow system with A
 
 ### 1. AI Spec Discovery (NEW!)
 - **Automatic Discovery**: AI agents analyze platforms and automatically discover publishing workflows
+- **Multi-Page Support**: Follows navigation across multiple pages to discover complete workflows
+- **Vision AI Detection**: Uses computer vision to understand UI layout and identify elements visually
 - **Element Detection**: Intelligently identifies input fields, buttons, and editors
 - **Selector Generation**: Creates robust selectors with fallback strategies
 - **Confidence Scoring**: Each discovered element has a confidence score
@@ -178,11 +180,14 @@ The easiest way to add a new platform is to let AI discover the workflow automat
 ```typescript
 import { workflowManagement } from '@/lib/workflow-management';
 
-// Start AI-powered discovery
+// Start AI-powered discovery with vision AI and multi-page support
 const sessionId = await workflowManagement.discoverWorkflow(
   'https://newplatform.com/editor',
   {
     supervisionMode: 'optional', // none | optional | required
+    useVisionAI: true,           // Enable vision-based detection
+    multiPage: true,             // Follow multi-page workflows
+    maxPages: 5,                 // Maximum pages to discover
     testArticle: {
       title: 'Test Article',
       content: 'Test content for validation'
@@ -198,17 +203,20 @@ console.log(`Progress: ${session.progress}% - ${session.currentStep}`);
 if (session.status === 'completed') {
   const workflow = await workflowManagement.applyDiscoveredWorkflow(sessionId);
   console.log(`Workflow ready: ${workflow.spec.platform.name}`);
+  console.log(`Pages: ${session.discoveredPages?.length}`);
 }
 ```
 
 **How AI Discovery Works:**
 1. **Platform Analysis**: AI analyzes the platform's editor page structure
-2. **Element Detection**: Identifies input fields, buttons, and editors with confidence scores
-3. **Selector Generation**: Creates robust selectors with fallback strategies
-4. **Workflow Building**: Determines the optimal sequence of steps
-5. **Validation**: Tests the workflow with a sample article (if provided)
-6. **Human Review**: Optional supervision to verify AI's discoveries
-7. **Export**: Generates markdown specification for version control
+2. **Vision AI (Optional)**: Uses computer vision to understand UI layout visually
+3. **Multi-Page Navigation**: Follows navigation across multiple pages automatically
+4. **Element Detection**: Identifies input fields, buttons, and editors with confidence scores
+5. **Selector Generation**: Creates robust selectors with fallback strategies
+6. **Workflow Building**: Determines the optimal sequence of steps across all pages
+7. **Validation**: Tests the workflow with a sample article (if provided)
+8. **Human Review**: Optional supervision to verify AI's discoveries
+9. **Export**: Generates markdown specification for version control
 
 **Supervision Modes:**
 - `none`: Fully automatic, no human intervention
