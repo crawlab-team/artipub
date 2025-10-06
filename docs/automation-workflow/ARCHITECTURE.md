@@ -39,7 +39,7 @@
 
 ### Stage 1: Specification (Markdown)
 - **Purpose**: Describe automation workflow in human-readable format
-- **Location**: `.kiro/specs/automation-workflow/`
+- **Location**: `docs/automation-workflow/`
 - **Format**: Structured markdown with sections for platform info, steps, selectors, error handling
 - **Benefits**: Easy to read, modify, and version control
 
@@ -162,7 +162,7 @@ workflowManagement.rollbackToVersion('zhihu', '1.0.0');
 
 ```
 artipub/
-├── .kiro/specs/automation-workflow/
+├── docs/automation-workflow/
 │   ├── requirements.md      # System requirements
 │   ├── workflow.md          # Workflow specifications and templates
 │   └── tasks.md            # Implementation tasks
@@ -273,11 +273,11 @@ async inputContent(article, editorSel) {
 - **Developer Guide**: See [WORKFLOW_GUIDE.md](./WORKFLOW_GUIDE.md)
 - **Examples**: See [src/lib/workflow-examples.ts](./src/lib/workflow-examples.ts)
 - **Tests**: See [src/__tests__/workflow-management.test.ts](./src/__tests__/workflow-management.test.ts)
-- **Specifications**: See [.kiro/specs/automation-workflow/](./.kiro/specs/automation-workflow/)
+- **Specifications**: See [docs/automation-workflow/](./docs/automation-workflow/)
 
 ## Getting Started
 
-1. Review the workflow specifications in `.kiro/specs/automation-workflow/`
+1. Review the workflow specifications in `docs/automation-workflow/`
 2. Read the [Developer Guide](./WORKFLOW_GUIDE.md)
 3. Run the examples: `import { runWorkflowExamples } from '@/lib/workflow-examples'`
 4. Create your first workflow using the templates provided

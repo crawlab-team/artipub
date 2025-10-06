@@ -158,7 +158,7 @@ ANTHROPIC_API_KEY=your_key_here
 
 ### Workflow Management
 
-ArtiPub uses a specification-driven approach for automation workflows. Workflow specifications are stored in `.kiro/specs/automation-workflow/`.
+ArtiPub uses a specification-driven approach for automation workflows. Workflow specifications are stored in `docs/automation-workflow/`.
 
 #### Creating a New Workflow
 

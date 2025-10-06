@@ -7,7 +7,7 @@ This document outlines the implementation tasks for the automation workflow mana
 ## Tasks
 
 - [x] 1. Create directory structure for automation workflow specs
-  - Created `.kiro/specs/automation-workflow/` directory
+  - Created `docs/automation-workflow/` directory
   - _Requirements: 1.1, 1.2, 1.3, 1.4_
 
 - [x] 2. Create workflow specification documents

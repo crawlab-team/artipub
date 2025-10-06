@@ -141,7 +141,7 @@ console.log(`Created workflow v${workflow.version}`);
 import { workflowManagement } from '@/lib/workflow-management';
 import fs from 'fs';
 
-const markdown = fs.readFileSync('.kiro/specs/automation-workflow/workflow.md', 'utf-8');
+const markdown = fs.readFileSync('docs/automation-workflow/workflow.md', 'utf-8');
 const workflow = await workflowManagement.loadWorkflowFromMarkdown('myplatform', markdown);
 
 console.log(`Loaded workflow: ${workflow.spec.platform.name}`);
@@ -426,7 +426,7 @@ await runWorkflowExamples();
 
 For issues or questions:
 
-1. Check the [workflow specification examples](.kiro/specs/automation-workflow/workflow.md)
+1. Check the [workflow specification examples](docs/automation-workflow/workflow.md)
 2. Review the [test suite](src/__tests__/workflow-management.test.ts)
 3. Open an issue on GitHub
 
@@ -434,7 +434,7 @@ For issues or questions:
 
 To add support for a new platform:
 
-1. Create workflow specification in `.kiro/specs/automation-workflow/`
+1. Create workflow specification in `docs/automation-workflow/`
 2. Test the workflow with the execution engine
 3. Document any platform-specific quirks
 4. Submit a pull request
