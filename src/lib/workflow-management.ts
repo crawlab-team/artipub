@@ -12,10 +12,63 @@ import { WorkflowSpec, WorkflowVersion, WorkflowContext, WorkflowExecutionResult
 import { workflowGenerator } from './ai-workflow-generator';
 import { workflowGuardian } from './ai-workflow-guardian';
 import { workflowEngine } from './workflow-engine';
+import { specDiscoveryService } from './ai-spec-discovery';
 
 export class WorkflowManagementService {
   private workflows: Map<string, WorkflowVersion[]> = new Map();
   private activeVersions: Map<string, string> = new Map();
+
+  /**
+   * Discover workflow specification automatically using AI
+   */
+  async discoverWorkflow(
+    platformUrl: string,
+    options?: {
+      supervisionMode?: 'none' | 'optional' | 'required';
+      testArticle?: {
+        title: string;
+        content: string;
+      };
+    }
+  ): Promise<string> {
+    console.log(`Starting AI-powered workflow discovery for ${platformUrl}`);
+    
+    const sessionId = await specDiscoveryService.startDiscovery(platformUrl, options);
+    
+    return sessionId;
+  }
+
+  /**
+   * Get discovery session status
+   */
+  getDiscoverySession(sessionId: string) {
+    return specDiscoveryService.getSession(sessionId);
+  }
+
+  /**
+   * Apply discovered workflow as active workflow
+   */
+  async applyDiscoveredWorkflow(sessionId: string): Promise<WorkflowVersion | null> {
+    const session = specDiscoveryService.getSession(sessionId);
+    
+    if (!session || session.status !== 'completed' || !session.suggestedWorkflow) {
+      console.error('Discovery session not completed or no workflow found');
+      return null;
+    }
+    
+    const spec = session.suggestedWorkflow;
+    const workflow = await this.createWorkflow(spec);
+    
+    console.log(`Applied discovered workflow for ${spec.platform.name}`);
+    return workflow;
+  }
+
+  /**
+   * Export discovered workflow as markdown
+   */
+  exportDiscoveredWorkflow(sessionId: string): string {
+    return specDiscoveryService.exportAsMarkdown(sessionId);
+  }
 
   /**
    * Load workflow specification from markdown
