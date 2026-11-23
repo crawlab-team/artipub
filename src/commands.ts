@@ -27,6 +27,9 @@ export async function status(workspace: string, campaign: string) {
   return {
     campaign: log.plan.campaign,
     items: log.plan.items,
+    next_due_at: log.plan.items
+      .flatMap(({ at }) => (at && Date.parse(at) > Date.now() ? [at] : []))
+      .sort()[0],
     approval: log.approval,
     records: log.records,
   };

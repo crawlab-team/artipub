@@ -19,6 +19,7 @@ type Result = {
     | "blocked"
     | "paused"
     | "unapproved"
+    | "waiting"
     | "hold";
   reason?: string;
   url?: string;
@@ -426,6 +427,12 @@ export async function runCampaign(
           item: action.item,
           status: "hold",
           reason: "Outside the approved campaign window",
+        };
+      } else if (action.at && Date.now() < Date.parse(action.at)) {
+        result = {
+          item: action.item,
+          status: "waiting",
+          reason: `waiting until ${action.at}`,
         };
       } else if (
         action.after &&

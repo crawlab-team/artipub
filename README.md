@@ -11,7 +11,7 @@ With Node.js 22.20 or newer, run `npm ci && npm pack && npm install -g ./kirzner
 
 ## Write a campaign
 
-Save a file such as `campaign.md` in your workspace. Replace the example repository and account with your own. The account is the GitHub login that will publish the release. Add `commit` to an item to pin the tag to a specific commit SHA, and optionally add `window_utc: [start, end]` to the plan using UTC timestamps.
+Save a file such as `campaign.md` in your workspace. Replace the example repository and account with your own. The account is the GitHub login that will publish the release. Add `commit` to an item to pin the tag to a specific commit SHA, and optionally add `window_utc: [start, end]` to the plan using UTC timestamps. Add an item's optional `at` field with a UTC ISO timestamp to schedule it; when set, it must fall inside `window_utc`.
 
 ```markdown
 ---
@@ -44,6 +44,7 @@ For a Bluesky post, add an item like this and place its exact plain text in a `#
   content: bluesky-v1
   target: bluesky/example.bsky.social
   steps: [publish]
+  at: 2026-05-01T15:00:00.000Z
 ```
 
 Kirzner adds `## Execution` with fenced YAML approval and action records. Adjacent prose stays intact. The GitHub adapter moves directly from `prepared` to `public` after public read-back and records the GitHub ID and URL. Follower notification has no separate action for GitHub Releases.
@@ -67,6 +68,12 @@ The approval records each action's content hash in the campaign's `Execution` lo
 ```sh
 kirzner run campaign.md
 kirzner status campaign.md
+```
+
+There is no daemon; schedule `kirzner run` externally to publish items when their `at` time arrives. For example, run every 30 minutes:
+
+```cron
+*/30 * * * * cd <workspace> && kirzner run campaign.md
 ```
 
 For an agent, configure the stdio command `kirzner mcp /path/to/workspace` with the executor environment. It exposes `plan`, `status`, and `run`. Batch approval remains an operator CLI command. Keep the workspace under operator or Kirzner control; an agent with write access to the campaign can change its recorded approvals.
