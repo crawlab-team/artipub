@@ -3,7 +3,6 @@ import {
   approvalBatch,
   inWindow,
   type ReleaseAction,
-  type verificationKey,
 } from "./approval.ts";
 import type { ActionRecord } from "./campaign.ts";
 import { GitHubReleases, type Lookup } from "./github.ts";
@@ -184,7 +183,6 @@ export async function runCampaign(
   workspace: string,
   name: string,
   github: GitHubReleases,
-  key?: ReturnType<typeof verificationKey>,
 ): Promise<Result[]> {
   return withCampaign(workspace, name, async (store) => {
     const batch = approvalBatch(store.campaign);
@@ -197,7 +195,6 @@ export async function runCampaign(
       results.push(await reconcile(store, github, record));
       reconciled.add(record.request_key!);
     }
-    const authorized = key && approved(store.campaign, batch, key);
     for (const action of batch.actions) {
       if (reconciled.has(action.requestKey)) continue;
       const records = latestRecords(store.campaign.records);
@@ -224,7 +221,7 @@ export async function runCampaign(
         result = { item: action.item, status: "public", url: prior.url };
       } else if (await store.paused()) {
         result = { item: action.item, status: "paused" };
-      } else if (!authorized) {
+      } else if (!approved(store.campaign, action)) {
         result = {
           item: action.item,
           status: "unapproved",

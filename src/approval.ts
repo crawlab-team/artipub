@@ -1,4 +1,3 @@
-import { createPrivateKey, createPublicKey, sign, verify } from "node:crypto";
 import { sha256, type Approval, type Campaign } from "./campaign.ts";
 import { withCampaign } from "./workspace.ts";
 
@@ -89,36 +88,10 @@ export function approvalBatch(campaign: Campaign) {
   return { actions, items, hashes, digest, expires_at: window?.[1] };
 }
 
-function approvalMessage(digest: string): Buffer {
-  return Buffer.from(`kirzner:approval:v1:${digest}`);
-}
-
-export function signingKey() {
-  const pem = process.env.KIRZNER_APPROVAL_PRIVATE_KEY;
-  if (!pem)
-    throw new Error("Set KIRZNER_APPROVAL_PRIVATE_KEY for operator approval");
-  const key = createPrivateKey(pem);
-  if (key.asymmetricKeyType !== "ed25519")
-    throw new Error("Use an Ed25519 approval key");
-  return key;
-}
-
-export function verificationKey() {
-  const pem = process.env.KIRZNER_APPROVAL_PUBLIC_KEY;
-  if (!pem?.startsWith("-----BEGIN PUBLIC KEY-----")) {
-    throw new Error("Set KIRZNER_APPROVAL_PUBLIC_KEY for execution");
-  }
-  const key = createPublicKey(pem);
-  if (key.asymmetricKeyType !== "ed25519")
-    throw new Error("Use an Ed25519 approval key");
-  return key;
-}
-
 export async function approveCampaign(
   workspace: string,
   name: string,
   reviewedDigest: string,
-  key: ReturnType<typeof signingKey>,
 ) {
   return withCampaign(workspace, name, async (store) => {
     const { items, hashes, digest, expires_at } = approvalBatch(store.campaign);
@@ -133,32 +106,14 @@ export async function approveCampaign(
       hashes,
       digest,
       expires_at,
-      grant: sign(null, approvalMessage(digest), key).toString("hex"),
     };
     await store.append({ approval });
     return approval;
   });
 }
 
-export function approved(
-  campaign: Campaign,
-  batch: ReturnType<typeof approvalBatch>,
-  key: ReturnType<typeof verificationKey>,
-): boolean {
-  const approval = campaign.approval;
-  return (
-    !!approval &&
-    approval.digest === batch.digest &&
-    JSON.stringify(approval.items) === JSON.stringify(batch.items) &&
-    JSON.stringify(approval.hashes) === JSON.stringify(batch.hashes) &&
-    approval.expires_at === batch.expires_at &&
-    verify(
-      null,
-      approvalMessage(batch.digest),
-      key,
-      Buffer.from(approval.grant, "hex"),
-    )
-  );
+export function approved(campaign: Campaign, action: ReleaseAction): boolean {
+  return campaign.approval?.hashes.includes(action.version) ?? false;
 }
 
 export function inWindow(campaign: Campaign): boolean {
