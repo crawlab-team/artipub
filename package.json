@@ -1,0 +1,36 @@
+{
+  "name": "kirzner",
+  "version": "0.1.0",
+  "description": "Review and run a local release campaign",
+  "license": "BSD-3-Clause",
+  "type": "module",
+  "engines": {
+    "node": ">=22.20.0"
+  },
+  "bin": {
+    "kirzner": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "skills",
+    "docs/brand/kirzner-lockup-light.png",
+    "docs/brand/kirzner-lockup-dark.png"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepack": "npm run build",
+    "typecheck": "tsc --noEmit",
+    "format:check": "prettier --check .",
+    "test": "node --disable-warning=ExperimentalWarning --test test/*.test.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "yaml": "^2.8.3",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "prettier": "^3.8.1",
+    "typescript": "^5.9.3"
+  }
+}
