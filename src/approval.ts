@@ -1,0 +1,170 @@
+import { createPrivateKey, createPublicKey, sign, verify } from "node:crypto";
+import { sha256, type Approval, type Campaign } from "./campaign.ts";
+import { withCampaign } from "./workspace.ts";
+
+export function releaseActions(campaign: Campaign) {
+  const actions = [];
+  const remoteKeys = new Set<string>();
+  for (const item of campaign.plan.items) {
+    if (!item.target.startsWith("github/") || !item.steps || item.status)
+      continue;
+    const match = item.target.match(/^github\/([\w-]+)\/([\w.-]+)$/);
+    if (
+      !match ||
+      [".", ".."].includes(match[2]) ||
+      item.steps.join() !== "publish" ||
+      item.assets?.length ||
+      !item.account ||
+      !/^[a-z\d]+(?:-+[a-z\d]+)*(?:\[bot\])?$/i.test(item.account) ||
+      !item.tag ||
+      !validTag(item.tag)
+    ) {
+      throw new Error(`Invalid GitHub Release action: ${item.id}`);
+    }
+    const payload = campaign.payloads.get(item.content!)!;
+    const [titleLine, ...lines] = payload.split("\n");
+    const title = titleLine.match(/^Title:[ \t]+(.+?)\s*$/)?.[1];
+    const body = lines.join("\n").replace(/^(?:[ \t]*\n)+/, "");
+    if (!title || !body.trim())
+      throw new Error(`Set a Title and Markdown body for ${item.id}`);
+
+    const repo = `${match[1]}/${match[2]}`.toLowerCase();
+    const account = item.account.toLowerCase();
+    const remoteKey = `github/${repo}@${item.tag}`;
+    if (remoteKeys.has(remoteKey))
+      throw new Error(`Duplicate GitHub Release target: ${remoteKey}`);
+    remoteKeys.add(remoteKey);
+    const version = sha256([
+      repo,
+      account,
+      "publish",
+      item.tag,
+      item.commit ?? null,
+      title,
+      body,
+    ]);
+    const requestKey = sha256([version, "publish"]);
+    actions.push({
+      item: item.id,
+      after: item.after,
+      repo,
+      account,
+      tag: item.tag,
+      commit: item.commit,
+      title,
+      body,
+      version,
+      remoteKey,
+      requestKey,
+    });
+  }
+  return actions;
+}
+
+// Git ref rules relevant to refs/tags/<tag> and the GitHub path parameter.
+function validTag(tag: string): boolean {
+  return (
+    !/[\s~^:?*\[\\\u0000-\u001f\u007f]/.test(tag) &&
+    !tag.includes("..") &&
+    !tag.includes("@{") &&
+    !tag.endsWith(".") &&
+    tag
+      .split("/")
+      .every((part) => part && !part.startsWith(".") && !part.endsWith(".lock"))
+  );
+}
+
+export type ReleaseAction = ReturnType<typeof releaseActions>[number];
+
+export function approvalBatch(campaign: Campaign) {
+  const actions = releaseActions(campaign);
+  const items = actions.map(({ item }) => item);
+  const hashes = actions.map(({ version }) => version);
+  const window = campaign.plan.window_utc;
+  const digest = sha256([
+    campaign.plan.campaign,
+    window ?? null,
+    actions.map(({ item, version, after }) => [item, version, after ?? null]),
+  ]);
+  return { actions, items, hashes, digest, expires_at: window?.[1] };
+}
+
+function approvalMessage(digest: string): Buffer {
+  return Buffer.from(`kirzner:approval:v1:${digest}`);
+}
+
+export function signingKey() {
+  const pem = process.env.KIRZNER_APPROVAL_PRIVATE_KEY;
+  if (!pem)
+    throw new Error("Set KIRZNER_APPROVAL_PRIVATE_KEY for operator approval");
+  const key = createPrivateKey(pem);
+  if (key.asymmetricKeyType !== "ed25519")
+    throw new Error("Use an Ed25519 approval key");
+  return key;
+}
+
+export function verificationKey() {
+  const pem = process.env.KIRZNER_APPROVAL_PUBLIC_KEY;
+  if (!pem?.startsWith("-----BEGIN PUBLIC KEY-----")) {
+    throw new Error("Set KIRZNER_APPROVAL_PUBLIC_KEY for execution");
+  }
+  const key = createPublicKey(pem);
+  if (key.asymmetricKeyType !== "ed25519")
+    throw new Error("Use an Ed25519 approval key");
+  return key;
+}
+
+export async function approveCampaign(
+  workspace: string,
+  name: string,
+  reviewedDigest: string,
+  key: ReturnType<typeof signingKey>,
+) {
+  return withCampaign(workspace, name, async (store) => {
+    const { items, hashes, digest, expires_at } = approvalBatch(store.campaign);
+    if (!items.length)
+      throw new Error("No runnable GitHub Release actions to approve");
+    if (digest !== reviewedDigest)
+      throw new Error("Campaign changed during review. Review it again.");
+    if (expires_at && Date.now() >= Date.parse(expires_at))
+      throw new Error("Campaign window has expired");
+    const approval: Approval = {
+      items,
+      hashes,
+      digest,
+      expires_at,
+      grant: sign(null, approvalMessage(digest), key).toString("hex"),
+    };
+    await store.append({ approval });
+    return approval;
+  });
+}
+
+export function approved(
+  campaign: Campaign,
+  batch: ReturnType<typeof approvalBatch>,
+  key: ReturnType<typeof verificationKey>,
+): boolean {
+  const approval = campaign.approval;
+  return (
+    !!approval &&
+    approval.digest === batch.digest &&
+    JSON.stringify(approval.items) === JSON.stringify(batch.items) &&
+    JSON.stringify(approval.hashes) === JSON.stringify(batch.hashes) &&
+    approval.expires_at === batch.expires_at &&
+    verify(
+      null,
+      approvalMessage(batch.digest),
+      key,
+      Buffer.from(approval.grant, "hex"),
+    )
+  );
+}
+
+export function inWindow(campaign: Campaign): boolean {
+  const window = campaign.plan.window_utc;
+  const now = Date.now();
+  return (
+    !window || (now >= Date.parse(window[0]) && now < Date.parse(window[1]))
+  );
+}

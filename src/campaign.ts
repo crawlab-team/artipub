@@ -59,14 +59,29 @@ const approvalSchema = z.strictObject({
   hashes: z.array(digest).min(1),
   digest,
   expires_at: timestamp.optional(),
-  grant: z.string().regex(/^[a-f0-9]{64}$/),
+  grant: z.string().regex(/^[a-f0-9]{128}$/),
 });
+export const releaseIntent = z.strictObject({
+  repo: z.string().regex(/^[\w-]+\/[\w.-]+$/),
+  account: z.string().min(1),
+  tag: z.string().min(1),
+  commit: z
+    .string()
+    .regex(/^[a-f0-9]{40}$/)
+    .optional(),
+  title: z.string().min(1),
+  body: z.string(),
+});
+
+export type ReleaseIntent = z.infer<typeof releaseIntent>;
+
 const recordSchema = z.looseObject({
   item: name,
   version: digest.optional(),
   step: step.optional(),
   request_key: digest.optional(),
   remote_key: z.string().optional(),
+  intent: releaseIntent.optional(),
   attempted_at: timestamp.optional(),
   milestone,
   status: status.optional(),
@@ -183,7 +198,10 @@ export function parseCampaign(text: string) {
         throw new Error(`Missing payload: ${item.content}`);
       payloads.set(
         item.content,
-        text.slice(range.start, range.end).replaceAll("\r\n", "\n").trim(),
+        text
+          .slice(range.start, range.end)
+          .replaceAll("\r\n", "\n")
+          .replace(/^(?:[ \t]*\n)+|\n(?:[ \t]*\n)*[ \t]*$/g, ""),
       );
     }
   }

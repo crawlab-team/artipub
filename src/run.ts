@@ -1,0 +1,273 @@
+import {
+  approved,
+  approvalBatch,
+  inWindow,
+  type ReleaseAction,
+  type verificationKey,
+} from "./approval.ts";
+import type { ActionRecord } from "./campaign.ts";
+import { GitHubReleases, type Lookup } from "./github.ts";
+import { withCampaign, type CampaignStore } from "./workspace.ts";
+
+type Result = {
+  item: string;
+  status: "public" | "unknown" | "blocked" | "paused" | "unapproved" | "hold";
+  reason?: string;
+  url?: string;
+};
+
+function latestRecords(records: ActionRecord[]) {
+  const latest = new Map<string, ActionRecord>();
+  for (const record of records) {
+    if (record.request_key) latest.set(record.request_key, record);
+  }
+  return [...latest.values()];
+}
+
+function unsettled(record: ActionRecord): boolean {
+  return record.status === "reserved" || record.status === "unknown";
+}
+
+function reservation(action: ReleaseAction): ActionRecord {
+  const { repo, account, tag, commit, title, body } = action;
+  return {
+    item: action.item,
+    step: "publish",
+    version: action.version,
+    request_key: action.requestKey,
+    remote_key: action.remoteKey,
+    intent: { repo, account, tag, commit, title, body },
+    attempted_at: new Date().toISOString(),
+    milestone: "prepared",
+    status: "reserved",
+  };
+}
+
+async function recordPublic(
+  store: CampaignStore,
+  record: ActionRecord,
+  release: Extract<Lookup, { kind: "found" }>,
+): Promise<Result> {
+  const { intent: _intent, ...evidence } = record;
+  await store.append({
+    record: {
+      ...evidence,
+      milestone: "public",
+      status: undefined,
+      native_id: release.id,
+      url: release.url,
+      observed_at: new Date().toISOString(),
+      source: "github_public_api",
+      reason: undefined,
+    },
+  });
+  return { item: record.item, status: "public", url: release.url };
+}
+
+async function lookup(
+  github: GitHubReleases,
+  intent: ReleaseAction | NonNullable<ActionRecord["intent"]>,
+): Promise<Lookup> {
+  try {
+    return await github.lookup(intent);
+  } catch {
+    return {
+      kind: "blocked",
+      reason: "GitHub release lookup could not be verified",
+    };
+  }
+}
+
+async function reconcile(
+  store: CampaignStore,
+  github: GitHubReleases,
+  record: ActionRecord,
+): Promise<Result> {
+  const remote = record.intent && (await lookup(github, record.intent));
+  if (remote?.kind === "found") return recordPublic(store, record, remote);
+  const reason =
+    remote?.kind === "blocked"
+      ? remote.reason
+      : "A prior write may still take effect. Check the release by tag before further action.";
+  if (record.status !== "unknown" || record.reason !== reason) {
+    await store.append({ record: { ...record, status: "unknown", reason } });
+  }
+  return { item: record.item, status: "unknown", reason };
+}
+
+async function blockedAfterReservation(
+  store: CampaignStore,
+  record: ActionRecord,
+  status: "paused" | "blocked",
+  reason: string,
+): Promise<Result> {
+  const { intent: _intent, ...evidence } = record;
+  await store.append({ record: { ...evidence, status, reason } });
+  return { item: record.item, status, reason };
+}
+
+async function execute(
+  store: CampaignStore,
+  github: GitHubReleases,
+  action: ReleaseAction,
+  previouslyPublic: boolean,
+): Promise<Result> {
+  const record = reservation(action);
+  let existing = await lookup(github, action);
+  if (existing.kind === "found")
+    return recordPublic(
+      store,
+      { ...record, attempted_at: undefined },
+      existing,
+    );
+  if (existing.kind === "blocked")
+    return { item: action.item, status: "blocked", reason: existing.reason };
+  if (previouslyPublic)
+    return {
+      item: action.item,
+      status: "hold",
+      reason:
+        "This release was public and is now missing. Review it in GitHub.",
+    };
+  let hold: string | undefined;
+  try {
+    hold = await github.preflight(action);
+  } catch {
+    hold = "GitHub account or tag could not be verified";
+  }
+  if (hold) return { item: action.item, status: "blocked", reason: hold };
+
+  // Recheck immediately before reservation because the account and tag reads can take time.
+  existing = await lookup(github, action);
+  if (existing.kind === "found")
+    return recordPublic(
+      store,
+      { ...record, attempted_at: undefined },
+      existing,
+    );
+  if (existing.kind === "blocked")
+    return { item: action.item, status: "blocked", reason: existing.reason };
+  if (await store.paused()) return { item: action.item, status: "paused" };
+  if (!inWindow(store.campaign))
+    return {
+      item: action.item,
+      status: "hold",
+      reason: "Outside the approved campaign window",
+    };
+  record.attempted_at = new Date().toISOString();
+  await store.append({ record });
+  await store.assertUnchanged();
+  if (await store.paused())
+    return blockedAfterReservation(
+      store,
+      record,
+      "paused",
+      "Pause set before dispatch",
+    );
+  if (!inWindow(store.campaign))
+    return blockedAfterReservation(
+      store,
+      record,
+      "blocked",
+      "Campaign window ended before dispatch",
+    );
+
+  const dispatch = await github
+    .create(action)
+    .catch(() => ({ kind: "unknown" as const }));
+  if (dispatch.kind === "rejected")
+    return blockedAfterReservation(store, record, "blocked", dispatch.reason);
+  return reconcile(store, github, record);
+}
+
+export async function runCampaign(
+  workspace: string,
+  name: string,
+  github: GitHubReleases,
+  key?: ReturnType<typeof verificationKey>,
+): Promise<Result[]> {
+  return withCampaign(workspace, name, async (store) => {
+    const batch = approvalBatch(store.campaign);
+    const results: Result[] = [];
+    const reconciled = new Set<string>();
+    // Reconcile old attempts even after a pause, expiry, or an edit to the original payload.
+    for (const record of latestRecords(store.campaign.records).filter(
+      unsettled,
+    )) {
+      results.push(await reconcile(store, github, record));
+      reconciled.add(record.request_key!);
+    }
+    const authorized = key && approved(store.campaign, batch, key);
+    for (const action of batch.actions) {
+      if (reconciled.has(action.requestKey)) continue;
+      const records = latestRecords(store.campaign.records);
+      const prior = records.find(
+        (record) => record.request_key === action.requestKey,
+      );
+      const pending = records.some(
+        (record) =>
+          unsettled(record) &&
+          (record.item === action.item ||
+            record.remote_key === action.remoteKey),
+      );
+      const dependency = batch.actions.find(
+        ({ item }) => item === action.after,
+      );
+      let result: Result;
+      if (pending) {
+        result = {
+          item: action.item,
+          status: "hold",
+          reason: "Reconcile the prior write before using the amended plan",
+        };
+      } else if (prior?.milestone === "public") {
+        result = { item: action.item, status: "public", url: prior.url };
+      } else if (await store.paused()) {
+        result = { item: action.item, status: "paused" };
+      } else if (!authorized) {
+        result = {
+          item: action.item,
+          status: "unapproved",
+          reason: "Review and approve the current batch",
+        };
+      } else if (!inWindow(store.campaign)) {
+        result = {
+          item: action.item,
+          status: "hold",
+          reason: "Outside the approved campaign window",
+        };
+      } else if (
+        action.after &&
+        (!dependency ||
+          !records.some(
+            (record) =>
+              record.version === dependency.version &&
+              record.milestone === "public",
+          ))
+      ) {
+        result = {
+          item: action.item,
+          status: "hold",
+          reason: `Waiting for ${action.after} to become public`,
+        };
+      } else {
+        const previouslyPublic = records.some(
+          (record) =>
+            record.remote_key === action.remoteKey &&
+            record.milestone === "public",
+        );
+        result = await execute(store, github, action, previouslyPublic);
+      }
+      results.push(result);
+    }
+    for (const item of store.campaign.plan.items) {
+      if (item.status)
+        results.push({
+          item: item.id,
+          status: item.status,
+          reason: item.reason,
+        });
+    }
+    return results;
+  });
+}
