@@ -3,19 +3,18 @@ import {
   approvalBatch,
   inWindow,
   type ReleaseAction,
-  type SocialAction,
+  type BlueskyAction,
 } from "./approval.ts";
-import type { ActionRecord, PostizIntent, ReleaseIntent } from "./campaign.ts";
+import { Bluesky, blueskyReadReason, type BlueskyLookup } from "./bluesky.ts";
+import type { ActionRecord, BlueskyIntent, ReleaseIntent } from "./campaign.ts";
 import { GitHubReleases, type Lookup } from "./github.ts";
-import { Postiz, postizReadReason, type PostizLookup } from "./postiz.ts";
 import { withCampaign, type CampaignStore } from "./workspace.ts";
 
 type Result = {
   item: string;
   status:
     | "public"
-    | "scheduled"
-    | "draft_saved"
+    | "pending"
     | "unknown"
     | "blocked"
     | "paused"
@@ -23,7 +22,8 @@ type Result = {
     | "hold";
   reason?: string;
   url?: string;
-  postiz_id?: string;
+  native_id?: string;
+  cid?: string;
 };
 
 function latestRecords(records: ActionRecord[]) {
@@ -204,117 +204,88 @@ async function reserveForDispatch(
     );
 }
 
-async function recordSocialLookup(
+async function lookupBluesky(
+  bluesky: Bluesky,
+  intent: BlueskyIntent,
+  cid?: string,
+): Promise<BlueskyLookup> {
+  try {
+    return await bluesky.lookup(intent, cid);
+  } catch (error) {
+    return { kind: "blocked", reason: blueskyReadReason(error) };
+  }
+}
+
+async function recordBlueskyLookup(
   store: CampaignStore,
   record: ActionRecord,
-  lookup: PostizLookup,
+  lookup: BlueskyLookup,
 ): Promise<Result> {
-  const { post, publicPost, reason: readReason } = lookup;
-  const postId = post?.id ?? record.postiz_id;
-  if (
-    publicPost &&
-    (!post || post.state === "PUBLISHED" || post.state === "ERROR")
-  ) {
+  if (lookup.kind === "public") {
     const { intent: _intent, ...evidence } = record;
     await store.append({
       record: {
         ...evidence,
         milestone: "public",
         status: undefined,
-        postiz_id: postId,
-        native_id: publicPost.id,
-        url: publicPost.url,
-        source: publicPost.source,
+        native_id: lookup.uri,
+        cid: lookup.cid,
+        url: lookup.url,
         observed_at: new Date().toISOString(),
+        source: "bluesky_public_appview",
         reason: undefined,
       },
     });
     return {
       item: record.item,
       status: "public",
-      url: publicPost.url,
-      postiz_id: postId,
+      url: lookup.url,
+      native_id: lookup.uri,
+      cid: lookup.cid,
     };
   }
-  const milestone =
-    post?.state === "DRAFT"
-      ? "draft_saved"
-      : postId && (post || record.milestone === "prepared")
-        ? "scheduled"
-        : record.milestone;
-  let reason = readReason;
-  if (publicPost)
-    reason =
-      "A matching public post and a queued or draft Postiz job both exist. Review them in Postiz.";
-  if (post?.state === "ERROR")
-    reason =
-      "Postiz reports an error. Check the job and public feed before taking further action.";
-  if (!postId && !reason)
-    reason =
-      "A prior Postiz request may still take effect. Rerun to reconcile by lookup.";
-  const status = reason ? "unknown" : "pending";
+  const reason =
+    lookup.kind === "pending"
+      ? (lookup.reason ??
+        "Bluesky AppView has not indexed the repository record yet. Rerun to reconcile.")
+      : lookup.kind === "blocked"
+        ? lookup.reason
+        : "A prior Bluesky write may still take effect. Rerun to reconcile by record key.";
+  const status =
+    lookup.kind === "pending" && !lookup.reason ? "pending" : "unknown";
+  const native_id = lookup.kind === "pending" ? lookup.uri : record.native_id;
+  const cid = lookup.kind === "pending" ? lookup.cid : record.cid;
   if (
     record.status !== status ||
     record.reason !== reason ||
-    record.postiz_id !== postId ||
-    record.milestone !== milestone
+    record.cid !== cid ||
+    record.native_id !== native_id
   ) {
     await store.append({
-      record: {
-        ...record,
-        milestone,
-        status,
-        postiz_id: postId,
-        source: postId ? "postiz_public_api" : undefined,
-        observed_at: post ? new Date().toISOString() : record.observed_at,
-        reason,
-      },
+      record: { ...record, status, reason, native_id, cid },
     });
   }
-  return {
-    item: record.item,
-    status:
-      status === "pending" &&
-      (milestone === "scheduled" || milestone === "draft_saved")
-        ? milestone
-        : "unknown",
-    reason,
-    postiz_id: postId,
-  };
+  return { item: record.item, status, reason, native_id, cid };
 }
 
-async function reconcileSocial(
+async function executeBluesky(
   store: CampaignStore,
-  postiz: Postiz,
-  record: ActionRecord,
-  intent: PostizIntent,
-): Promise<Result> {
-  const existing = await postiz
-    .lookup(intent, record.postiz_id, record.attempted_at)
-    .catch((error: unknown) => ({ reason: postizReadReason(error) }));
-  return recordSocialLookup(store, record, existing);
-}
-
-async function executeSocial(
-  store: CampaignStore,
-  postiz: Postiz,
-  action: SocialAction,
+  bluesky: Bluesky,
+  action: BlueskyAction,
   previouslyPublic: boolean,
 ): Promise<Result> {
-  let existing: PostizLookup;
-  let intent: PostizIntent;
+  let intent: BlueskyIntent;
   try {
-    intent = await postiz.preflight(
-      action.provider,
+    intent = await bluesky.resolve(
       action.account,
       action.text,
+      action.requestKey,
     );
-    existing = await postiz.lookup(intent);
   } catch (error) {
     return {
       item: action.item,
       status: "blocked",
-      reason: postizReadReason(error),
+      reason: blueskyReadReason(error),
     };
   }
   const record: ActionRecord = {
@@ -326,47 +297,57 @@ async function executeSocial(
     milestone: "prepared",
     status: "reserved",
     intent,
-    postiz_integration_id: intent.integration_id,
   };
-  if (existing.post || existing.publicPost)
-    return recordSocialLookup(store, record, existing);
-  if (existing.reason)
+  const existing = await lookupBluesky(bluesky, intent);
+  if (existing.kind === "blocked")
     return { item: action.item, status: "blocked", reason: existing.reason };
+  if (existing.kind !== "missing")
+    return recordBlueskyLookup(store, record, existing);
   if (previouslyPublic)
     return {
       item: action.item,
       status: "hold",
       reason:
-        "This post was public and is now missing. Review the public feed.",
+        "The campaign already recorded this text as public. Review the public feed before taking further action.",
     };
+  let token: string;
+  try {
+    token = await bluesky.session(intent);
+  } catch (error) {
+    return {
+      item: action.item,
+      status: "blocked",
+      reason: blueskyReadReason(error),
+    };
+  }
+  const beforeWrite = await lookupBluesky(bluesky, intent);
+  if (beforeWrite.kind === "blocked")
+    return { item: action.item, status: "blocked", reason: beforeWrite.reason };
+  if (beforeWrite.kind !== "missing")
+    return recordBlueskyLookup(store, record, beforeWrite);
   const hold = await reserveForDispatch(store, record);
   if (hold) return hold;
 
-  const dispatch = await postiz
-    .create(intent)
-    .catch(() => ({ kind: "unknown" as const }));
-  if (dispatch.kind === "rejected")
-    return blockedAfterReservation(store, record, "blocked", dispatch.reason);
-  if (dispatch.kind === "accepted") {
-    const accepted: ActionRecord = {
-      ...record,
-      milestone: "scheduled",
-      status: "pending",
-      postiz_id: dispatch.id,
-      source: "postiz_public_api",
-      observed_at: new Date().toISOString(),
-    };
-    await store.append({ record: accepted });
-    return reconcileSocial(store, postiz, accepted, intent);
+  const receipt = await bluesky.create(intent, token).catch(() => undefined);
+  if (!receipt) {
+    const reason =
+      "Bluesky did not confirm the write. Rerun to reconcile by record key.";
+    await store.append({ record: { ...record, status: "unknown", reason } });
+    return { item: action.item, status: "unknown", reason };
   }
-  return reconcileSocial(store, postiz, record, intent);
+  const accepted = { ...record, native_id: receipt.uri, cid: receipt.cid };
+  return recordBlueskyLookup(
+    store,
+    accepted,
+    await lookupBluesky(bluesky, intent, receipt.cid),
+  );
 }
 
 export async function runCampaign(
   workspace: string,
   name: string,
   github: GitHubReleases,
-  postiz: Postiz,
+  bluesky: Bluesky,
 ): Promise<Result[]> {
   return withCampaign(workspace, name, async (store) => {
     const batch = approvalBatch(store.campaign);
@@ -376,10 +357,22 @@ export async function runCampaign(
     for (const record of latestRecords(store.campaign.records).filter(
       unsettled,
     )) {
-      const result =
-        record.intent && "provider" in record.intent
-          ? await reconcileSocial(store, postiz, record, record.intent)
-          : await reconcile(store, github, record);
+      const intent = record.intent;
+      const result: Result =
+        intent && "rkey" in intent
+          ? await recordBlueskyLookup(
+              store,
+              record,
+              await lookupBluesky(bluesky, intent, record.cid),
+            )
+          : intent && "provider" in intent
+            ? {
+                item: record.item,
+                status: "unknown",
+                reason:
+                  "A retired adapter left an unresolved write. Verify it before publishing an amended plan.",
+              }
+            : await reconcile(store, github, record);
       results.push(result);
       reconciled.add(record.request_key!);
     }
@@ -393,7 +386,12 @@ export async function runCampaign(
         (record) =>
           unsettled(record) &&
           (record.item === action.item ||
-            record.remote_key === action.remoteKey),
+            record.remote_key === action.remoteKey ||
+            (action.kind === "bluesky" &&
+              record.intent &&
+              "provider" in record.intent &&
+              record.intent.provider === "bluesky" &&
+              record.intent.account === action.account)),
       );
       const dependency = batch.actions.find(
         ({ item }) => item === action.after,
@@ -405,12 +403,15 @@ export async function runCampaign(
           status: "hold",
           reason: "Reconcile the prior write before using the amended plan",
         };
-      } else if (prior?.milestone === "public") {
+      } else if (
+        prior?.milestone === "public" &&
+        prior.version === action.version
+      ) {
         result = {
           item: action.item,
           status: "public",
           url: prior.url,
-          postiz_id: prior.postiz_id,
+          ...(prior.cid ? { native_id: prior.native_id, cid: prior.cid } : {}),
         };
       } else if (await store.paused()) {
         result = { item: action.item, status: "paused" };
@@ -443,13 +444,15 @@ export async function runCampaign(
       } else {
         const previouslyPublic = records.some(
           (record) =>
-            record.remote_key === action.remoteKey &&
-            record.milestone === "public",
+            record.milestone === "public" &&
+            (record.remote_key === action.remoteKey ||
+              (action.kind === "bluesky" &&
+                record.remote_key === `postiz/${action.remoteKey}`)),
         );
         result =
           action.kind === "github"
             ? await executeRelease(store, github, action, previouslyPublic)
-            : await executeSocial(store, postiz, action, previouslyPublic);
+            : await executeBluesky(store, bluesky, action, previouslyPublic);
       }
       results.push(result);
     }

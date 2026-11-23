@@ -1,6 +1,6 @@
 import { approvalBatch } from "./approval.ts";
 import { GitHubReleases } from "./github.ts";
-import { Postiz } from "./postiz.ts";
+import { Bluesky } from "./bluesky.ts";
 import { runCampaign } from "./run.ts";
 import { readCampaign } from "./workspace.ts";
 
@@ -37,6 +37,6 @@ export function run(workspace: string, campaign: string) {
     workspace,
     campaign,
     new GitHubReleases(process.env.GITHUB_TOKEN),
-    new Postiz(process.env.POSTIZ_URL, process.env.POSTIZ_API_KEY),
+    new Bluesky(process.env.BLUESKY_HANDLE, process.env.BLUESKY_APP_PASSWORD),
   );
 }

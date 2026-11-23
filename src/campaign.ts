@@ -92,8 +92,12 @@ const retiredIntent = z.strictObject({
   instance: digest,
 });
 
-export const blueskyDid = z.string().regex(/^did:(?:plc:[a-z2-7]+|web:[a-zA-Z0-9.-]+)$/);
-export const httpsOrigin = z.url({ protocol: /^https$/ }).refine((value) => value === new URL(value).origin);
+export const blueskyDid = z
+  .string()
+  .regex(/^did:(?:plc:[a-z2-7]+|web:[a-zA-Z0-9.-]+)$/);
+export const httpsOrigin = z
+  .url({ protocol: /^https$/ })
+  .refine((value) => value === new URL(value).origin);
 const blueskyIntent = z.strictObject({
   account: blueskyHandle,
   did: blueskyDid,

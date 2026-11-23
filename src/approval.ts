@@ -89,14 +89,17 @@ function blueskyActions(campaign: Campaign) {
     const text = campaign.payloads.get(item.content!)!;
     if (
       !account ||
-      (item.account !== undefined && blueskyAccount(item.account) !== account) ||
+      (item.account !== undefined &&
+        blueskyAccount(item.account) !== account) ||
       item.steps.join() !== "publish" ||
       item.tag ||
       item.commit ||
       item.assets?.length ||
       !validBlueskyText(text)
     ) {
-      throw new Error(`Invalid Bluesky text post: ${item.id}. Use one text post of up to 300 graphemes and 3000 bytes.`);
+      throw new Error(
+        `Invalid Bluesky text post: ${item.id}. Use one text post of up to 300 graphemes and 3000 bytes.`,
+      );
     }
     const target = `bluesky/${account}`;
     const remoteKey = `${target}@${sha256(text)}`;
