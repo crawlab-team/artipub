@@ -82,7 +82,8 @@ export const blueskyHandle = z
     /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?$/,
   );
 
-const postizIntent = z.strictObject({
+// Historical receipts remain readable, and an unresolved dispatch stays held.
+const retiredIntent = z.strictObject({
   provider: z.string().min(1),
   account: z.string().min(1),
   text: z.string().min(1),
@@ -91,7 +92,17 @@ const postizIntent = z.strictObject({
   instance: digest,
 });
 
-export type PostizIntent = z.infer<typeof postizIntent>;
+export const blueskyDid = z.string().regex(/^did:(?:plc:[a-z2-7]+|web:[a-zA-Z0-9.-]+)$/);
+export const httpsOrigin = z.url({ protocol: /^https$/ }).refine((value) => value === new URL(value).origin);
+const blueskyIntent = z.strictObject({
+  account: blueskyHandle,
+  did: blueskyDid,
+  pds: httpsOrigin,
+  rkey: z.string().regex(/^kirzner-[a-f0-9]{64}$/),
+  text: z.string().min(1),
+});
+
+export type BlueskyIntent = z.infer<typeof blueskyIntent>;
 
 const recordSchema = z.looseObject({
   item: name,
@@ -99,12 +110,11 @@ const recordSchema = z.looseObject({
   step: step.optional(),
   request_key: digest.optional(),
   remote_key: z.string().optional(),
-  intent: z.union([releaseIntent, postizIntent]).optional(),
+  intent: z.union([releaseIntent, blueskyIntent, retiredIntent]).optional(),
   attempted_at: timestamp.optional(),
   milestone,
   status: status.optional(),
-  postiz_id: z.string().min(1).optional(),
-  postiz_integration_id: z.string().min(1).optional(),
+  cid: z.string().min(1).optional(),
   native_id: z.string().optional(),
   url: z.url().optional(),
   observed_at: timestamp.optional(),
@@ -206,7 +216,6 @@ export function parseCampaign(text: string) {
     if (
       item.steps &&
       (!item.content ||
-        (!item.account && !item.target.startsWith("postiz/")) ||
         item.mode ||
         new Set(item.steps).size !== item.steps.length)
     ) {
