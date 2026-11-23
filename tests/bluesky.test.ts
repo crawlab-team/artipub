@@ -32,7 +32,7 @@ const expectedPost = {
   ],
 };
 
-async function fixture(t: TestContext, defaultPds = false) {
+async function fixture(t: TestContext, defaultPds = false, at?: string) {
   const root = await mkdtemp(join(tmpdir(), "kirzner-bluesky-"));
   t.after(() => rm(root, { recursive: true, force: true }));
   await writeFile(
@@ -45,7 +45,7 @@ items:
     content: bluesky
     target: bluesky/${handle}
     steps: [publish]
----
+${at ? `    at: ${at}\n` : ""}---
 
 ## bluesky
 
@@ -215,6 +215,35 @@ test("synthetic lost write response reconciles by record key without another cre
       .length,
     1,
   );
+});
+
+test("synthetic scheduled post waits without writing and changing at requires approval", async (t) => {
+  const future = "2099-01-01T00:00:00.000Z";
+  const f = await fixture(t, false, future);
+  await f.approve();
+  assert.deepEqual(await f.run(), [
+    {
+      item: "social",
+      status: "waiting",
+      reason: `waiting until ${future}`,
+    },
+  ]);
+  assert.deepEqual(f.events, []);
+  assert.deepEqual((await f.log()).records, []);
+
+  const campaign = await f.log();
+  const earlier = "2000-01-01T00:00:00.000Z";
+  await writeFile(
+    join(f.root, name),
+    campaign.text.replace(`    at: ${future}`, `    at: ${earlier}`),
+  );
+  assert.equal((await f.run())[0].status, "unapproved");
+  assert.deepEqual(f.events, []);
+
+  const changed = approvalBatch(await f.log());
+  await approveCampaign(f.root, name, changed.digest);
+  assert.equal((await f.run())[0].status, "public");
+  assert.equal(f.creates(), 1);
 });
 
 test("synthetic pre-existing key blocks conflicting content and adopts matching content without writing", async (t) => {

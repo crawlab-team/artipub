@@ -44,12 +44,14 @@ export function releaseActions(campaign: Campaign) {
       title,
       body,
       item.after ?? null,
+      item.at ?? null,
     ]);
     const requestKey = sha256([version, "publish"]);
     actions.push({
       kind: "github" as const,
       item: item.id,
       after: item.after,
+      at: item.at,
       repo,
       account,
       tag: item.tag,
@@ -107,11 +109,17 @@ function blueskyActions(campaign: Campaign) {
     if (requestKeys.has(requestKey))
       throw new Error(`Duplicate Bluesky text for ${target}`);
     requestKeys.add(requestKey);
-    const version = sha256([item.id, requestKey, item.after ?? null]);
+    const version = sha256([
+      item.id,
+      requestKey,
+      item.after ?? null,
+      item.at ?? null,
+    ]);
     actions.push({
       kind: "bluesky" as const,
       item: item.id,
       after: item.after,
+      at: item.at,
       target,
       account,
       text,

@@ -39,6 +39,7 @@ const itemSchema = z.strictObject({
     .enum(["prefill_if_permitted", "human_entry", "human_upload"])
     .optional(),
   after: name.optional(),
+  at: timestamp.optional(),
   status: z.enum(["hold", "paused"]).optional(),
   reason: z.string().optional(),
   assets: z
@@ -155,6 +156,17 @@ export function parseCampaign(text: string) {
     Date.parse(plan.window_utc[0]) >= Date.parse(plan.window_utc[1])
   ) {
     throw new Error("The campaign window must end after it starts");
+  }
+  if (
+    plan.window_utc &&
+    plan.items.some(
+      ({ at }) =>
+        at &&
+        (Date.parse(at) < Date.parse(plan.window_utc![0]) ||
+          Date.parse(at) >= Date.parse(plan.window_utc![1])),
+    )
+  ) {
+    throw new Error("Every item at time must be inside the campaign window");
   }
 
   const sections = new Map<string, { start: number; end: number }>();
