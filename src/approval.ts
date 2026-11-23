@@ -34,6 +34,7 @@ export function releaseActions(campaign: Campaign) {
       throw new Error(`Duplicate GitHub Release target: ${remoteKey}`);
     remoteKeys.add(remoteKey);
     const version = sha256([
+      item.id,
       repo,
       account,
       "publish",
@@ -41,6 +42,7 @@ export function releaseActions(campaign: Campaign) {
       item.commit ?? null,
       title,
       body,
+      item.after ?? null,
     ]);
     const requestKey = sha256([version, "publish"]);
     actions.push({
@@ -112,8 +114,15 @@ export async function approveCampaign(
   });
 }
 
-export function approved(campaign: Campaign, action: ReleaseAction): boolean {
-  return campaign.approval?.hashes.includes(action.version) ?? false;
+export function approved(
+  campaign: Campaign,
+  batch: ReturnType<typeof approvalBatch>,
+  action: ReleaseAction,
+): boolean {
+  return (
+    campaign.approval?.expires_at === batch.expires_at &&
+    campaign.approval.hashes.includes(action.version)
+  );
 }
 
 export function inWindow(campaign: Campaign): boolean {

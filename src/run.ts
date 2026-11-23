@@ -221,7 +221,7 @@ export async function runCampaign(
         result = { item: action.item, status: "public", url: prior.url };
       } else if (await store.paused()) {
         result = { item: action.item, status: "paused" };
-      } else if (!approved(store.campaign, action)) {
+      } else if (!approved(store.campaign, batch, action)) {
         result = {
           item: action.item,
           status: "unapproved",
