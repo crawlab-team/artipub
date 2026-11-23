@@ -8,6 +8,7 @@ const timestamp = z.iso.datetime();
 const milestone = z.enum([
   "prepared",
   "draft_saved",
+  "scheduled",
   "public",
   "followers_notified",
 ]);
@@ -74,16 +75,36 @@ export const releaseIntent = z.strictObject({
 
 export type ReleaseIntent = z.infer<typeof releaseIntent>;
 
+export const blueskyHandle = z
+  .string()
+  .max(253)
+  .regex(
+    /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?$/,
+  );
+
+export const blueskyDid = z.string().regex(/^did:[a-z0-9]+:[a-zA-Z0-9._:%-]+$/);
+
+const postizIntent = z.strictObject({
+  account: blueskyHandle,
+  text: z.string().min(1),
+  integration_id: z.string().min(1),
+  did: blueskyDid,
+  instance: digest,
+});
+
+export type PostizIntent = z.infer<typeof postizIntent>;
+
 const recordSchema = z.looseObject({
   item: name,
   version: digest.optional(),
   step: step.optional(),
   request_key: digest.optional(),
   remote_key: z.string().optional(),
-  intent: releaseIntent.optional(),
+  intent: z.union([releaseIntent, postizIntent]).optional(),
   attempted_at: timestamp.optional(),
   milestone,
   status: status.optional(),
+  postiz_id: z.string().min(1).optional(),
   native_id: z.string().optional(),
   url: z.url().optional(),
   observed_at: timestamp.optional(),
