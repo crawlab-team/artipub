@@ -82,13 +82,12 @@ export const blueskyHandle = z
     /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?$/,
   );
 
-export const blueskyDid = z.string().regex(/^did:[a-z0-9]+:[a-zA-Z0-9._:%-]+$/);
-
 const postizIntent = z.strictObject({
-  account: blueskyHandle,
+  provider: z.string().min(1),
+  account: z.string().min(1),
   text: z.string().min(1),
   integration_id: z.string().min(1),
-  did: blueskyDid,
+  actor_id: z.string().min(1),
   instance: digest,
 });
 
@@ -105,6 +104,7 @@ const recordSchema = z.looseObject({
   milestone,
   status: status.optional(),
   postiz_id: z.string().min(1).optional(),
+  postiz_integration_id: z.string().min(1).optional(),
   native_id: z.string().optional(),
   url: z.url().optional(),
   observed_at: timestamp.optional(),
@@ -206,7 +206,7 @@ export function parseCampaign(text: string) {
     if (
       item.steps &&
       (!item.content ||
-        !item.account ||
+        (!item.account && !item.target.startsWith("postiz/")) ||
         item.mode ||
         new Set(item.steps).size !== item.steps.length)
     ) {
