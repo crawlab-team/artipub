@@ -35,7 +35,7 @@ async function main([command, argument, ...extra]: string[]) {
         throw new Error("Approve from an interactive operator terminal");
       const batch = await review(root, argument);
       if (!batch.actions.length)
-        throw new Error("No runnable GitHub Release actions to approve");
+        throw new Error("No runnable publish actions to approve");
       print(batch);
       const prompt = createInterface({
         input: process.stdin,

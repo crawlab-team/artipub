@@ -1,4 +1,9 @@
-import { sha256, type Approval, type Campaign } from "./campaign.ts";
+import {
+  blueskyHandle,
+  sha256,
+  type Approval,
+  type Campaign,
+} from "./campaign.ts";
 import { withCampaign } from "./workspace.ts";
 
 export function releaseActions(campaign: Campaign) {
@@ -46,6 +51,7 @@ export function releaseActions(campaign: Campaign) {
     ]);
     const requestKey = sha256([version, "publish"]);
     actions.push({
+      kind: "github" as const,
       item: item.id,
       after: item.after,
       repo,
@@ -77,8 +83,61 @@ function validTag(tag: string): boolean {
 
 export type ReleaseAction = ReturnType<typeof releaseActions>[number];
 
+function postizActions(campaign: Campaign) {
+  const actions = [];
+  const requestKeys = new Set<string>();
+  const graphemes = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+  for (const item of campaign.plan.items) {
+    if (!item.target.startsWith("postiz/") || !item.steps || item.status)
+      continue;
+    const account = item.target.match(/^postiz\/bluesky\/([^/]+)$/)?.[1].toLowerCase();
+    const text = campaign.payloads.get(item.content!)!;
+    if (
+      !account ||
+      !blueskyHandle.safeParse(account).success ||
+      item.account?.toLowerCase().replace(/^@/, "") !== account ||
+      item.steps.join() !== "publish" ||
+      item.tag ||
+      item.commit ||
+      item.assets?.length ||
+      !text.trim() ||
+      /<\/?[a-z][\s\S]*>|[\u0000-\u0008\u000b-\u001f\u007f]/i.test(text) ||
+      Buffer.byteLength(text) > 3000 ||
+      [...graphemes.segment(text)].length > 300
+    ) {
+      throw new Error(`Invalid Postiz Bluesky action: ${item.id}. Use one plain-text post of up to 300 graphemes and 3000 bytes.`);
+    }
+    const remoteKey = `postiz/bluesky/${account}`;
+    const requestKey = sha256([remoteKey, "publish", text]);
+    if (requestKeys.has(requestKey))
+      throw new Error(`Duplicate Bluesky post for ${account}`);
+    requestKeys.add(requestKey);
+    const version = sha256([item.id, requestKey, item.after ?? null]);
+    actions.push({
+      kind: "postiz" as const,
+      item: item.id,
+      after: item.after,
+      account,
+      text,
+      version,
+      remoteKey,
+      requestKey,
+    });
+  }
+  return actions;
+}
+
+export type PostizAction = ReturnType<typeof postizActions>[number];
+export type PublishAction = ReleaseAction | PostizAction;
+
 export function approvalBatch(campaign: Campaign) {
-  const actions = releaseActions(campaign);
+  const byItem = new Map<string, PublishAction>(
+    [...releaseActions(campaign), ...postizActions(campaign)].map((action) => [action.item, action]),
+  );
+  const actions = campaign.plan.items.flatMap(({ id }) => {
+    const action = byItem.get(id);
+    return action ? [action] : [];
+  });
   const items = actions.map(({ item }) => item);
   const hashes = actions.map(({ version }) => version);
   const window = campaign.plan.window_utc;
@@ -98,7 +157,7 @@ export async function approveCampaign(
   return withCampaign(workspace, name, async (store) => {
     const { items, hashes, digest, expires_at } = approvalBatch(store.campaign);
     if (!items.length)
-      throw new Error("No runnable GitHub Release actions to approve");
+      throw new Error("No runnable publish actions to approve");
     if (digest !== reviewedDigest)
       throw new Error("Campaign changed during review. Review it again.");
     if (expires_at && Date.now() >= Date.parse(expires_at))
@@ -117,7 +176,7 @@ export async function approveCampaign(
 export function approved(
   campaign: Campaign,
   batch: ReturnType<typeof approvalBatch>,
-  action: ReleaseAction,
+  action: PublishAction,
 ): boolean {
   const approval = campaign.approval;
   return (

@@ -1,5 +1,6 @@
 import { approvalBatch } from "./approval.ts";
 import { GitHubReleases } from "./github.ts";
+import { PostizBluesky } from "./postiz.ts";
 import { runCampaign } from "./run.ts";
 import { readCampaign } from "./workspace.ts";
 
@@ -11,17 +12,8 @@ export async function review(workspace: string, campaign: string) {
     window_utc: log.plan.window_utc,
     digest,
     actions: actions.map(
-      ({ item, after, repo, account, tag, commit, title, body, version }) => ({
-        item,
-        after,
-        repo,
-        account,
-        tag,
-        commit,
-        title,
-        body,
-        version,
-      }),
+      ({ kind, requestKey: _requestKey, remoteKey, ...action }) =>
+        kind === "postiz" ? { ...action, target: remoteKey } : action,
     ),
   };
 }
@@ -41,5 +33,6 @@ export function run(workspace: string, campaign: string) {
     workspace,
     campaign,
     new GitHubReleases(process.env.GITHUB_TOKEN),
+    new PostizBluesky(process.env.POSTIZ_URL, process.env.POSTIZ_API_KEY),
   );
 }
