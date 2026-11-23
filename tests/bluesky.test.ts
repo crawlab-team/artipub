@@ -242,6 +242,7 @@ test("synthetic scheduled post waits without writing and changing at requires ap
 
   const changed = approvalBatch(await f.log());
   await approveCampaign(f.root, name, changed.digest);
+  f.state.appView = "public";
   assert.equal((await f.run())[0].status, "public");
   assert.equal(f.creates(), 1);
 });
