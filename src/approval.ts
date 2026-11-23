@@ -1,4 +1,5 @@
 import { sha256, type Approval, type Campaign } from "./campaign.ts";
+import { postizProvider } from "./postiz.ts";
 import { withCampaign } from "./workspace.ts";
 
 export function releaseActions(campaign: Campaign) {
@@ -46,6 +47,7 @@ export function releaseActions(campaign: Campaign) {
     ]);
     const requestKey = sha256([version, "publish"]);
     actions.push({
+      kind: "github" as const,
       item: item.id,
       after: item.after,
       repo,
@@ -77,8 +79,72 @@ function validTag(tag: string): boolean {
 
 export type ReleaseAction = ReturnType<typeof releaseActions>[number];
 
+function socialActions(campaign: Campaign) {
+  const actions = [];
+  const remoteKeys = new Set<string>();
+  for (const item of campaign.plan.items) {
+    if (!item.target.startsWith("postiz/") || !item.steps || item.status)
+      continue;
+    const match = /^postiz\/([a-z][a-z0-9-]*)\/([^/]+)$/.exec(item.target);
+    const spec = match && postizProvider(match[1]);
+    if (!match || !spec)
+      throw new Error(`Unsupported Postiz target for ${item.id}`);
+    const provider = match[1];
+    const account = spec.handle(match[2]);
+    const text = campaign.payloads.get(item.content!)!;
+    if (
+      !account ||
+      (item.account !== undefined && spec.handle(item.account) !== account) ||
+      item.steps.join() !== "publish" ||
+      item.tag ||
+      item.commit ||
+      item.assets?.length ||
+      !spec.validText(text)
+    ) {
+      throw new Error(`Invalid ${provider} text post: ${item.id}`);
+    }
+    const target = `postiz/${provider}/${account}`;
+    const remoteKey = `${target}@${sha256(text)}`;
+    if (remoteKeys.has(remoteKey))
+      throw new Error(`Duplicate Postiz text for ${target}`);
+    remoteKeys.add(remoteKey);
+    const version = sha256([
+      item.id,
+      target,
+      "publish",
+      text,
+      item.after ?? null,
+    ]);
+    actions.push({
+      kind: "postiz" as const,
+      item: item.id,
+      after: item.after,
+      target,
+      provider,
+      account,
+      text,
+      version,
+      remoteKey,
+      requestKey: sha256([version, "publish"]),
+    });
+  }
+  return actions;
+}
+
+export type SocialAction = ReturnType<typeof socialActions>[number];
+export type Action = ReleaseAction | SocialAction;
+
 export function approvalBatch(campaign: Campaign) {
-  const actions = releaseActions(campaign);
+  const byItem = new Map<string, Action>(
+    [...releaseActions(campaign), ...socialActions(campaign)].map((action) => [
+      action.item,
+      action,
+    ]),
+  );
+  const actions = campaign.plan.items.flatMap(({ id }) => {
+    const action = byItem.get(id);
+    return action ? [action] : [];
+  });
   const items = actions.map(({ item }) => item);
   const hashes = actions.map(({ version }) => version);
   const window = campaign.plan.window_utc;
@@ -98,7 +164,7 @@ export async function approveCampaign(
   return withCampaign(workspace, name, async (store) => {
     const { items, hashes, digest, expires_at } = approvalBatch(store.campaign);
     if (!items.length)
-      throw new Error("No runnable GitHub Release actions to approve");
+      throw new Error("No runnable campaign actions to approve");
     if (digest !== reviewedDigest)
       throw new Error("Campaign changed during review. Review it again.");
     if (expires_at && Date.now() >= Date.parse(expires_at))
@@ -117,7 +183,7 @@ export async function approveCampaign(
 export function approved(
   campaign: Campaign,
   batch: ReturnType<typeof approvalBatch>,
-  action: ReleaseAction,
+  action: Action,
 ): boolean {
   const approval = campaign.approval;
   return (

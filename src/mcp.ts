@@ -38,7 +38,7 @@ export async function serve(workspace: string) {
     "run",
     {
       description:
-        "Reconcile prior attempts and run the operator-approved GitHub Release batch",
+        "Reconcile prior attempts and run the operator-approved campaign batch",
       inputSchema,
     },
     async ({ campaign }) => text(await run(root, campaign)),

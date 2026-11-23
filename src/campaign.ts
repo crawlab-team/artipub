@@ -8,6 +8,7 @@ const timestamp = z.iso.datetime();
 const milestone = z.enum([
   "prepared",
   "draft_saved",
+  "scheduled",
   "public",
   "followers_notified",
 ]);
@@ -74,16 +75,36 @@ export const releaseIntent = z.strictObject({
 
 export type ReleaseIntent = z.infer<typeof releaseIntent>;
 
+export const blueskyHandle = z
+  .string()
+  .max(253)
+  .regex(
+    /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?$/,
+  );
+
+const postizIntent = z.strictObject({
+  provider: z.string().min(1),
+  account: z.string().min(1),
+  text: z.string().min(1),
+  integration_id: z.string().min(1),
+  actor_id: z.string().min(1),
+  instance: digest,
+});
+
+export type PostizIntent = z.infer<typeof postizIntent>;
+
 const recordSchema = z.looseObject({
   item: name,
   version: digest.optional(),
   step: step.optional(),
   request_key: digest.optional(),
   remote_key: z.string().optional(),
-  intent: releaseIntent.optional(),
+  intent: z.union([releaseIntent, postizIntent]).optional(),
   attempted_at: timestamp.optional(),
   milestone,
   status: status.optional(),
+  postiz_id: z.string().min(1).optional(),
+  postiz_integration_id: z.string().min(1).optional(),
   native_id: z.string().optional(),
   url: z.url().optional(),
   observed_at: timestamp.optional(),
@@ -185,7 +206,7 @@ export function parseCampaign(text: string) {
     if (
       item.steps &&
       (!item.content ||
-        !item.account ||
+        (!item.account && !item.target.startsWith("postiz/")) ||
         item.mode ||
         new Set(item.steps).size !== item.steps.length)
     ) {
