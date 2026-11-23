@@ -97,10 +97,9 @@ async function reconcile(
   github: GitHubReleases,
   record: ActionRecord,
 ): Promise<Result> {
+  const intent = record.intent;
   const remote =
-    record.intent &&
-    "repo" in record.intent &&
-    (await lookup(github, record.intent));
+    intent && "repo" in intent ? await lookup(github, intent) : undefined;
   if (remote?.kind === "found") return recordPublic(store, record, remote);
   const reason =
     remote?.kind === "blocked"
@@ -240,7 +239,7 @@ async function recordSocialLookup(
   const milestone =
     post?.state === "DRAFT"
       ? "draft_saved"
-      : postId && record.milestone === "prepared"
+      : postId && (post || record.milestone === "prepared")
         ? "scheduled"
         : record.milestone;
   let reason = readReason;

@@ -41,16 +41,11 @@ type SocialProvider = {
 
 class ReadError extends Error {}
 
-const requestOptions = {
-  redirect: "error" as const,
-  signal: () => AbortSignal.timeout(15_000),
-};
-
 function request(http: typeof fetch, url: string, init?: RequestInit) {
   return http(url, {
     ...init,
-    redirect: requestOptions.redirect,
-    signal: requestOptions.signal(),
+    redirect: "error",
+    signal: AbortSignal.timeout(15_000),
   });
 }
 
