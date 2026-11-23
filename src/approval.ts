@@ -1,5 +1,5 @@
+import { blueskyAccount, validBlueskyText } from "./bluesky.ts";
 import { sha256, type Approval, type Campaign } from "./campaign.ts";
-import { postizProvider } from "./postiz.ts";
 import { withCampaign } from "./workspace.ts";
 
 export function releaseActions(campaign: Campaign) {
@@ -79,64 +79,56 @@ function validTag(tag: string): boolean {
 
 export type ReleaseAction = ReturnType<typeof releaseActions>[number];
 
-function socialActions(campaign: Campaign) {
+function blueskyActions(campaign: Campaign) {
   const actions = [];
-  const remoteKeys = new Set<string>();
+  const requestKeys = new Set<string>();
   for (const item of campaign.plan.items) {
-    if (!item.target.startsWith("postiz/") || !item.steps || item.status)
+    if (!item.target.startsWith("bluesky/") || !item.steps || item.status)
       continue;
-    const match = /^postiz\/([a-z][a-z0-9-]*)\/([^/]+)$/.exec(item.target);
-    const spec = match && postizProvider(match[1]);
-    if (!match || !spec)
-      throw new Error(`Unsupported Postiz target for ${item.id}`);
-    const provider = match[1];
-    const account = spec.handle(match[2]);
+    const account = blueskyAccount(item.target.slice("bluesky/".length));
     const text = campaign.payloads.get(item.content!)!;
     if (
       !account ||
-      (item.account !== undefined && spec.handle(item.account) !== account) ||
+      (item.account !== undefined &&
+        blueskyAccount(item.account) !== account) ||
       item.steps.join() !== "publish" ||
       item.tag ||
       item.commit ||
       item.assets?.length ||
-      !spec.validText(text)
+      !validBlueskyText(text)
     ) {
-      throw new Error(`Invalid ${provider} text post: ${item.id}`);
+      throw new Error(
+        `Invalid Bluesky text post: ${item.id}. Use one text post of up to 300 graphemes and 3000 bytes.`,
+      );
     }
-    const target = `postiz/${provider}/${account}`;
+    const target = `bluesky/${account}`;
     const remoteKey = `${target}@${sha256(text)}`;
-    if (remoteKeys.has(remoteKey))
-      throw new Error(`Duplicate Postiz text for ${target}`);
-    remoteKeys.add(remoteKey);
-    const version = sha256([
-      item.id,
-      target,
-      "publish",
-      text,
-      item.after ?? null,
-    ]);
+    const requestKey = sha256([target, "publish", text]);
+    if (requestKeys.has(requestKey))
+      throw new Error(`Duplicate Bluesky text for ${target}`);
+    requestKeys.add(requestKey);
+    const version = sha256([item.id, requestKey, item.after ?? null]);
     actions.push({
-      kind: "postiz" as const,
+      kind: "bluesky" as const,
       item: item.id,
       after: item.after,
       target,
-      provider,
       account,
       text,
       version,
       remoteKey,
-      requestKey: sha256([version, "publish"]),
+      requestKey,
     });
   }
   return actions;
 }
 
-export type SocialAction = ReturnType<typeof socialActions>[number];
-export type Action = ReleaseAction | SocialAction;
+export type BlueskyAction = ReturnType<typeof blueskyActions>[number];
+export type Action = ReleaseAction | BlueskyAction;
 
 export function approvalBatch(campaign: Campaign) {
   const byItem = new Map<string, Action>(
-    [...releaseActions(campaign), ...socialActions(campaign)].map((action) => [
+    [...releaseActions(campaign), ...blueskyActions(campaign)].map((action) => [
       action.item,
       action,
     ]),

@@ -17,4 +17,4 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run format:check
-      - run: node --experimental-strip-types --test tests/postiz.test.ts
+      - run: node --experimental-strip-types --test tests/bluesky.test.ts
