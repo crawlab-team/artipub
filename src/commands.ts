@@ -1,4 +1,4 @@
-import { approvalBatch, verificationKey } from "./approval.ts";
+import { approvalBatch } from "./approval.ts";
 import { GitHubReleases } from "./github.ts";
 import { runCampaign } from "./run.ts";
 import { readCampaign } from "./workspace.ts";
@@ -37,13 +37,9 @@ export async function status(workspace: string, campaign: string) {
 }
 
 export function run(workspace: string, campaign: string) {
-  const key = process.env.KIRZNER_APPROVAL_PUBLIC_KEY
-    ? verificationKey()
-    : undefined;
   return runCampaign(
     workspace,
     campaign,
     new GitHubReleases(process.env.GITHUB_TOKEN),
-    key,
   );
 }

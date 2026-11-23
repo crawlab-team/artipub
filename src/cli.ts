@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { createInterface } from "node:readline/promises";
-import { approveCampaign, signingKey } from "./approval.ts";
+import { approveCampaign } from "./approval.ts";
 import { review, run, status } from "./commands.ts";
 
 const usage = `Usage: kirzner <plan|status|approve|run> <campaign.md>
@@ -36,7 +36,6 @@ async function main([command, argument, ...extra]: string[]) {
       const batch = await review(root, argument);
       if (!batch.actions.length)
         throw new Error("No runnable GitHub Release actions to approve");
-      const key = signingKey();
       print(batch);
       const prompt = createInterface({
         input: process.stdin,
@@ -46,7 +45,7 @@ async function main([command, argument, ...extra]: string[]) {
         const answer = await prompt.question("Approve this batch? [y/N] ");
         if (answer.trim().toLowerCase() !== "y")
           throw new Error("Approval cancelled");
-        print(await approveCampaign(root, argument, batch.digest, key));
+        print(await approveCampaign(root, argument, batch.digest));
       } finally {
         prompt.close();
       }

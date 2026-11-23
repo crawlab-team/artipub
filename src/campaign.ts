@@ -54,12 +54,11 @@ const planSchema = z.strictObject({
   items: z.array(itemSchema).min(1),
   metrics: z.record(z.string(), z.unknown()).optional(),
 });
-const approvalSchema = z.strictObject({
+const approvalSchema = z.object({
   items: z.array(name).min(1),
   hashes: z.array(digest).min(1),
   digest,
   expires_at: timestamp.optional(),
-  grant: z.string().regex(/^[a-f0-9]{128}$/),
 });
 export const releaseIntent = z.strictObject({
   repo: z.string().regex(/^[\w-]+\/[\w.-]+$/),

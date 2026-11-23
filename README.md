@@ -41,31 +41,20 @@ Kirzner adds `## Execution` with fenced YAML approval and action records. Adjace
 
 ## Approve and run
 
-Generate an Ed25519 key pair once, outside the campaign workspace. For example, with OpenSSL:
+From an operator terminal in the campaign workspace, review and approve the batch:
 
 ```sh
-umask 077
-openssl genpkey -algorithm Ed25519 -out "$HOME/kirzner-approval.pem"
-openssl pkey -in "$HOME/kirzner-approval.pem" -pubout -out "$HOME/kirzner-approval.pub"
+kirzner approve campaign.md
 ```
 
-From an operator terminal in the campaign workspace, review and sign the batch:
+The approval records each action's content hash in the campaign's `Execution` log. `kirzner run campaign.md` executes only actions whose current hash is approved; editing an action's payload, target, account, tag, or commit changes its hash and requires approval again. Editing notes and recording results leaves approval intact. Set `GITHUB_TOKEN` for the approved account, scoped to the target repo with Contents write access, before running:
 
 ```sh
-KIRZNER_APPROVAL_PRIVATE_KEY="$(cat "$HOME/kirzner-approval.pem")" kirzner approve campaign.md
-```
-
-Give the executor the public key and `GITHUB_TOKEN` for the approved account, scoped to the target repo with Contents write access. From that workspace:
-
-```sh
-export KIRZNER_APPROVAL_PUBLIC_KEY="$(cat "$HOME/kirzner-approval.pub")"
 kirzner run campaign.md
 kirzner status campaign.md
 ```
 
-For an agent, configure the stdio command `kirzner mcp /path/to/workspace` with the same executor environment. It exposes `plan`, `status`, and `run`. Batch approval remains an operator CLI command. Editing the outbound payload, target, account, tag, or window requires a new approval. Editing notes and recording results leaves approval intact.
-
-Keys and tokens come from the environment and stay out of the log. Full credential isolation from the agent, using a separate OS identity or executor, is a follow-up. An agent with the operator's shell and file permissions could bypass the workflow, so use a trusted local environment.
+For an agent, configure the stdio command `kirzner mcp /path/to/workspace` with the executor environment. It exposes `plan`, `status`, and `run`. Batch approval remains an operator CLI command. Keep the workspace under operator or Kirzner control; an agent with write access to the campaign can change its recorded approvals.
 
 ## Pause and recover
 
