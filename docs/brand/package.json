@@ -1,0 +1,16 @@
+{
+  "name": "@kirzner/brand-assets",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Generator for the Kirzner brand kit. Not published.",
+  "type": "module",
+  "scripts": {
+    "generate": "node generate.mjs"
+  },
+  "devDependencies": {
+    "@fontsource/inter": "5.3.0",
+    "@resvg/resvg-js": "2.6.2",
+    "opentype.js": "2.0.0",
+    "wawoff2": "2.0.1"
+  }
+}
