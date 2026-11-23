@@ -119,9 +119,11 @@ export function approved(
   batch: ReturnType<typeof approvalBatch>,
   action: ReleaseAction,
 ): boolean {
+  const approval = campaign.approval;
   return (
-    campaign.approval?.expires_at === batch.expires_at &&
-    campaign.approval.hashes.includes(action.version)
+    !!approval &&
+    approval.expires_at === batch.expires_at &&
+    approval.hashes.includes(action.version)
   );
 }
 
