@@ -585,7 +585,7 @@ export class Bluesky {
     const response = await this.request(`${intent.pds}/xrpc/com.atproto.repo.uploadBlob`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}`, "Content-Type": mime },
-      body: bytes,
+      body: Buffer.from(bytes),
       signal: AbortSignal.timeout(cardTimeoutMs),
     });
     if (!response.ok) throw new Error("thumbnail upload failed");
