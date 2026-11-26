@@ -8,6 +8,7 @@ import {
   Bluesky,
   blueskyReadReason,
   blueskyRecordKey,
+  parseBlueskyCardHtml,
 } from "../src/bluesky.ts";
 import { sha256 } from "../src/campaign.ts";
 import { GitHubReleases } from "../src/github.ts";
@@ -37,6 +38,175 @@ const expectedPost = {
   ],
 };
 
+test("Open Graph metadata uses title fallbacks and preserves relative images", () => {
+  assert.deepEqual(
+    parseBlueskyCardHtml(
+      '<html><head><title>Fallback &amp; title</title><meta name="description" content="Summary"><meta property="og:image" content="/card.png"></head></html>',
+    ),
+    { title: "Fallback & title", description: "Summary", image: "/card.png" },
+  );
+  assert.deepEqual(
+    parseBlueskyCardHtml(
+      '<meta property="og:title" content="Open Graph"><meta property="og:description" content="OG summary"><meta property="og:image" content="https://images.example/card.png">',
+    ),
+    {
+      title: "Open Graph",
+      description: "OG summary",
+      image: "https://images.example/card.png",
+    },
+  );
+});
+
+async function createWithCard(cardFetch: typeof fetch, text = `See ${link}`) {
+  const intent = {
+    account: handle,
+    did,
+    pds: "https://pds.example.com",
+    rkey: "234567abcdefghj",
+    text,
+  };
+  let record: Record<string, unknown> | undefined;
+  let writtenRkey: string | undefined;
+  let uploads = 0;
+  const http: typeof fetch = async (input, init) => {
+    const url = new URL(String(input));
+    if (url.pathname.endsWith("/com.atproto.repo.uploadBlob")) {
+      uploads++;
+      assert.equal(
+        new Headers(init?.headers).get("Authorization"),
+        "Bearer synthetic-token",
+      );
+      return Response.json({
+        blob: {
+          $type: "blob",
+          ref: { $link: "synthetic-blob" },
+          mimeType: "image/png",
+          size: 3,
+        },
+      });
+    }
+    assert.equal(url.pathname.endsWith("/com.atproto.repo.createRecord"), true);
+    const body = JSON.parse(String(init?.body));
+    writtenRkey = body.rkey;
+    record = body.record;
+    return Response.json({
+      uri: `at://${did}/${collection}/${intent.rkey}`,
+      cid,
+    });
+  };
+  const bluesky = new Bluesky(handle, "synthetic-password", http, {
+    cardFetch,
+  });
+  const receipt = await bluesky.create(intent, "synthetic-token");
+  assert.equal(receipt.uri, `at://${did}/${collection}/${intent.rkey}`);
+  return {
+    record: record! as {
+      text: string;
+      facets: Array<{ features: Array<{ uri: string }> }>;
+      embed?: unknown;
+    },
+    uploads,
+    intent,
+    writtenRkey,
+  };
+}
+
+test("external card attaches a thumbnail blob and preserves approved post fields", async () => {
+  let cardRequests = 0;
+  const result = await createWithCard(async (_input, init) => {
+    assert.equal(new Headers(init?.headers).has("Authorization"), false);
+    assert.equal(
+      new Headers(init?.headers).get("User-Agent"),
+      "kirzner-card-fetch",
+    );
+    cardRequests++;
+    return cardRequests === 1
+      ? new Response(
+          '<meta property="og:title" content="Launch"><meta property="og:description" content="Details"><meta property="og:image" content="/thumb.png">',
+          { headers: { "content-type": "text/html" } },
+        )
+      : new Response(new Uint8Array([1, 2, 3]), {
+          headers: { "content-type": "image/png" },
+        });
+  });
+  assert.deepEqual(result.record.embed, {
+    $type: "app.bsky.embed.external",
+    external: {
+      uri: link,
+      title: "Launch",
+      description: "Details",
+      thumb: {
+        $type: "blob",
+        ref: { $link: "synthetic-blob" },
+        mimeType: "image/png",
+        size: 3,
+      },
+    },
+  });
+  assert.equal(result.record.text, result.intent.text);
+  assert.equal(result.record.facets[0].features[0].uri, link);
+  assert.equal(result.writtenRkey, result.intent.rkey);
+  assert.equal(result.uploads, 1);
+});
+
+test("oversized thumbnail keeps the external card without uploading", async () => {
+  let requests = 0;
+  const result = await createWithCard(async () => {
+    requests++;
+    return requests === 1
+      ? new Response(
+          '<meta property="og:title" content="Launch"><meta property="og:image" content="/thumb.png">',
+          { headers: { "content-type": "text/html" } },
+        )
+      : new Response(new Uint8Array(1_000_001), {
+          headers: { "content-type": "image/png" },
+        });
+  });
+  assert.deepEqual(result.record.embed, {
+    $type: "app.bsky.embed.external",
+    external: { uri: link, title: "Launch", description: "" },
+  });
+  assert.equal(result.uploads, 0);
+});
+
+test("page fetch failure and non-HTML responses fall back without an embed", async () => {
+  for (const cardFetch of [
+    async () => {
+      throw new DOMException("timeout", "TimeoutError");
+    },
+    async () =>
+      new Response("not html", { headers: { "content-type": "text/plain" } }),
+  ] satisfies (typeof fetch)[]) {
+    const result = await createWithCard(cardFetch);
+    assert.equal(result.record.embed, undefined);
+    assert.equal(result.record.text, result.intent.text);
+    assert.equal(
+      result.record.facets[0].features[0].uri,
+      result.intent.text.slice(4),
+    );
+    assert.equal(result.writtenRkey, result.intent.rkey);
+  }
+});
+
+test("non-HTTPS and private literal links are skipped", async () => {
+  let called = false;
+  const cardFetch: typeof fetch = async () => {
+    called = true;
+    throw new Error("must not fetch");
+  };
+  const privateResult = await createWithCard(
+    cardFetch,
+    "See https://127.0.0.1/private",
+  );
+  const insecureResult = await createWithCard(
+    cardFetch,
+    "See http://example.com/private",
+  );
+  assert.equal(privateResult.record.embed, undefined);
+  assert.equal(insecureResult.record.embed, undefined);
+  assert.equal(called, false);
+});
+
 test("request digests yield deterministic, distinct TIDs", () => {
   const tid = /^[234567abcdefghij][234567abcdefghijklmnopqrstuvwxyz]{12}$/;
   const requests = Array.from({ length: 128 }, (_, index) => sha256(index));
@@ -53,9 +223,14 @@ test("request digests yield deterministic, distinct TIDs", () => {
 
 async function fixture(
   t: TestContext,
-  options: { defaultPds?: boolean; at?: string; legacy?: boolean } = {},
+  options: {
+    defaultPds?: boolean;
+    at?: string;
+    legacy?: boolean;
+    cardFetch?: typeof fetch;
+  } = {},
 ) {
-  const { defaultPds, at, legacy } = options;
+  const { defaultPds, at, legacy, cardFetch } = options;
   const root = await mkdtemp(join(tmpdir(), "kirzner-bluesky-"));
   t.after(() => rm(root, { recursive: true, force: true }));
   await writeFile(
@@ -206,7 +381,14 @@ ${text}
     }
   };
   const github = new GitHubReleases(undefined, http);
-  const bluesky = new Bluesky(handle, "synthetic-password", http);
+  const bluesky = new Bluesky(handle, "synthetic-password", http, {
+    cardFetch:
+      cardFetch ??
+      (async () =>
+        new Response("not a card", {
+          headers: { "content-type": "text/plain" },
+        })),
+  });
   return {
     root,
     state,
