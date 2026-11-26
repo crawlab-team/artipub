@@ -103,7 +103,13 @@ const blueskyIntent = z.strictObject({
   account: blueskyHandle,
   did: blueskyDid,
   pds: httpsOrigin,
-  rkey: z.string().regex(/^kirzner-[a-f0-9]{64}$/),
+  // Accept the original key format when reading saved intents.
+  rkey: z.union([
+    z
+      .string()
+      .regex(/^[234567abcdefghij][234567abcdefghijklmnopqrstuvwxyz]{12}$/),
+    z.string().regex(/^kirzner-[a-f0-9]{64}$/),
+  ]),
   text: z.string().min(1),
 });
 
