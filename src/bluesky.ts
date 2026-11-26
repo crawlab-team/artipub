@@ -101,10 +101,23 @@ function atUri(intent: BlueskyIntent) {
 
 class ReadError extends Error {}
 
-export function blueskyReadReason(error: unknown) {
-  return error instanceof ReadError
-    ? error.message
-    : "Bluesky lookup could not be verified";
+const safeErrorClasses = new Set([
+  "AggregateError",
+  "DOMException",
+  "Error",
+  "EvalError",
+  "RangeError",
+  "ReferenceError",
+  "SyntaxError",
+  "TypeError",
+  "URIError",
+]);
+
+export function blueskyReadReason(error: unknown, operation = "lookup") {
+  if (error instanceof ReadError) return error.message;
+  const name = error instanceof Error ? error.constructor.name : "Error";
+  const errorClass = safeErrorClasses.has(name) ? name : "Error";
+  return `Bluesky ${operation} failed (${errorClass})`;
 }
 
 export type BlueskyLookup =
@@ -274,7 +287,7 @@ export class Bluesky {
         ),
       );
     } catch (error) {
-      return { ...pending, reason: blueskyReadReason(error) };
+      return { ...pending, reason: blueskyReadReason(error, "public lookup") };
     }
     const found = view.posts.find((post) => post.uri === uri);
     if (!found) return pending;

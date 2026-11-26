@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test, type TestContext } from "node:test";
 import { approvalBatch, approveCampaign } from "../src/approval.ts";
-import { Bluesky } from "../src/bluesky.ts";
+import { Bluesky, blueskyReadReason } from "../src/bluesky.ts";
 import { GitHubReleases } from "../src/github.ts";
 import { runCampaign } from "../src/run.ts";
 import { readCampaign } from "../src/workspace.ts";
@@ -245,6 +245,27 @@ test("synthetic scheduled post waits without writing and changing at requires ap
   f.state.appView = "public";
   assert.equal((await f.run())[0].status, "public");
   assert.equal(f.creates(), 1);
+});
+
+test("read failures retain operation and safe error class without exposing messages", () => {
+  assert.equal(
+    blueskyReadReason(
+      new TypeError("secret-bearing transport detail"),
+      "public lookup",
+    ),
+    "Bluesky public lookup failed (TypeError)",
+  );
+  assert.equal(
+    blueskyReadReason(new Error("private detail"), "record lookup"),
+    "Bluesky record lookup failed (Error)",
+  );
+  assert.equal(
+    blueskyReadReason(
+      { name: "TokenLeak", message: "private detail" },
+      "session creation",
+    ),
+    "Bluesky session creation failed (Error)",
+  );
 });
 
 test("synthetic pre-existing key blocks conflicting content and adopts matching content without writing", async (t) => {

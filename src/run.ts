@@ -213,7 +213,7 @@ async function lookupBluesky(
   try {
     return await bluesky.lookup(intent, cid);
   } catch (error) {
-    return { kind: "blocked", reason: blueskyReadReason(error) };
+    return { kind: "blocked", reason: blueskyReadReason(error, "record lookup") };
   }
 }
 
@@ -286,7 +286,7 @@ async function executeBluesky(
     return {
       item: action.item,
       status: "blocked",
-      reason: blueskyReadReason(error),
+      reason: blueskyReadReason(error, "account lookup"),
     };
   }
   const record: ActionRecord = {
@@ -318,7 +318,7 @@ async function executeBluesky(
     return {
       item: action.item,
       status: "blocked",
-      reason: blueskyReadReason(error),
+      reason: blueskyReadReason(error, "session creation"),
     };
   }
   const beforeWrite = await lookupBluesky(bluesky, intent);
