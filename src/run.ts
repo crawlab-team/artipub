@@ -213,7 +213,10 @@ async function lookupBluesky(
   try {
     return await bluesky.lookup(intent, cid);
   } catch (error) {
-    return { kind: "blocked", reason: blueskyReadReason(error, "record lookup") };
+    return {
+      kind: "blocked",
+      reason: blueskyReadReason(error, "record lookup"),
+    };
   }
 }
 
