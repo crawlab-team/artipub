@@ -8,6 +8,7 @@ import {
 
 const collection = "app.bsky.feed.post";
 const publicApi = "https://public.api.bsky.app";
+const requestTimeoutMs = 15_000;
 const segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
 const id = z.string().min(1);
 const linkFacet = z.strictObject({
@@ -113,11 +114,94 @@ const safeErrorClasses = new Set([
   "URIError",
 ]);
 
+function safeErrorClass(error: unknown) {
+  const name = error instanceof Error ? error.constructor.name : "Error";
+  return safeErrorClasses.has(name) ? name : "Error";
+}
+
 export function blueskyReadReason(error: unknown, operation = "lookup") {
   if (error instanceof ReadError) return error.message;
-  const name = error instanceof Error ? error.constructor.name : "Error";
-  const errorClass = safeErrorClasses.has(name) ? name : "Error";
-  return `Bluesky ${operation} failed (${errorClass})`;
+  return `Bluesky ${operation} failed (${safeErrorClass(error)})`;
+}
+
+type WriteStep = "session" | "createRecord";
+
+class WriteError extends Error {}
+
+const safeCauseCodes = new Set([
+  "ECONNREFUSED",
+  "ECONNRESET",
+  "EHOSTUNREACH",
+  "ENETUNREACH",
+  "ENOTFOUND",
+  "EAI_AGAIN",
+  "EPIPE",
+  "ETIMEDOUT",
+  "UND_ERR_ABORTED",
+  "UND_ERR_BODY_TIMEOUT",
+  "UND_ERR_CONNECT_TIMEOUT",
+  "UND_ERR_HEADERS_TIMEOUT",
+  "UND_ERR_SOCKET",
+]);
+const abortNames = new Set(["AbortError", "TimeoutError"]);
+
+export function blueskyWriteReason(error: unknown, step: WriteStep) {
+  if (error instanceof WriteError) return error.message;
+  return `Bluesky ${step} failed (${writeErrorDetails(error)})`;
+}
+
+function writeErrorDetails(error: unknown, signal?: AbortSignal) {
+  const cause: unknown = error instanceof Error ? error.cause : undefined;
+  const causeCode =
+    cause && typeof cause === "object" && "code" in cause
+      ? cause.code
+      : undefined;
+  const causeName =
+    cause && typeof cause === "object" && "name" in cause
+      ? cause.name
+      : undefined;
+  const name = error instanceof Error ? error.name : undefined;
+  const timeout =
+    signal?.aborted === true ||
+    name === "TimeoutError" ||
+    causeName === "TimeoutError" ||
+    causeCode === "ETIMEDOUT" ||
+    causeCode === "UND_ERR_BODY_TIMEOUT" ||
+    causeCode === "UND_ERR_CONNECT_TIMEOUT" ||
+    causeCode === "UND_ERR_HEADERS_TIMEOUT";
+  const details = [safeErrorClass(error), `timeout=${timeout}`];
+  if (name && abortNames.has(name)) details.push(name);
+  if (typeof causeCode === "string" && safeCauseCodes.has(causeCode))
+    details.push(`cause=${causeCode}`);
+  if (
+    typeof causeName === "string" &&
+    (abortNames.has(causeName) || safeErrorClasses.has(causeName))
+  )
+    details.push(`cause name=${causeName}`);
+  return details.join(", ");
+}
+
+function safeDiagnostic(value: unknown, secrets: readonly string[]) {
+  if (typeof value !== "string") return;
+  if (
+    secrets.some((secret) => secret && value.includes(secret)) ||
+    /\b(?:authorization|bearer|accessjwt|refreshjwt)\b|\bpassword\s*[=:]/i.test(
+      value,
+    ) ||
+    /eyJ[\w-]*\.[\w-]*\.[\w-]*/.test(value) ||
+    /(?<![a-z0-9_-])[a-z0-9_-]{8,}\.[a-z0-9_-]{8,}\.[a-z0-9_-]*/i.test(value) ||
+    /[a-z0-9]{4}(?:-[a-z0-9]{4}){3}/i.test(value)
+  )
+    return;
+  return value.trim().slice(0, 200);
+}
+
+function receivedRecordKey(uri: string, secrets: readonly string[]) {
+  const key =
+    /^at:\/\/[a-z0-9.:%-]+\/[a-z0-9.-]+\/([a-z0-9._~:-]{1,512})$/i.exec(
+      uri,
+    )?.[1];
+  return safeDiagnostic(key, secrets) || "unavailable";
 }
 
 export type BlueskyLookup =
@@ -142,7 +226,7 @@ export class Bluesky {
     return this.http(url, {
       ...init,
       redirect: "error",
-      signal: AbortSignal.timeout(15_000),
+      signal: init?.signal ?? AbortSignal.timeout(requestTimeoutMs),
     });
   }
 
@@ -158,15 +242,52 @@ export class Bluesky {
     );
   }
 
-  private post(host: string, method: string, data: unknown, token?: string) {
-    return this.request(`${host}/xrpc/${method}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      body: JSON.stringify(data),
-    });
+  private async write(
+    host: string,
+    method: string,
+    step: WriteStep,
+    data: unknown,
+    token?: string,
+  ) {
+    const signal = AbortSignal.timeout(requestTimeoutMs);
+    const secrets = [this.password ?? "", token ?? ""];
+    let status: number | undefined;
+    try {
+      const response = await this.request(`${host}/xrpc/${method}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(data),
+        signal,
+      });
+      status = response.status;
+      const body: unknown = await response.json();
+      if (response.ok) return { body, status, secrets };
+
+      const xrpc = z
+        .object({
+          error: z.string().optional(),
+          message: z.string().optional(),
+        })
+        .safeParse(body).data;
+      const name = safeDiagnostic(xrpc?.error, secrets);
+      const message = safeDiagnostic(xrpc?.message, secrets);
+      const details = ["WriteError", "timeout=false"];
+      if (name) details.push(`XRPC error=${JSON.stringify(name)}`);
+      if (message) details.push(`XRPC message=${JSON.stringify(message)}`);
+      throw new WriteError(
+        `Bluesky ${step} returned HTTP ${status} (${details.join(", ")})`,
+      );
+    } catch (error) {
+      if (error instanceof WriteError) throw error;
+      const outcome =
+        status === undefined ? "failed" : `returned HTTP ${status}`;
+      throw new WriteError(
+        `Bluesky ${step} ${outcome} (${writeErrorDetails(error, signal)})`,
+      );
+    }
   }
 
   async resolve(
@@ -217,23 +338,30 @@ export class Bluesky {
 
   async session(intent: BlueskyIntent): Promise<string> {
     if (this.handle !== intent.account || !this.password)
-      throw new ReadError(
-        "Set BLUESKY_HANDLE and BLUESKY_APP_PASSWORD for the approved handle",
+      throw new WriteError(
+        "Bluesky session failed (Set BLUESKY_HANDLE and BLUESKY_APP_PASSWORD for the approved handle, timeout=false)",
       );
+    const { body, status } = await this.write(
+      intent.pds,
+      "com.atproto.server.createSession",
+      "session",
+      { identifier: this.handle, password: this.password },
+    );
     const session = z
       .object({ did: blueskyDid, handle: blueskyHandle, accessJwt: id })
-      .parse(
-        await this.read(
-          await this.post(intent.pds, "com.atproto.server.createSession", {
-            identifier: this.handle,
-            password: this.password,
-          }),
-          "Bluesky session creation",
-        ),
+      .safeParse(body);
+    if (!session.success)
+      throw new WriteError(
+        `Bluesky session returned HTTP ${status} (WriteError, invalid session response, timeout=false)`,
       );
-    if (session.did !== intent.did || session.handle !== intent.account)
-      throw new ReadError("The Bluesky session belongs to a different account");
-    return session.accessJwt;
+    if (
+      session.data.did !== intent.did ||
+      session.data.handle !== intent.account
+    )
+      throw new WriteError(
+        `Bluesky session returned HTTP ${status} (WriteError, session belongs to a different account, timeout=false)`,
+      );
+    return session.data.accessJwt;
   }
 
   async lookup(
@@ -308,9 +436,10 @@ export class Bluesky {
 
   async create(intent: BlueskyIntent, token: string) {
     const links = facets(intent.text);
-    const response = await this.post(
+    const { body, status, secrets } = await this.write(
       intent.pds,
       "com.atproto.repo.createRecord",
+      "createRecord",
       {
         repo: intent.did,
         collection,
@@ -324,9 +453,15 @@ export class Bluesky {
       },
       token,
     );
-    if (!response.ok) return;
-    const receipt = recordRef.safeParse(await response.json());
-    if (receipt.success && receipt.data.uri === atUri(intent))
-      return receipt.data;
+    const receipt = recordRef.safeParse(body);
+    if (!receipt.success)
+      throw new WriteError(
+        `Bluesky createRecord returned HTTP ${status} (WriteError, invalid receipt, timeout=false)`,
+      );
+    if (receipt.data.uri !== atUri(intent))
+      throw new WriteError(
+        `Bluesky createRecord returned HTTP ${status} (WriteError, receipt URI mismatch, expected key=${intent.rkey}, received key=${receivedRecordKey(receipt.data.uri, secrets)}, timeout=false)`,
+      );
+    return receipt.data;
   }
 }
