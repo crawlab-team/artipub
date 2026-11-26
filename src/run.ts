@@ -7,6 +7,7 @@ import {
 } from "./approval.ts";
 import {
   Bluesky,
+  BlueskyPostRejected,
   blueskyReadReason,
   blueskyWriteReason,
   type BlueskyLookup,
@@ -341,7 +342,10 @@ async function executeBluesky(
   try {
     receipt = await bluesky.create(intent, token);
   } catch (error) {
-    const reason = `${blueskyWriteReason(error, "createRecord")}. Rerun to reconcile by record key.`;
+    const diagnostic = blueskyWriteReason(error, "createRecord");
+    if (error instanceof BlueskyPostRejected)
+      return blockedAfterReservation(store, record, "blocked", diagnostic);
+    const reason = `${diagnostic}. Rerun to reconcile by record key.`;
     await store.append({ record: { ...record, status: "unknown", reason } });
     return { item: action.item, status: "unknown", reason };
   }

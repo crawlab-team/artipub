@@ -4,10 +4,15 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test, type TestContext } from "node:test";
 import { approvalBatch, approveCampaign } from "../src/approval.ts";
-import { Bluesky, blueskyReadReason } from "../src/bluesky.ts";
+import {
+  Bluesky,
+  blueskyReadReason,
+  blueskyRecordKey,
+} from "../src/bluesky.ts";
+import { sha256 } from "../src/campaign.ts";
 import { GitHubReleases } from "../src/github.ts";
 import { runCampaign } from "../src/run.ts";
-import { readCampaign } from "../src/workspace.ts";
+import { readCampaign, withCampaign } from "../src/workspace.ts";
 
 const handle = "launch.example.com";
 const did = "did:plc:syntheticexample";
@@ -32,7 +37,25 @@ const expectedPost = {
   ],
 };
 
-async function fixture(t: TestContext, defaultPds = false, at?: string) {
+test("request digests yield deterministic, distinct TIDs", () => {
+  const tid = /^[234567abcdefghij][234567abcdefghijklmnopqrstuvwxyz]{12}$/;
+  const requests = Array.from({ length: 128 }, (_, index) => sha256(index));
+  const keys = requests.map(blueskyRecordKey);
+  for (const key of keys) assert.match(key, tid);
+  assert.deepEqual(requests.map(blueskyRecordKey), keys);
+  assert.equal(new Set(keys).size, requests.length);
+  assert.equal(
+    blueskyRecordKey(`sha256:9000000000000001${"f".repeat(48)}`),
+    "3222222222223",
+  );
+  assert.doesNotMatch(`kirzner-${requests[0].slice(7)}`, tid);
+});
+
+async function fixture(
+  t: TestContext,
+  options: { defaultPds?: boolean; at?: string; legacy?: boolean } = {},
+) {
+  const { defaultPds, at, legacy } = options;
   const root = await mkdtemp(join(tmpdir(), "kirzner-bluesky-"));
   t.after(() => rm(root, { recursive: true, force: true }));
   await writeFile(
@@ -53,9 +76,27 @@ ${text}
 `,
   );
   const batch = approvalBatch(await readCampaign(root, name));
-  const rkey = `kirzner-${batch.actions[0].requestKey.slice(7)}`;
+  const action = batch.actions[0];
+  const rkey = legacy
+    ? `kirzner-${action.requestKey.slice(7)}`
+    : blueskyRecordKey(action.requestKey);
   const uri = `at://${did}/${collection}/${rkey}`;
   const pds = defaultPds ? "https://bsky.social" : "https://pds.example.com";
+  if (legacy)
+    await withCampaign(root, name, (store) =>
+      store.append({
+        record: {
+          item: action.item,
+          step: "publish",
+          version: action.version,
+          request_key: action.requestKey,
+          remote_key: action.remoteKey,
+          intent: { account: handle, did, pds, rkey, text },
+          milestone: "prepared",
+          status: "reserved",
+        },
+      }),
+    );
   const events: string[] = [];
   const state = {
     outcome: "accepted",
@@ -207,7 +248,7 @@ test("synthetic direct publish waits for matching public read-back, including wh
 });
 
 test("synthetic lost write response reconciles by record key without another create", async (t) => {
-  const f = await fixture(t, true);
+  const f = await fixture(t, { defaultPds: true });
   f.state.outcome = "lost";
   await f.approve();
   assert.equal((await f.run())[0].status, "unknown");
@@ -221,6 +262,16 @@ test("synthetic lost write response reconciles by record key without another cre
       .length,
     1,
   );
+});
+
+test("synthetic legacy reservation reconciles using its saved key", async (t) => {
+  const f = await fixture(t, { legacy: true });
+  f.state.record = expectedPost;
+  f.state.appView = "public";
+  const [result] = await f.run();
+  assert.equal(result.status, "public");
+  assert.equal(result.native_id, f.uri);
+  assert.equal(f.creates(), 0);
 });
 
 const jwtLike = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.signature";
@@ -241,7 +292,43 @@ function assertNoWriteSecrets(output: string) {
   }
 }
 
+test("synthetic InvalidRequest blocks the rejected attempt and allows a fresh run", async (t) => {
+  const f = await fixture(t);
+  f.state.writeResponse = () =>
+    Response.json(
+      { error: "InvalidRequest", message: `Check ${appPasswordLike}` },
+      { status: 400 },
+    );
+  await f.approve();
+  const [result] = await f.run();
+  assert.equal(result.status, "blocked");
+  const reason = result.reason ?? "";
+  assert.match(reason, /Bluesky createRecord returned HTTP 400/);
+  assert.match(reason, /InvalidRequest/);
+  assertNoWriteSecrets(reason);
+  const record = (await f.log()).records.at(-1);
+  assert.equal(record?.status, "blocked");
+  assert.equal(record?.reason, reason);
+  assert.equal(f.creates(), 1);
+
+  f.state.writeResponse = undefined;
+  f.state.appView = "public";
+  assert.equal((await f.run())[0].status, "public");
+  assert.equal(f.creates(), 2);
+});
+
 const writeFailures = [
+  {
+    name: "server error",
+    respond: () =>
+      Response.json({ error: "InternalServerError" }, { status: 500 }),
+    details: ["HTTP 500", "InternalServerError"],
+  },
+  {
+    name: "invalid JSON on HTTP 400",
+    respond: () => new Response("invalid JSON", { status: 400 }),
+    details: ["HTTP 400", "SyntaxError", "timeout=false"],
+  },
   {
     name: "non-OK XRPC response",
     respond: () =>
@@ -364,7 +451,7 @@ test("synthetic session failure identifies the step and blocks dispatch", async 
 
 test("synthetic scheduled post waits without writing and changing at requires approval", async (t) => {
   const future = "2099-01-01T00:00:00.000Z";
-  const f = await fixture(t, false, future);
+  const f = await fixture(t, { at: future });
   await f.approve();
   assert.deepEqual(await f.run(), [
     {

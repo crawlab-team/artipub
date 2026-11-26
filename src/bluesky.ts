@@ -51,6 +51,20 @@ export function blueskyAccount(value: string) {
   return blueskyHandle.safeParse(value.replace(/^@/, "").toLowerCase()).data;
 }
 
+export function blueskyRecordKey(requestKey: string): string {
+  const alphabet = "234567abcdefghijklmnopqrstuvwxyz";
+  const offset = "sha256:".length;
+  // The first eight digest bytes hold the big-endian TID value.
+  let value = BigInt(`0x${requestKey.slice(offset, offset + 16)}`);
+  value &= 0x7fff_ffff_ffff_ffffn;
+  let rkey = "";
+  for (let digit = 0; digit < 13; digit++) {
+    rkey = alphabet[Number(value & 31n)] + rkey;
+    value >>= 5n;
+  }
+  return rkey;
+}
+
 export function validBlueskyText(text: string) {
   return (
     !!text.trim() &&
@@ -127,6 +141,8 @@ export function blueskyReadReason(error: unknown, operation = "lookup") {
 type WriteStep = "session" | "createRecord";
 
 class WriteError extends Error {}
+
+export class BlueskyPostRejected extends WriteError {}
 
 const safeCauseCodes = new Set([
   "ECONNREFUSED",
@@ -277,7 +293,13 @@ export class Bluesky {
       const details = ["WriteError", "timeout=false"];
       if (name) details.push(`XRPC error=${JSON.stringify(name)}`);
       if (message) details.push(`XRPC message=${JSON.stringify(message)}`);
-      throw new WriteError(
+      const ErrorClass =
+        step === "createRecord" &&
+        status === 400 &&
+        xrpc?.error === "InvalidRequest"
+          ? BlueskyPostRejected
+          : WriteError;
+      throw new ErrorClass(
         `Bluesky ${step} returned HTTP ${status} (${details.join(", ")})`,
       );
     } catch (error) {
@@ -331,7 +353,7 @@ export class Bluesky {
       account,
       did,
       pds,
-      rkey: `kirzner-${requestKey.slice("sha256:".length)}`,
+      rkey: blueskyRecordKey(requestKey),
       text,
     };
   }
