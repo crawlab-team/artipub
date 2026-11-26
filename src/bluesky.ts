@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isIP } from "node:net";
 import {
   blueskyDid,
   blueskyHandle,
@@ -28,6 +29,17 @@ const postRecord = z.strictObject({
   text: z.string(),
   createdAt: z.iso.datetime({ offset: true }),
   facets: z.array(linkFacet).optional(),
+  embed: z
+    .strictObject({
+      $type: z.literal("app.bsky.embed.external"),
+      external: z.strictObject({
+        uri: id,
+        title: z.string(),
+        description: z.string(),
+        thumb: z.unknown().optional(),
+      }),
+    })
+    .optional(),
 });
 const recordRef = z.object({ uri: id, cid: id });
 const repoRecord = recordRef.extend({ value: postRecord });
@@ -160,6 +172,112 @@ const safeCauseCodes = new Set([
   "UND_ERR_SOCKET",
 ]);
 const abortNames = new Set(["AbortError", "TimeoutError"]);
+const cardTimeoutMs = 10_000;
+const maxHtmlBytes = 512 * 1024;
+const maxImageBytes = 5 * 1024 * 1024;
+const maxThumbBytes = 1_000_000;
+const cardUserAgent = "kirzner-card-fetch";
+
+type ExternalCard = {
+  $type: "app.bsky.embed.external";
+  external: { uri: string; title: string; description: string; thumb?: unknown };
+};
+
+function safeCardUrl(value: string): URL | undefined {
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "https:" || url.username || url.password) return;
+    const host = url.hostname.toLowerCase().replace(/^\[|\]$/g, "");
+    if (host === "localhost" || host.endsWith(".localhost")) return;
+    const ip = isIP(host);
+    if (ip === 4) {
+      const [a, b] = host.split(".").map(Number);
+      if (a === 0 || a === 10 || a === 127 || (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168)) return;
+    }
+    if (ip === 6 && (host === "::" || host === "::1" || /^(?:fe[89ab]|f[cd])/i.test(host))) return;
+    return url;
+  } catch { return; }
+}
+
+function decodeHtml(value: string) {
+  return value.replace(/&(?:amp|lt|gt|quot|apos|#39);|&#(?:x[\da-f]+|\d+);/gi, (entity) => {
+    const named: Record<string, string> = { "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"', "&apos;": "'", "&#39;": "'" };
+    if (named[entity.toLowerCase()]) return named[entity.toLowerCase()];
+    const hex = /^&#x([\da-f]+);$/i.exec(entity), decimal = /^&#(\d+);$/.exec(entity);
+    const code = hex ? Number.parseInt(hex[1], 16) : decimal ? Number(decimal[1]) : NaN;
+    return Number.isFinite(code) ? String.fromCodePoint(code) : entity;
+  });
+}
+
+function htmlMetadata(html: string) {
+  const meta = new Map<string, string>();
+  for (const match of html.matchAll(/<meta\b([^>]+)>/gi)) {
+    const attrs = new Map<string, string>();
+    for (const attr of match[1].matchAll(/([\w:-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g)) attrs.set(attr[1].toLowerCase(), decodeHtml(attr[2] ?? attr[3] ?? attr[4]));
+    const key = (attrs.get("property") ?? attrs.get("name") ?? "").toLowerCase(), content = attrs.get("content");
+    if (key && content && !meta.has(key)) meta.set(key, content);
+  }
+  const title = /<title\b[^>]*>([\s\S]*?)<\/title>/i.exec(html)?.[1].replace(/<[^>]*>/g, "").trim();
+  return { title: (meta.get("og:title") || (title ? decodeHtml(title) : "")).slice(0, 300), description: (meta.get("og:description") || meta.get("description") || "").slice(0, 1000), image: meta.get("og:image") };
+}
+
+async function boundedBody(response: Response, limit: number): Promise<Uint8Array> {
+  const declared = Number(response.headers.get("content-length"));
+  if (Number.isFinite(declared) && declared > limit) throw new Error("body too large");
+  if (!response.body) return new Uint8Array();
+  const reader = response.body.getReader(), chunks: Uint8Array[] = [];
+  let size = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.byteLength;
+    if (size > limit) { await reader.cancel(); throw new Error("body too large"); }
+    chunks.push(value);
+  }
+  const body = new Uint8Array(size); let offset = 0;
+  for (const chunk of chunks) { body.set(chunk, offset); offset += chunk.byteLength; }
+  return body;
+}
+
+async function fetchCardPage(fetcher: typeof fetch, initial: string) {
+  let url = safeCardUrl(initial);
+  if (!url) throw new Error("unsafe URL");
+  for (let redirects = 0; redirects <= 3; redirects++) {
+    const response = await fetcher(url, { headers: { "User-Agent": cardUserAgent }, redirect: "manual", signal: AbortSignal.timeout(cardTimeoutMs) });
+    if ([301, 302, 303, 307, 308].includes(response.status)) {
+      const location = response.headers.get("location");
+      if (!location || redirects === 3) throw new Error("redirect limit");
+      const next = safeCardUrl(new URL(location, url).href);
+      if (!next) throw new Error("unsafe redirect");
+      url = next; continue;
+    }
+    if (!response.ok || !/^text\/html(?:\s*;|$)/i.test(response.headers.get("content-type") ?? "")) throw new Error("not html");
+    return { page: url, metadata: htmlMetadata(new TextDecoder().decode(await boundedBody(response, maxHtmlBytes))) };
+  }
+  throw new Error("redirect limit");
+}
+
+async function externalCard(fetcher: typeof fetch, pageUrl: string, upload: (bytes: Uint8Array, mime: string) => Promise<unknown>): Promise<ExternalCard | undefined> {
+  try {
+    const { page, metadata } = await fetchCardPage(fetcher, pageUrl);
+    if (!metadata.title && !metadata.description) return;
+    const card: ExternalCard = { $type: "app.bsky.embed.external", external: { uri: page.href, title: metadata.title, description: metadata.description } };
+    if (metadata.image) {
+      const imageUrl = safeCardUrl(new URL(metadata.image, page).href);
+      if (imageUrl) {
+        const response = await fetcher(imageUrl, { headers: { "User-Agent": cardUserAgent }, redirect: "manual", signal: AbortSignal.timeout(cardTimeoutMs) });
+        const mime = (response.headers.get("content-type") ?? "").split(";")[0].toLowerCase();
+        if (response.ok && ["image/jpeg", "image/png", "image/webp"].includes(mime)) {
+          const bytes = await boundedBody(response, maxImageBytes);
+          if (bytes.byteLength <= maxThumbBytes) card.external.thumb = await upload(bytes, mime);
+        }
+      }
+    }
+    return card;
+  } catch { return; }
+}
+
+export function parseBlueskyCardHtml(html: string) { return htmlMetadata(html); }
 
 export function blueskyWriteReason(error: unknown, step: WriteStep) {
   if (error instanceof WriteError) return error.message;
@@ -231,11 +349,18 @@ export class Bluesky {
   private readonly handle: string | undefined;
   private readonly password: string | undefined;
   private readonly http: typeof fetch;
+  private readonly cardFetch: typeof fetch;
 
-  constructor(handle?: string, password?: string, http: typeof fetch = fetch) {
+  constructor(
+    handle?: string,
+    password?: string,
+    http: typeof fetch = fetch,
+    options: { cardFetch?: typeof fetch } = {},
+  ) {
     this.handle = handle && blueskyAccount(handle);
     this.password = password;
     this.http = http;
+    this.cardFetch = options.cardFetch ?? fetch;
   }
 
   private request(url: string, init?: RequestInit) {
@@ -456,8 +581,32 @@ export class Bluesky {
     return { ...pending, kind: "public" };
   }
 
+  private async uploadCardThumb(intent: BlueskyIntent, token: string, bytes: Uint8Array, mime: string) {
+    const response = await this.request(`${intent.pds}/xrpc/com.atproto.repo.uploadBlob`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": mime },
+      body: bytes,
+      signal: AbortSignal.timeout(cardTimeoutMs),
+    });
+    if (!response.ok) throw new Error("thumbnail upload failed");
+    return z.object({ blob: z.unknown() }).parse(await response.json()).blob;
+  }
+
   async create(intent: BlueskyIntent, token: string) {
     const links = facets(intent.text);
+    let embed: ExternalCard | undefined;
+    const firstHttpsLink = links.find(({ features }) => safeCardUrl(features[0].uri));
+    if (firstHttpsLink) {
+      try {
+        embed = await externalCard(
+          this.cardFetch,
+          firstHttpsLink.features[0].uri,
+          (bytes, mime) => this.uploadCardThumb(intent, token, bytes, mime),
+        );
+      } catch {
+        embed = undefined;
+      }
+    }
     const { body, status, secrets } = await this.write(
       intent.pds,
       "com.atproto.repo.createRecord",
@@ -471,6 +620,7 @@ export class Bluesky {
           text: intent.text,
           createdAt: new Date().toISOString(),
           ...(links.length ? { facets: links } : {}),
+          ...(embed ? { embed } : {}),
         },
       },
       token,

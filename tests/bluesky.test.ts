@@ -8,6 +8,7 @@ import {
   Bluesky,
   blueskyReadReason,
   blueskyRecordKey,
+  parseBlueskyCardHtml,
 } from "../src/bluesky.ts";
 import { sha256 } from "../src/campaign.ts";
 import { GitHubReleases } from "../src/github.ts";
@@ -37,6 +38,21 @@ const expectedPost = {
   ],
 };
 
+test("Open Graph metadata uses title fallbacks and preserves relative images", () => {
+  assert.deepEqual(
+    parseBlueskyCardHtml(
+      '<html><head><title>Fallback &amp; title</title><meta name="description" content="Summary"><meta property="og:image" content="/card.png"></head></html>',
+    ),
+    { title: "Fallback & title", description: "Summary", image: "/card.png" },
+  );
+  assert.deepEqual(
+    parseBlueskyCardHtml(
+      '<meta property="og:title" content="Open Graph"><meta property="og:description" content="OG summary"><meta property="og:image" content="https://images.example/card.png">',
+    ),
+    { title: "Open Graph", description: "OG summary", image: "https://images.example/card.png" },
+  );
+});
+
 test("request digests yield deterministic, distinct TIDs", () => {
   const tid = /^[234567abcdefghij][234567abcdefghijklmnopqrstuvwxyz]{12}$/;
   const requests = Array.from({ length: 128 }, (_, index) => sha256(index));
@@ -53,9 +69,9 @@ test("request digests yield deterministic, distinct TIDs", () => {
 
 async function fixture(
   t: TestContext,
-  options: { defaultPds?: boolean; at?: string; legacy?: boolean } = {},
+  options: { defaultPds?: boolean; at?: string; legacy?: boolean; cardFetch?: typeof fetch } = {},
 ) {
-  const { defaultPds, at, legacy } = options;
+  const { defaultPds, at, legacy, cardFetch } = options;
   const root = await mkdtemp(join(tmpdir(), "kirzner-bluesky-"));
   t.after(() => rm(root, { recursive: true, force: true }));
   await writeFile(
@@ -206,7 +222,9 @@ ${text}
     }
   };
   const github = new GitHubReleases(undefined, http);
-  const bluesky = new Bluesky(handle, "synthetic-password", http);
+  const bluesky = new Bluesky(handle, "synthetic-password", http, {
+    cardFetch: cardFetch ?? (async () => new Response("not a card", { headers: { "content-type": "text/plain" } })),
+  });
   return {
     root,
     state,
