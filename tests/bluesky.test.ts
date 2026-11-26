@@ -61,6 +61,8 @@ ${text}
     outcome: "accepted",
     record: undefined as typeof expectedPost | undefined,
     appView: "missing",
+    sessionResponse: undefined as Response | undefined,
+    writeResponse: undefined as (() => Response) | undefined,
   };
   const http: typeof fetch = async (input, init) => {
     const url = new URL(String(input));
@@ -97,7 +99,10 @@ ${text}
           identifier: handle,
           password: "synthetic-password",
         });
-        return Response.json({ handle, did, accessJwt: "synthetic-token" });
+        return (
+          state.sessionResponse ??
+          Response.json({ handle, did, accessJwt: "synthetic-token" })
+        );
       case "com.atproto.repo.getRecord":
         assert.equal(url.origin, pds);
         assert.deepEqual(Object.fromEntries(url.searchParams), {
@@ -128,6 +133,7 @@ ${text}
           "reserved",
         );
         assert.equal(events.at(-2), "com.atproto.repo.getRecord");
+        if (state.writeResponse) return state.writeResponse();
         if (state.outcome === "lost")
           throw new Error("Synthetic transport failure");
         state.record = body.record;
@@ -215,6 +221,145 @@ test("synthetic lost write response reconciles by record key without another cre
       .length,
     1,
   );
+});
+
+const jwtLike = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.signature";
+const appPasswordLike = "abcd-efgh-ijkl-mnop";
+const responseOnly = "synthetic-private-body-field";
+
+function assertNoWriteSecrets(output: string) {
+  for (const secret of [
+    "synthetic-password",
+    "synthetic-token",
+    jwtLike,
+    appPasswordLike,
+    responseOnly,
+    "Authorization",
+    "Bearer",
+  ]) {
+    assert.ok(!output.includes(secret));
+  }
+}
+
+const writeFailures = [
+  {
+    name: "non-OK XRPC response",
+    respond: () =>
+      Response.json(
+        {
+          error: "RateLimitExceeded",
+          message: `Try again later ${"x".repeat(250)}`,
+          private: responseOnly,
+        },
+        { status: 429 },
+      ),
+    details: [
+      "HTTP 429",
+      "WriteError",
+      'XRPC error="RateLimitExceeded"',
+      `XRPC message="${`Try again later ${"x".repeat(250)}`.slice(0, 200)}"`,
+      "timeout=false",
+    ],
+  },
+  {
+    name: "secret-bearing XRPC response",
+    respond: () =>
+      Response.json(
+        { error: jwtLike, message: `Authorization: Bearer ${responseOnly}` },
+        { status: 401 },
+      ),
+    details: ["HTTP 401", "timeout=false"],
+  },
+  {
+    name: "invalid JSON",
+    respond: () => new Response(`invalid JSON ${jwtLike}`),
+    details: ["HTTP 200", "SyntaxError", "timeout=false"],
+  },
+  {
+    name: "URI mismatch",
+    respond: () =>
+      Response.json({
+        uri: `at://did:plc:${responseOnly}/${collection}/different-key`,
+        cid,
+      }),
+    details: ["HTTP 200", "receipt URI mismatch", "received key=different-key"],
+  },
+  {
+    name: "URI mismatch with a credential-like record key",
+    respond: () =>
+      Response.json({
+        uri: `at://${did}/${collection}/${appPasswordLike}`,
+        cid,
+      }),
+    details: ["receipt URI mismatch", "received key=unavailable"],
+  },
+  {
+    name: "timeout",
+    respond: () => {
+      throw new DOMException(jwtLike, "TimeoutError");
+    },
+    details: ["DOMException", "TimeoutError", "timeout=true"],
+  },
+  {
+    name: "abort",
+    respond: () => {
+      throw new DOMException(appPasswordLike, "AbortError");
+    },
+    details: ["DOMException", "AbortError", "timeout=false"],
+  },
+  {
+    name: "fetch TypeError with a cause code",
+    respond: () => {
+      throw new TypeError("Authorization: Bearer synthetic-token", {
+        cause: Object.assign(new Error(jwtLike), { code: "ETIMEDOUT" }),
+      });
+    },
+    details: [
+      "TypeError",
+      "cause=ETIMEDOUT",
+      "cause name=Error",
+      "timeout=true",
+    ],
+  },
+];
+
+for (const { name, respond, details } of writeFailures) {
+  test(`synthetic createRecord failure logs ${name} safely`, async (t) => {
+    const f = await fixture(t);
+    f.state.writeResponse = respond;
+    await f.approve();
+    const [result] = await f.run();
+    assert.equal(result.status, "unknown");
+    const reason = result.reason ?? "";
+    assert.match(reason, /Bluesky createRecord/);
+    assert.match(reason, /Rerun to reconcile by record key/);
+    for (const detail of details) assert.ok(reason.includes(detail), reason);
+    if (name.startsWith("URI mismatch"))
+      assert.ok(reason.includes(`expected key=${f.uri.split("/").at(-1)}`));
+    const record = (await f.log()).records.at(-1);
+    assert.equal(record?.status, "unknown");
+    assert.equal(record?.reason, reason);
+    assertNoWriteSecrets(reason);
+    assert.equal((await f.run())[0].status, "unknown");
+    assert.equal(f.creates(), 1);
+  });
+}
+
+test("synthetic session failure identifies the step and blocks dispatch", async (t) => {
+  const f = await fixture(t);
+  f.state.sessionResponse = Response.json(
+    { error: "AuthenticationRequired", message: "Check synthetic-password" },
+    { status: 401 },
+  );
+  await f.approve();
+  const [result] = await f.run();
+  assert.equal(result.status, "blocked");
+  const reason = result.reason ?? "";
+  assert.match(reason, /Bluesky session returned HTTP 401/);
+  assert.match(reason, /AuthenticationRequired/);
+  assertNoWriteSecrets(reason);
+  assert.deepEqual((await f.log()).records, []);
+  assert.equal(f.creates(), 0);
 });
 
 test("synthetic scheduled post waits without writing and changing at requires approval", async (t) => {

@@ -5,7 +5,12 @@ import {
   type ReleaseAction,
   type BlueskyAction,
 } from "./approval.ts";
-import { Bluesky, blueskyReadReason, type BlueskyLookup } from "./bluesky.ts";
+import {
+  Bluesky,
+  blueskyReadReason,
+  blueskyWriteReason,
+  type BlueskyLookup,
+} from "./bluesky.ts";
 import type { ActionRecord, BlueskyIntent, ReleaseIntent } from "./campaign.ts";
 import { GitHubReleases, type Lookup } from "./github.ts";
 import { withCampaign, type CampaignStore } from "./workspace.ts";
@@ -321,7 +326,7 @@ async function executeBluesky(
     return {
       item: action.item,
       status: "blocked",
-      reason: blueskyReadReason(error, "session creation"),
+      reason: blueskyWriteReason(error, "session"),
     };
   }
   const beforeWrite = await lookupBluesky(bluesky, intent);
@@ -332,10 +337,11 @@ async function executeBluesky(
   const hold = await reserveForDispatch(store, record);
   if (hold) return hold;
 
-  const receipt = await bluesky.create(intent, token).catch(() => undefined);
-  if (!receipt) {
-    const reason =
-      "Bluesky did not confirm the write. Rerun to reconcile by record key.";
+  let receipt: Awaited<ReturnType<Bluesky["create"]>>;
+  try {
+    receipt = await bluesky.create(intent, token);
+  } catch (error) {
+    const reason = `${blueskyWriteReason(error, "createRecord")}. Rerun to reconcile by record key.`;
     await store.append({ record: { ...record, status: "unknown", reason } });
     return { item: action.item, status: "unknown", reason };
   }
