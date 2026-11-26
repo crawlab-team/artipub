@@ -452,8 +452,7 @@ export type BlueskyLookup =
   | { kind: "missing" }
   | { kind: "blocked"; reason: string }
   | ({ uri: string; cid: string; url: string } & (
-      | { kind: "pending"; reason?: string }
-      | { kind: "public" }
+      { kind: "pending"; reason?: string } | { kind: "public" }
     ));
 
 export class Bluesky {
